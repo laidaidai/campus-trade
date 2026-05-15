@@ -15,12 +15,10 @@ const dbConfig = {
   password: process.env.DB_PASSWORD!,
   database: process.env.DB_NAME!,
   waitForConnections: true,
-  connectionLimit: 20,  // 增加连接池大小
+  connectionLimit: 20,
   queueLimit: 0,
-  acquireTimeout: 60000,  // 获取连接超时时间
-  timeout: 60000,  // 查询超时时间
-  reconnect: true,  // 自动重连
-  charset: 'utf8mb4'  // 确保字符集正确
+  acquireTimeoutMillis: 60000,
+  charset: 'utf8mb4'
 };
 
 // 创建连接池

@@ -166,6 +166,7 @@ export const initializeSocket = (httpServer: HTTPServer) => {
     // 断开连接
     socket.on('disconnect', () => {
       userSockets.delete(userId);
+      socket.leave(`user:${userId}`);
     });
   });
 

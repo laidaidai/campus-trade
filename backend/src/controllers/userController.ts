@@ -79,7 +79,7 @@ export class UserController {
         user: { id: userId, username, email },
         token
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
       
       // 根据错误类型提供具体的错误信息
@@ -207,7 +207,7 @@ export class UserController {
         },
         token
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
@@ -226,7 +226,7 @@ export class UserController {
       // 不返回密码
       const { password, ...userWithoutPassword } = user;
       res.json({ user: userWithoutPassword });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Get profile error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
@@ -274,7 +274,7 @@ export class UserController {
         message: 'Profile updated successfully',
         user: userWithoutPassword 
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Update profile error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
@@ -284,7 +284,7 @@ export class UserController {
     try {
       const users = await UserModel.findAll();
       res.json({ users });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Get users error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
@@ -319,7 +319,7 @@ export class UserController {
         success: true,
         data: userWithoutPassword 
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Get user by ID error:', error);
       res.status(500).json({ 
         success: false, 
@@ -368,7 +368,7 @@ export class UserController {
         return;
       }
       res.json({ message: 'Password updated successfully' });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Update password error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }

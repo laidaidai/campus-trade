@@ -29,7 +29,7 @@ export const scheduleCleanupJob = () => {
     try {
       const orders = await findCompletedOrdersBefore(60);
       if (!orders.length) return;
-      const uploadsDir = path.resolve(process.cwd(), '../uploads');
+      const uploadsDir = path.join(__dirname, '../../uploads');
 
       for (const o of orders) {
         deleteProductImages((o as any).product_image, uploadsDir);

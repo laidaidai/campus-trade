@@ -1,8 +1,10 @@
 {
   "name": "campus-trade-root",
   "private": true,
+  "description": "校园交易平台 - 分别启动前后端服务",
   "scripts": {
-    "dev": "node start-dev.js"
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",
