@@ -39,7 +39,19 @@
 
               <!-- 商品描述 -->
               <div class="form-section">
-                <label class="form-label">商品描述</label>
+                <div class="form-label-row">
+                  <label class="form-label">商品描述</label>
+                  <button
+                    v-if="aiEnabled"
+                    type="button"
+                    class="ai-desc-btn"
+                    :disabled="generatingDesc"
+                    @click="handleGenerateDescription"
+                  >
+                    <span v-if="generatingDesc" class="spinner"></span>
+                    <span v-else>✨ AI 写文案</span>
+                  </button>
+                </div>
                 <textarea
                   v-model="form.description"
                   class="form-textarea"
@@ -140,6 +152,7 @@ import ImageUploader from '@/components/ImageUploader.vue'
 import Icon from '@/components/Icon.vue'
 import { getCategories } from '@/api/category'
 import { createProduct, getProductById, updateProduct } from '@/api/product'
+import { generateDescription, getAiStatus } from '@/api/ai'
 import toast from '@/utils/toast'
 import { showConfirm } from '@/utils/dialog'
 import { getImageUrl } from '@/config'
@@ -162,6 +175,9 @@ const categories = ref([])
 const submitting = ref(false)
 const isEdit = ref(false)
 const editingId = ref(null)
+// AI 文案生成
+const aiEnabled = ref(false)
+const generatingDesc = ref(false)
 
 // 分类ID映射(用于图标显示)
 const categoryMap = {
@@ -305,6 +321,10 @@ const loadEditingProduct = async (id) => {
 
 onMounted(() => {
   fetchCategories()
+  // 探测 AI 是否启用，决定是否显示「AI 写文案」按钮
+  getAiStatus()
+    .then((res) => { aiEnabled.value = !!res.data?.enabled })
+    .catch(() => { aiEnabled.value = false })
   const id = route.query.id
   if (id) {
     isEdit.value = true
@@ -312,6 +332,38 @@ onMounted(() => {
     loadEditingProduct(editingId.value)
   }
 })
+
+// AI 生成商品描述
+const handleGenerateDescription = async () => {
+  if (!form.value.title.trim()) {
+    toast.warning('请先填写商品标题')
+    return
+  }
+  if (generatingDesc.value) return
+
+  generatingDesc.value = true
+  try {
+    const res = await generateDescription({
+      title: form.value.title,
+      category: form.value.category,
+      condition: form.value.condition,
+    })
+    if (res.success && res.data?.description) {
+      // 已有内容则追加，避免覆盖用户手写的部分
+      const existing = form.value.description.trim()
+      form.value.description = existing
+        ? existing + '\n\n' + res.data.description
+        : res.data.description
+      toast.success('AI 文案已生成')
+    } else {
+      toast.error(res.message || '生成失败，请重试')
+    }
+  } catch (e) {
+    toast.error(e.response?.data?.message || e.message || 'AI 生成失败，请稍后重试')
+  } finally {
+    generatingDesc.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -390,6 +442,52 @@ onMounted(() => {
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 12px;
+}
+
+.form-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.form-label-row .form-label {
+  margin-bottom: 0;
+}
+
+.ai-desc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--primary-color);
+  background: #fff5f6;
+  border: 1px solid rgba(255, 36, 66, 0.25);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.ai-desc-btn:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: #fff;
+}
+.ai-desc-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: ai-spin 0.8s linear infinite;
+  display: inline-block;
+}
+@keyframes ai-spin {
+  to { transform: rotate(360deg); }
 }
 
 .form-hint {

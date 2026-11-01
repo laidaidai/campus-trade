@@ -127,6 +127,17 @@ ensure_env_file() {
   read -rp "SMTP 用户（邮箱）: " smtp_user
   read -rsp "SMTP 授权码: " smtp_pass; echo
 
+  echo ""
+  info "AI 助手（可留空，留空则 AI 功能自动关闭）"
+  info "支持任意 OpenAI 兼容接口，默认 DeepSeek"
+  read -rp "AI_API_KEY（sk-xxx）: " ai_key
+  read -rp "AI_BASE_URL [https://api.deepseek.com/v1]: " ai_base; ai_base=${ai_base:-https://api.deepseek.com/v1}
+  read -rp "AI_MODEL [deepseek-chat]: " ai_model; ai_model=${ai_model:-deepseek-chat}
+  local ai_block=""
+  if [[ -n "$ai_key" ]]; then
+    ai_block=$'\n\n# ===== AI 助手 =====\nAI_API_KEY='"$ai_key"$'\nAI_BASE_URL='"$ai_base"$'\nAI_MODEL='"$ai_model"
+  fi
+
   cat > "$env_file" <<EOF
 # ===== 数据库 =====
 DB_HOST=$db_host
@@ -152,7 +163,7 @@ SMTP_PASS=$smtp_pass
 
 # ===== 邮箱验证 =====
 # 留空=配置了 SMTP 就自动开启；不想强制验证可设为 false
-#REQUIRE_EMAIL_VERIFICATION=true
+#REQUIRE_EMAIL_VERIFICATION=true${ai_block}
 EOF
 
   chmod 600 "$env_file"

@@ -53,6 +53,7 @@
 - ⭐ **收藏功能** - 收藏感兴趣的商品，方便后续查看
 - 📊 **浏览历史** - 自动记录浏览记录，智能去重
 - 📧 **邮箱验证** - 邮箱验证码注册，保障账号安全
+- 🤖 **AI 交易助手「小易」** - 悬浮聊天助手，基于大模型 Function Calling 搜索真实在售商品、查订单、解答交易规则；发布页支持「AI 写文案」，一键生成商品描述（可选，不配置则自动关闭）
 - 🎨 **美观UI** - 小红书风格界面，瀑布流布局，响应式设计
 - 🐳 **Docker支持** - 一键部署，开箱即用
 - 🌐 **域名访问** - 支持任意域名和IP地址访问，无需配置
@@ -607,6 +608,9 @@ docker cp ./uploads_backup/. campus-trade-backend:/app/uploads
 | `SMTP_PASS` | SMTP 授权码 | - | ✅ |
 | `NODE_ENV` | 运行环境 | production (Docker) / development (本地) | 否 |
 | `PORT` | 后端端口 | 3000 | 否 |
+| `AI_API_KEY` | AI 助手 API 密钥（不配则 AI 功能自动关闭） | - | 否 |
+| `AI_BASE_URL` | OpenAI 兼容接口地址 | https://api.deepseek.com/v1 | 否 |
+| `AI_MODEL` | 模型名 | deepseek-chat | 否 |
 
 ### 安全建议
 
@@ -819,6 +823,47 @@ Certbot 会自动改写 Nginx 配置并配置证书自动续期。
 3. 再把 `instances` 改为 `'max'`
 
 （验证码存储已迁移到 MySQL，本身不阻碍多实例。）
+
+## 🤖 AI 交易助手「小易」
+
+平台内置一个 AI 助手，提供两个能力：
+
+1. **悬浮聊天助手**：全局右下角悬浮球，点击展开对话面板。基于大模型 Function Calling，可以：
+   - 搜索真实在售商品（自动返回可点击的商品卡片）
+   - 查看商品详情
+   - 查询当前用户的订单（我的购买 / 我的卖出）
+   - 解答平台交易规则、发布流程、交易建议
+2. **AI 写文案**：发布商品页的「商品描述」旁有 `✨ AI 写文案` 按钮，根据已填的标题 / 分类 / 成色一键生成商品描述。
+
+### 工作原理
+
+- 后端**手写 tool-calling 循环**（不依赖 LangChain），对接任意 **OpenAI 兼容**接口。
+- AI 只能调用**只读**工具（搜索/查详情/查订单/查分类），**无法写库**——下单、发布等写操作必须由用户在前端确认后走原接口，避免 AI 误操作。
+- 对话走 **SSE 流式**输出，前端打字机效果；工具调用最多 4 轮，防止死循环烧钱。
+- 按用户限流：10 次/分钟、300 次/天，防止刷 token 账单。
+
+### 启用方式
+
+在 `.env` 中配置（不配置则整个 AI 模块自动静默关闭，不影响其他功能）：
+
+```env
+# 以 DeepSeek 为例（便宜、中文效果好，推荐）
+AI_API_KEY=sk-xxxx
+AI_BASE_URL=https://api.deepseek.com/v1
+AI_MODEL=deepseek-chat
+```
+
+其他 OpenAI 兼容服务商：
+
+| 服务商 | AI_BASE_URL | AI_MODEL |
+|--------|-------------|----------|
+| DeepSeek | `https://api.deepseek.com/v1` | `deepseek-chat` |
+| 通义千问 | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus` |
+| Kimi | `https://api.moonshot.cn/v1` | `moonshot-v1-8k` |
+| 智谱 GLM | `https://open.bigmodel.cn/api/paas/v4` | `glm-4-flash` |
+| OpenAI | `https://api.openai.com/v1` | `gpt-4o-mini` |
+
+配置后重启后端即可。前端会通过 `GET /api/ai/status` 自动探测是否启用：未启用时悬浮球显示未启用态、发布页不显示 AI 按钮。
 
 ## 📝 开发指南
 
