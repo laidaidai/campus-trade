@@ -101,6 +101,15 @@
                 required 
               />
             </div>
+            <div v-if="requireEmailVerification" class="input-group">
+              <EmailCodeInput
+                v-model="regForm.code"
+                :email="regForm.email"
+                type="register"
+                :disabled="loading"
+                @send="handleSendRegisterCode"
+              />
+            </div>
             <button type="submit" class="submit-btn" :disabled="loading">
               {{ loading ? '注册中...' : '注册' }}
             </button>
@@ -205,6 +214,7 @@ const {
   mode,
   isLogin,
   isReset,
+  requireEmailVerification,
   loginForm, 
   regForm,
   resetForm,
@@ -220,6 +230,7 @@ const {
   onRegister,
   onResetPassword,
   handleSendResetCode,
+  handleSendRegisterCode,
   handleCaptchaSuccess
 } = useAuthCard()
 

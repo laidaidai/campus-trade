@@ -38,7 +38,7 @@ export class AuthController {
       }
 
       // 检查发送冷却时间
-      const cooldown = getRemainingCooldown(email, type);
+      const cooldown = await getRemainingCooldown(email, type);
       if (cooldown > 0) {
         res.status(429).json({
           error: `Please wait ${cooldown} seconds before resending`,
@@ -69,7 +69,7 @@ export class AuthController {
       const code = generateCode();
 
       // 保存验证码
-      const saved = saveCode(email, code, type);
+      const saved = await saveCode(email, code, type);
       if (!saved) {
         res.status(429).json({ error: 'Please wait before resending' });
         return;
@@ -112,7 +112,7 @@ export class AuthController {
         return;
       }
 
-      const isValid = verifyCode(email, code, type);
+      const isValid = await verifyCode(email, code, type);
 
       if (!isValid) {
         res.status(400).json({ error: 'Invalid or expired verification code' });
@@ -147,7 +147,7 @@ export class AuthController {
       }
 
       // 验证验证码
-      const isValid = verifyCode(email, code, 'reset-password');
+      const isValid = await verifyCode(email, code, 'reset-password');
       if (!isValid) {
         res.status(400).json({ error: 'Invalid or expired verification code' });
         return;

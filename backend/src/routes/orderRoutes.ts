@@ -1,6 +1,7 @@
 import express from 'express';
 import * as OrderController from '../controllers/orderController';
 import { authenticateToken } from '../middleware/auth';
+import { writeLimiter } from '../middleware/rateLimit';
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // 创建订单
-router.post('/', OrderController.createOrder);
+router.post('/', writeLimiter, OrderController.createOrder);
 
 // 获取我的订单列表（买家或卖家）
 router.get('/my', OrderController.getMyOrders);

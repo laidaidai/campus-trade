@@ -1,6 +1,13 @@
 import api from './request'
 
 /**
+ * 获取认证相关配置（如是否需要邮箱验证）
+ */
+export const getAuthConfig = () => {
+  return api.get('/auth/config')
+}
+
+/**
  * 发送验证码
  * @param {Object} data
  * @param {string} data.email - 邮箱

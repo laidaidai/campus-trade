@@ -1,18 +1,21 @@
 /**
- * 验证码存储服务 (内存实现)
- * 生产环境建议使用 Redis
+ * 验证码存储服务 (MySQL 实现)
+ *
+ * 相比内存实现的好处：
+ * - 服务重启后验证码不丢失
+ * - 支持多实例 / 多进程部署（PM2 cluster、Docker 多副本）
+ * - 统一的过期清理，不依赖进程生命周期
  */
+import pool from '../config/database';
+import { RowDataPacket } from 'mysql2';
 
-interface VerificationCode {
+type CodeType = 'register' | 'reset-password';
+
+interface CodeRow extends RowDataPacket {
   code: string;
-  email: string;
-  type: 'register' | 'reset-password';
-  createdAt: number;
-  expiresAt: number;
+  created_at: number; // UNIX 毫秒时间戳
+  expires_at: number; // UNIX 毫秒时间戳
 }
-
-// 内存存储
-const codeStore = new Map<string, VerificationCode>();
 
 // 验证码有效期 (5分钟)
 const CODE_EXPIRY_TIME = 5 * 60 * 1000;
@@ -20,49 +23,64 @@ const CODE_EXPIRY_TIME = 5 * 60 * 1000;
 // 发送间隔限制 (60秒)
 const SEND_INTERVAL = 60 * 1000;
 
+// 单个验证码最大尝试次数，超过后作废，防止暴力破解
+const MAX_ATTEMPTS = 5;
+
 /**
- * 生成6位随机验证码
+ * 创建验证码表（幂等）
  */
-export const generateCode = (): string => {
-  return Math.random().toString().slice(2, 8).padStart(6, '0');
+export const ensureVerificationTable = async (): Promise<void> => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS verification_codes (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      email VARCHAR(255) NOT NULL,
+      type VARCHAR(32) NOT NULL,
+      code VARCHAR(8) NOT NULL,
+      attempts INT DEFAULT 0,
+      created_at BIGINT NOT NULL,
+      expires_at BIGINT NOT NULL,
+      UNIQUE KEY unique_email_type (email, type),
+      INDEX idx_expires (expires_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
 };
 
 /**
- * 生成存储键
+ * 生成6位随机验证码（使用密码学安全随机数）
  */
-const getKey = (email: string, type: string): string => {
-  return `${type}:${email.toLowerCase()}`;
+export const generateCode = (): string => {
+  const crypto = require('crypto');
+  return String(crypto.randomInt(0, 1000000)).padStart(6, '0');
 };
+
+const normalizeEmail = (email: string): string => email.trim().toLowerCase();
 
 /**
  * 保存验证码
+ * @returns false 表示处于发送冷却期，未保存
  */
-export const saveCode = (
+export const saveCode = async (
   email: string,
   code: string,
-  type: 'register' | 'reset-password' = 'register'
-): boolean => {
-  const key = getKey(email, type);
+  type: CodeType = 'register'
+): Promise<boolean> => {
   const now = Date.now();
 
-  // 检查是否在发送间隔内
-  const existing = codeStore.get(key);
-  if (existing && (now - existing.createdAt) < SEND_INTERVAL) {
+  const [rows] = await pool.query<CodeRow[]>(
+    'SELECT created_at FROM verification_codes WHERE email = ? AND type = ?',
+    [normalizeEmail(email), type]
+  );
+
+  if (rows.length > 0 && now - Number(rows[0].created_at) < SEND_INTERVAL) {
     return false; // 发送太频繁
   }
 
-  codeStore.set(key, {
-    code,
-    email,
-    type,
-    createdAt: now,
-    expiresAt: now + CODE_EXPIRY_TIME
-  });
-
-  // 设置自动过期清理
-  setTimeout(() => {
-    codeStore.delete(key);
-  }, CODE_EXPIRY_TIME);
+  await pool.query(
+    `INSERT INTO verification_codes (email, type, code, attempts, created_at, expires_at)
+     VALUES (?, ?, ?, 0, ?, ?)
+     ON DUPLICATE KEY UPDATE code = VALUES(code), attempts = 0, created_at = VALUES(created_at), expires_at = VALUES(expires_at)`,
+    [normalizeEmail(email), type, code, now, now + CODE_EXPIRY_TIME]
+  );
 
   return true;
 };
@@ -70,65 +88,81 @@ export const saveCode = (
 /**
  * 验证验证码
  */
-export const verifyCode = (
+export const verifyCode = async (
   email: string,
   code: string,
-  type: 'register' | 'reset-password' = 'register'
-): boolean => {
-  const key = getKey(email, type);
-  const stored = codeStore.get(key);
+  type: CodeType = 'register'
+): Promise<boolean> => {
+  const key = normalizeEmail(email);
 
-  if (!stored) {
+  const [rows] = await pool.query<CodeRow[]>(
+    'SELECT code, created_at, expires_at, attempts FROM verification_codes WHERE email = ? AND type = ?',
+    [key, type]
+  );
+
+  if (rows.length === 0) {
     return false; // 验证码不存在
   }
 
-  const now = Date.now();
-  if (now > stored.expiresAt) {
-    codeStore.delete(key);
-    return false; // 验证码已过期
+  const stored = rows[0];
+
+  // 已过期
+  if (Date.now() > Number(stored.expires_at)) {
+    await pool.query('DELETE FROM verification_codes WHERE email = ? AND type = ?', [key, type]);
+    return false;
   }
 
-  if (stored.code !== code) {
-    return false; // 验证码错误
+  // 错误次数过多，作废
+  if (Number((stored as any).attempts) >= MAX_ATTEMPTS) {
+    await pool.query('DELETE FROM verification_codes WHERE email = ? AND type = ?', [key, type]);
+    return false;
+  }
+
+  if (String(stored.code) !== String(code).trim()) {
+    await pool.query(
+      'UPDATE verification_codes SET attempts = attempts + 1 WHERE email = ? AND type = ?',
+      [key, type]
+    );
+    return false;
   }
 
   // 验证成功后删除验证码(一次性使用)
-  codeStore.delete(key);
+  await pool.query('DELETE FROM verification_codes WHERE email = ? AND type = ?', [key, type]);
   return true;
 };
 
 /**
  * 获取剩余发送冷却时间(秒)
  */
-export const getRemainingCooldown = (
+export const getRemainingCooldown = async (
   email: string,
-  type: 'register' | 'reset-password' = 'register'
-): number => {
-  const key = getKey(email, type);
-  const stored = codeStore.get(key);
+  type: CodeType = 'register'
+): Promise<number> => {
+  const [rows] = await pool.query<CodeRow[]>(
+    'SELECT created_at FROM verification_codes WHERE email = ? AND type = ?',
+    [normalizeEmail(email), type]
+  );
 
-  if (!stored) {
+  if (rows.length === 0) {
     return 0;
   }
 
-  const now = Date.now();
-  const elapsed = now - stored.createdAt;
-  const remaining = SEND_INTERVAL - elapsed;
-
+  const remaining = SEND_INTERVAL - (Date.now() - Number(rows[0].created_at));
   return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
 };
 
 /**
  * 清理所有过期的验证码
  */
-export const cleanExpiredCodes = (): void => {
-  const now = Date.now();
-  for (const [key, value] of codeStore.entries()) {
-    if (now > value.expiresAt) {
-      codeStore.delete(key);
-    }
+export const cleanExpiredCodes = async (): Promise<void> => {
+  try {
+    await pool.query('DELETE FROM verification_codes WHERE expires_at < ?', [Date.now()]);
+  } catch (error) {
+    console.error('清理过期验证码失败:', error);
   }
 };
 
 // 定期清理过期验证码 (每分钟)
-setInterval(cleanExpiredCodes, 60 * 1000);
+const cleanupTimer = setInterval(cleanExpiredCodes, 60 * 1000);
+// 不阻止进程退出
+if (typeof cleanupTimer.unref === 'function') cleanupTimer.unref();

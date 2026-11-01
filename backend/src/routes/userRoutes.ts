@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/userController';
 import { authenticateToken } from '../middleware/auth';
+import { authLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 
 // 公开路由
-router.post('/register', UserController.register);
-router.post('/login', UserController.login);
+router.post('/register', authLimiter, UserController.register);
+router.post('/login', authLimiter, UserController.login);
 
 // 需要认证的路由（必须放在动态路由之前）
 router.get('/profile', authenticateToken, UserController.getProfile);

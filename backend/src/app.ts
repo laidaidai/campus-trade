@@ -17,11 +17,16 @@ import addressRoutes from './routes/addressRoutes';
 import messageRoutes from './routes/messageRoutes';
 import orderRoutes from './routes/orderRoutes';
 import { scheduleCleanupJob } from './utils/cleanup';
+import { globalLimiter } from './middleware/rateLimit';
 
 // 环境变量配置
 dotenv.config();
 
 const app = express();
+
+// 部署在 Nginx / 反向代理后面时，需要信任代理才能拿到真实客户端 IP
+// 否则限流会全部按代理 IP 计数，导致误伤
+app.set('trust proxy', Number(process.env.TRUST_PROXY ?? 1));
 
 // 中间件
 app.use(helmet({
@@ -46,6 +51,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // 静态文件服务 - 提供上传文件的访问
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// 全局兑底限流（静态资源与健康检查排除在外）
+app.use('/api', globalLimiter);
 
 // 路由
 app.use('/api/users', userRoutes);

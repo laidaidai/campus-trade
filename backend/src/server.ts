@@ -26,6 +26,7 @@ import app from './app';
 import { connectDatabase } from './config/database';
 import { createServer } from 'http';
 import { initializeSocket } from './config/socket';
+import { ensureVerificationTable } from './utils/verificationCode';
 
 const PORT = process.env.PORT || 3000;
 
@@ -54,7 +55,10 @@ const startServer = async () => {
   try {
     // 连接数据库
     await connectDatabase();
-    
+
+    // 确保验证码存储表存在（幂等）
+    await ensureVerificationTable();
+
     // 创建 HTTP 服务器
     const httpServer = createServer(app);
     

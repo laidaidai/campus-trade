@@ -1,5 +1,6 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
+import { writeLimiter } from '../middleware/rateLimit';
 import * as messageController from '../controllers/messageController';
 
 const router = express.Router();
@@ -8,7 +9,7 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // 获取或创建会话
-router.post('/conversations', messageController.getOrCreateConversation);
+router.post('/conversations', writeLimiter, messageController.getOrCreateConversation);
 
 // 获取用户的会话列表
 router.get('/conversations', messageController.getUserConversations);
@@ -17,7 +18,7 @@ router.get('/conversations', messageController.getUserConversations);
 router.get('/conversations/:conversationId/messages', messageController.getConversationMessages);
 
 // 发送消息
-router.post('/conversations/:conversationId/messages', messageController.sendMessage);
+router.post('/conversations/:conversationId/messages', writeLimiter, messageController.sendMessage);
 
 // 标记消息为已读
 router.put('/conversations/:conversationId/read', messageController.markAsRead);

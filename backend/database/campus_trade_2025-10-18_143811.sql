@@ -74,7 +74,7 @@ CREATE TABLE `conversations` (
 --
 
 /*!40000 ALTER TABLE `conversations` DISABLE KEYS */;
-INSERT INTO `conversations` VALUES (1,4,3,2,'{\"product_id\":4,\"product_title\":\"11\",\"product_image\":\"http://localhost:3000/uploads/products/8c6035a916b85dd7157e6dafd963e2d5.JPEG\",\"original_price\":\"111.00\",\"final_price\":\"111.00\",\"address_id\":1,\"address_detail\":{\"id\":1,\"user_id\":3,\"name\":\"111\",\"phone\":\"111111\",\"province\":\"111\",\"city\":\"Port Elbert\",\"district\":\"11111\",\"detail\":\"738 Boyle Spurs\",\"is_default\":1,\"created_at\":\"2025-10-18T06:25:16.000Z\",\"updated_at\":\"2025-10-18T06:25:18.000Z\"},\"status\":\"confirmed\",\"remark\":\"\",\"order_id\":1}','2025-10-18 14:25:23',0,0,'2025-10-18 14:24:56','2025-10-18 14:25:31');
+INSERT INTO `conversations` VALUES (1,4,3,2,'{\"product_id\":4,\"product_title\":\"11\",\"product_image\":\"http://localhost:3000/uploads/products/8c6035a916b85dd7157e6dafd963e2d5.JPEG\",\"original_price\":\"111.00\",\"final_price\":\"111.00\",\"address_id\":1,\"address_detail\":{\"id\":1,\"user_id\":3,\"name\":\"111\",\"phone\":\"111111\",\"province\":\"111\",\"city\":\"示例城市\",\"district\":\"11111\",\"detail\":\"示例街道 1 号\",\"is_default\":1,\"created_at\":\"2025-10-18T06:25:16.000Z\",\"updated_at\":\"2025-10-18T06:25:18.000Z\"},\"status\":\"confirmed\",\"remark\":\"\",\"order_id\":1}','2025-10-18 14:25:23',0,0,'2025-10-18 14:24:56','2025-10-18 14:25:31');
 /*!40000 ALTER TABLE `conversations` ENABLE KEYS */;
 
 --
@@ -138,7 +138,7 @@ CREATE TABLE `messages` (
 --
 
 /*!40000 ALTER TABLE `messages` DISABLE KEYS */;
-INSERT INTO `messages` VALUES (1,1,3,2,'{\"product_id\":4,\"product_title\":\"11\",\"product_image\":\"http://localhost:3000/uploads/products/8c6035a916b85dd7157e6dafd963e2d5.JPEG\",\"original_price\":\"111.00\",\"final_price\":\"111.00\",\"address_id\":1,\"address_detail\":{\"id\":1,\"user_id\":3,\"name\":\"111\",\"phone\":\"111111\",\"province\":\"111\",\"city\":\"Port Elbert\",\"district\":\"11111\",\"detail\":\"738 Boyle Spurs\",\"is_default\":1,\"created_at\":\"2025-10-18T06:25:16.000Z\",\"updated_at\":\"2025-10-18T06:25:18.000Z\"},\"status\":\"pending\",\"remark\":\"\"}','order',1,'2025-10-18 14:25:22'),(2,1,3,2,'{\"product_id\":4,\"product_title\":\"11\",\"product_image\":\"http://localhost:3000/uploads/products/8c6035a916b85dd7157e6dafd963e2d5.JPEG\",\"original_price\":\"111.00\",\"final_price\":\"111.00\",\"address_id\":1,\"address_detail\":{\"id\":1,\"user_id\":3,\"name\":\"111\",\"phone\":\"111111\",\"province\":\"111\",\"city\":\"Port Elbert\",\"district\":\"11111\",\"detail\":\"738 Boyle Spurs\",\"is_default\":1,\"created_at\":\"2025-10-18T06:25:16.000Z\",\"updated_at\":\"2025-10-18T06:25:18.000Z\"},\"status\":\"confirmed\",\"remark\":\"\",\"order_id\":1}','order',1,'2025-10-18 14:25:23');
+INSERT INTO `messages` VALUES (1,1,3,2,'{\"product_id\":4,\"product_title\":\"11\",\"product_image\":\"http://localhost:3000/uploads/products/8c6035a916b85dd7157e6dafd963e2d5.JPEG\",\"original_price\":\"111.00\",\"final_price\":\"111.00\",\"address_id\":1,\"address_detail\":{\"id\":1,\"user_id\":3,\"name\":\"111\",\"phone\":\"111111\",\"province\":\"111\",\"city\":\"示例城市\",\"district\":\"11111\",\"detail\":\"示例街道 1 号\",\"is_default\":1,\"created_at\":\"2025-10-18T06:25:16.000Z\",\"updated_at\":\"2025-10-18T06:25:18.000Z\"},\"status\":\"pending\",\"remark\":\"\"}','order',1,'2025-10-18 14:25:22'),(2,1,3,2,'{\"product_id\":4,\"product_title\":\"11\",\"product_image\":\"http://localhost:3000/uploads/products/8c6035a916b85dd7157e6dafd963e2d5.JPEG\",\"original_price\":\"111.00\",\"final_price\":\"111.00\",\"address_id\":1,\"address_detail\":{\"id\":1,\"user_id\":3,\"name\":\"111\",\"phone\":\"111111\",\"province\":\"111\",\"city\":\"示例城市\",\"district\":\"11111\",\"detail\":\"示例街道 1 号\",\"is_default\":1,\"created_at\":\"2025-10-18T06:25:16.000Z\",\"updated_at\":\"2025-10-18T06:25:18.000Z\"},\"status\":\"confirmed\",\"remark\":\"\",\"order_id\":1}','order',1,'2025-10-18 14:25:23');
 /*!40000 ALTER TABLE `messages` ENABLE KEYS */;
 
 --
@@ -249,7 +249,7 @@ CREATE TABLE `user_addresses` (
 --
 
 /*!40000 ALTER TABLE `user_addresses` DISABLE KEYS */;
-INSERT INTO `user_addresses` VALUES (1,3,'111','111111','111','Port Elbert','11111','738 Boyle Spurs',1,'2025-10-18 14:25:16','2025-10-18 14:25:18');
+INSERT INTO `user_addresses` VALUES (1,3,'111','111111','111','示例城市','11111','示例街道 1 号',1,'2025-10-18 14:25:16','2025-10-18 14:25:18');
 /*!40000 ALTER TABLE `user_addresses` ENABLE KEYS */;
 
 --
@@ -283,7 +283,7 @@ CREATE TABLE `users` (
 --
 
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'testuser','test@campus.com','$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',NULL,'13800138000','user','2025-10-18 06:37:43','2025-10-18 06:37:43'),(2,'laidaidai','3283955969@qq.com','$2a$12$zneEk6EMvztxoWXzUjogm.rjjtgn/kVbcM3FfRLSGhXOcW.ApUwBG',NULL,NULL,'admin','2025-10-18 06:37:43','2025-10-18 06:37:43'),(3,'laiyuci','2442951511@qq.com','$2a$12$mXe4h7uA8sBU4WAWL2gx..ZBOVQVHY7Pqqx/lxlHvYnU62FUjqi0S',NULL,NULL,'user','2025-10-18 06:37:43','2025-10-18 06:37:43');
+INSERT INTO `users` VALUES (1,'testuser','test@campus.com','$2a$12$/7abif9sm/ruv.oyCPOPaOcs2HQgfKKPnU55X9WQhN1CccVXaUf5W',NULL,'13800000000','user','2025-10-18 06:37:43','2025-10-18 06:37:43'),(2,'admin','admin@example.com','$2a$12$/7abif9sm/ruv.oyCPOPaOcs2HQgfKKPnU55X9WQhN1CccVXaUf5W',NULL,NULL,'admin','2025-10-18 06:37:43','2025-10-18 06:37:43'),(3,'demo','demo@example.com','$2a$12$/7abif9sm/ruv.oyCPOPaOcs2HQgfKKPnU55X9WQhN1CccVXaUf5W',NULL,NULL,'user','2025-10-18 06:37:43','2025-10-18 06:37:43');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 --

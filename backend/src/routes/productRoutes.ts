@@ -1,6 +1,7 @@
 import express from 'express';
 import * as productController from '../controllers/productController';
 import { authenticateToken } from '../middleware/auth';
+import { writeLimiter } from '../middleware/rateLimit';
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.get('/my/products', authenticateToken, productController.getMyProducts);
 router.get('/:id', productController.getProductById);
 
 // 创建商品 (需要认证)
-router.post('/', authenticateToken, productController.createProduct);
+router.post('/', authenticateToken, writeLimiter, productController.createProduct);
 
 // 更新商品状态 (需要认证)
 router.patch('/:id/status', authenticateToken, productController.updateProductStatus);

@@ -1,7 +1,7 @@
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
-import { sendVerificationCode, resetPassword } from '@/api/auth'
+import { sendVerificationCode, resetPassword, getAuthConfig } from '@/api/auth'
 
 export function useAuthCard() {
   const userStore = useUserStore()
@@ -11,13 +11,28 @@ export function useAuthCard() {
   const errorMessage = ref('')
   const successMessage = ref('')
 
+  // 是否需要邮箱验证（由后端配置决定，未获取到前默认不需要，避免阻碍注册）
+  const requireEmailVerification = ref(false)
+
   const loginForm = ref({ loginId: '', password: '' })
-  const regForm = ref({ username: '', email: '', password: '' })
+  const regForm = ref({ username: '', email: '', password: '', code: '' })
   const resetForm = ref({ 
     email: '', 
     code: '', 
     newPassword: '', 
     confirmPassword: '' 
+  })
+
+  // 启动时拉取后端配置
+  onMounted(async () => {
+    try {
+      const res = await getAuthConfig()
+      const data = res?.data ?? res
+      requireEmailVerification.value = Boolean(data?.requireEmailVerification)
+    } catch (error) {
+      // 获取失败时降级为不需要验证码，不阻碍用户注册
+      requireEmailVerification.value = false
+    }
   })
 
   // 人机验证
@@ -32,6 +47,7 @@ export function useAuthCard() {
     mode.value = 'register'
     errorMessage.value = ''
     successMessage.value = ''
+    regForm.value = { username: '', email: '', password: '', code: '' }
   }
 
   function showLogin() {
@@ -101,10 +117,17 @@ export function useAuthCard() {
       return
     }
 
+    // 验证邮箱验证码（后端要求时）
+    if (requireEmailVerification.value && !regForm.value.code) {
+      errorMessage.value = '请先获取邮箱验证码'
+      return
+    }
+
     const result = await userStore.register({
       username: regForm.value.username,
       email: regForm.value.email,
-      password: regForm.value.password
+      password: regForm.value.password,
+      code: regForm.value.code
     })
 
     if (result.success) {
@@ -127,42 +150,57 @@ export function useAuthCard() {
 
   // 发送重置密码验证码（直接发送，无需人机验证）
   async function handleSendResetCode() {
+    return sendCodeTo('reset-password')
+  }
+
+  // 发送注册验证码
+  async function handleSendRegisterCode() {
+    return sendCodeTo('register')
+  }
+
+  /**
+   * 统一的验证码发送逻辑
+   * @param {'register'|'reset-password'} type
+   */
+  async function sendCodeTo(type) {
     errorMessage.value = ''
-    
-    if (!resetForm.value.email) {
+
+    // 注册与找回密码分别读各自的表单
+    const email = type === 'register' ? regForm.value.email : resetForm.value.email
+
+    if (!email) {
       errorMessage.value = '请输入邮箱'
       throw new Error('请输入邮箱')
     }
 
     // 验证邮箱格式
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(resetForm.value.email)) {
+    if (!emailRegex.test(email)) {
       errorMessage.value = '请输入有效的邮箱地址'
       throw new Error('请输入有效的邮箱地址')
     }
 
     try {
-      await sendVerificationCode({
-        email: resetForm.value.email,
-        type: 'reset-password'
-      })
+      await sendVerificationCode({ email, type })
       successMessage.value = '验证码已发送到您的邮箱'
       setTimeout(() => {
         successMessage.value = ''
       }, 3000)
     } catch (error) {
       let errorMsg = '发送验证码失败'
-      
+
       if (error.code === 'ECONNABORTED') {
         errorMsg = '请求超时，请检查后端服务是否正常运行'
       } else if (error.response) {
         const status = error.response.status
         const data = error.response.data
-        
+
         if (status === 404) {
           errorMsg = '该邮箱未注册，请先注册账号'
         } else if (status === 429) {
           errorMsg = data.error || '请求过于频繁，请稍后再试'
+        } else if (status === 400 && data?.error) {
+          errorMsg = data.error
         } else if (status === 500) {
           errorMsg = '邮件服务暂时不可用，请联系管理员或稍后重试'
         } else if (data && (data.error || data.message)) {
@@ -171,7 +209,7 @@ export function useAuthCard() {
       } else if (error.request) {
         errorMsg = '网络连接失败，请确保后端服务已启动（localhost:3000）'
       }
-      
+
       errorMessage.value = errorMsg
       throw error  // 抛出错误让EmailCodeInput知道发送失败
     }
@@ -238,6 +276,7 @@ export function useAuthCard() {
     mode,
     isLogin,
     isReset,
+    requireEmailVerification,
     loginForm,
     regForm,
     resetForm,
@@ -253,6 +292,7 @@ export function useAuthCard() {
     onRegister,
     onResetPassword,
     handleSendResetCode,
+    handleSendRegisterCode,
     handleCaptchaSuccess
   }
 }

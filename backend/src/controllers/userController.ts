@@ -2,11 +2,25 @@ import { Request, Response } from 'express';
 import { UserModel, User } from '../models/userModel';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '../middleware/auth';
+import { verifyCode } from '../utils/verificationCode';
+
+/**
+ * 是否要求注册时验证邮箱
+ * 默认：配置了 SMTP 即开启（未配置邮件服务时自动厤免，方便本地/测试部署）
+ * 可通过 REQUIRE_EMAIL_VERIFICATION=true/false 强制覆盖
+ */
+export const isEmailVerificationRequired = (): boolean => {
+  const flag = process.env.REQUIRE_EMAIL_VERIFICATION;
+  if (flag !== undefined) {
+    return flag === 'true';
+  }
+  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+};
 
 export class UserController {
   static async register(req: Request, res: Response): Promise<void> {
     try {
-      const { username, email, password } = req.body;
+      const { username, email, password, code } = req.body;
 
       // 验证必填字段
       if (!username || !email || !password) {
@@ -58,6 +72,21 @@ export class UserController {
       if (existingEmail) {
         res.status(400).json({ error: '该邮箱已被注册' });
         return;
+      }
+
+      // 邮箱验证码校验（开启时强制）
+      // 放在重复校验之后，避免白白消耗一次验证码
+      if (isEmailVerificationRequired()) {
+        if (!code) {
+          res.status(400).json({ error: '请先获取邮箱验证码' });
+          return;
+        }
+
+        const codeValid = await verifyCode(email, String(code), 'register');
+        if (!codeValid) {
+          res.status(400).json({ error: '邮箱验证码错误或已过期' });
+          return;
+        }
       }
 
       // 生成默认头像URL (使用UI Avatars API)
