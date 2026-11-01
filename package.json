@@ -4,7 +4,9 @@
   "description": "校园交易平台 - 分别启动前后端服务",
   "scripts": {
     "backend": "cd backend && npm run dev",
-    "frontend": "cd frontend && npm run dev"
+    "frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",
