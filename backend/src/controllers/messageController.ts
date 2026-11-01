@@ -64,6 +64,15 @@ export const getConversationMessages = async (req: AuthenticatedRequest, res: Re
       return res.status(401).json({ error: '未授权' });
     }
 
+    // 验证用户是否是会话参与者
+    const conversation = await MessageModel.getConversationById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: '会话不存在' });
+    }
+    if (conversation.buyer_id !== userId && conversation.seller_id !== userId) {
+      return res.status(403).json({ error: '无权查看此会话' });
+    }
+
     const messages = await MessageModel.getConversationMessages(
       conversationId,
       limit,
@@ -76,7 +85,6 @@ export const getConversationMessages = async (req: AuthenticatedRequest, res: Re
     res.status(500).json({ error: '获取消息历史失败' });
   }
 };
-
 /**
  * 发送消息
  */
@@ -158,6 +166,15 @@ export const markAsRead = async (req: AuthenticatedRequest, res: Response) => {
 
     if (!userId) {
       return res.status(401).json({ error: '未授权' });
+    }
+
+    // 验证用户是否是会话参与者
+    const conversation = await MessageModel.getConversationById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: '会话不存在' });
+    }
+    if (conversation.buyer_id !== userId && conversation.seller_id !== userId) {
+      return res.status(403).json({ error: '无权操作此会话' });
     }
 
     await MessageModel.markMessagesAsRead(conversationId, userId);

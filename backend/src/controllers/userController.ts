@@ -128,9 +128,12 @@ export class UserController {
         errorMessage = '数据库握手失败';
       } else if (error.code === 'ER_UNKNOWN_ERROR') {
         errorMessage = '未知数据库错误';
-      } else if (error.message) {
-        // 如果错误有消息，显示具体信息
-        errorMessage = `数据库错误: ${error.message}`;
+      } else if (error.code) {
+        // 其他数据库错误不暴露细节，避免泄露敏感信息
+        errorMessage = '服务器错误，请稍后重试';
+        statusCode = 500;
+      } else {
+        errorMessage = '服务器错误，请稍后重试';
       }
       
       console.error('具体错误信息:', {
@@ -180,16 +183,16 @@ export class UserController {
         user = await UserModel.findByUsername(loginId);
       }
 
-      // 用户不存在
+      // 统一提示，避免暴露用户是否存在
       if (!user) {
-        res.status(401).json({ error: '用户不存在，请检查用户名或邮箱' });
+        res.status(401).json({ error: '用户名/邮箱或密码错误' });
         return;
       }
 
       // 验证密码
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
-        res.status(401).json({ error: '密码错误，请重试' });
+        res.status(401).json({ error: '用户名/邮箱或密码错误' });
         return;
       }
 
@@ -312,12 +315,12 @@ export class UserController {
         return;
       }
 
-      // 不返回密码等敏感信息
-      const { password, ...userWithoutPassword } = user;
+      // 公开接口只返回安全字段，不暴露邮箱和手机号
+      const { password, email, phone, ...publicInfo } = user;
       
       res.json({ 
         success: true,
-        data: userWithoutPassword 
+        data: publicInfo 
       });
     } catch (error: any) {
       console.error('Get user by ID error:', error);

@@ -166,7 +166,23 @@ export const deleteImage = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const filePath = path.join(__dirname, `../../uploads/${uploadType}/${filename}`);
+    // 校验上传类型白名单
+    const validTypes = ['products', 'avatars'];
+    const type = validTypes.includes(uploadType) ? uploadType : 'products';
+
+    // 仅保留文件名部分，防止路径穿越攻击（如 ../../.env）
+    const safeFilename = path.basename(filename);
+    const uploadsDir = path.resolve(__dirname, '../../uploads');
+    const filePath = path.resolve(uploadsDir, type, safeFilename);
+
+    // 双重校验：确保最终路径仍在上传目录内
+    if (!filePath.startsWith(uploadsDir + path.sep)) {
+      res.status(400).json({
+        success: false,
+        message: '非法的文件名'
+      });
+      return;
+    }
 
     // 检查文件是否存在
     if (!fs.existsSync(filePath)) {

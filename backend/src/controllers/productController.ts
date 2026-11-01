@@ -81,11 +81,21 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
       });
       return;
     }
-    
+
+    // 验证价格合法性
+    const priceValue = parseFloat(price);
+    if (isNaN(priceValue) || priceValue <= 0 || priceValue > 9999999) {
+      res.status(400).json({
+        success: false,
+        message: '价格不合法'
+      });
+      return;
+    }
+
     const productId = await ProductModel.createProduct({
       title,
       description,
-      price: parseFloat(price),
+      price: priceValue,
       condition,
       category,
       images: images || [],
@@ -110,6 +120,15 @@ export const updateProductStatus = async (req: Request, res: Response): Promise<
   try {
     const id = parseInt(req.params.id);
     const { status } = req.body;
+    const sellerId = (req as any).user?.userId;
+    
+    if (!sellerId) {
+      res.status(401).json({
+        success: false,
+        message: '未登录或登录已过期'
+      });
+      return;
+    }
     
     if (!['available', 'sold', 'reserved'].includes(status)) {
       res.status(400).json({
@@ -119,12 +138,12 @@ export const updateProductStatus = async (req: Request, res: Response): Promise<
       return;
     }
     
-    const success = await ProductModel.updateProductStatus(id, status);
+    const success = await ProductModel.updateProductStatus(id, status, sellerId);
     
     if (!success) {
       res.status(404).json({
         success: false,
-        message: '商品不存在'
+        message: '商品不存在或无权操作'
       });
       return;
     }
@@ -145,12 +164,22 @@ export const updateProductStatus = async (req: Request, res: Response): Promise<
 export const deleteProduct = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = parseInt(req.params.id);
-    const success = await ProductModel.deleteProduct(id);
+    const sellerId = (req as any).user?.userId;
+    
+    if (!sellerId) {
+      res.status(401).json({
+        success: false,
+        message: '未登录或登录已过期'
+      });
+      return;
+    }
+    
+    const success = await ProductModel.deleteProduct(id, sellerId);
     
     if (!success) {
       res.status(404).json({
         success: false,
-        message: '商品不存在'
+        message: '商品不存在或无权操作'
       });
       return;
     }
@@ -172,9 +201,19 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = parseInt(req.params.id);
-    const success = await ProductModel.updateProduct(id, req.body);
+    const sellerId = (req as any).user?.userId;
+    
+    if (!sellerId) {
+      res.status(401).json({
+        success: false,
+        message: '未登录或登录已过期'
+      });
+      return;
+    }
+    
+    const success = await ProductModel.updateProduct(id, req.body, sellerId);
     if (!success) {
-      res.status(404).json({ success: false, message: '商品不存在或无可更新字段' });
+      res.status(404).json({ success: false, message: '商品不存在或无权操作' });
       return;
     }
     res.json({ success: true, message: '商品已更新' });

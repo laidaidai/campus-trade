@@ -20,10 +20,20 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     }
 
     // 验证必填字段
-    if (!product_id || !seller_id || !price) {
+    if (!product_id || !price) {
       res.status(400).json({
         success: false,
         message: '缺少必填字段'
+      });
+      return;
+    }
+
+    // 验证价格合法性
+    const priceValue = parseFloat(price);
+    if (isNaN(priceValue) || priceValue <= 0 || priceValue > 9999999) {
+      res.status(400).json({
+        success: false,
+        message: '价格不合法'
       });
       return;
     }
@@ -46,12 +56,21 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    // 创建订单
+    // 不能购买自己发布的商品
+    if (product.seller_id === buyerId) {
+      res.status(400).json({
+        success: false,
+        message: '不能购买自己发布的商品'
+      });
+      return;
+    }
+
+    // 创建订单（卖家以商品实际归属为准，不信任客户端传入的 seller_id）
     const orderId = await OrderModel.createOrder(
       product_id,
-      seller_id,
+      product.seller_id,
       buyerId,
-      price,
+      priceValue,
       address_id,
       remark
     );
@@ -203,6 +222,16 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
       return;
     }
 
+    // 验证订单状态白名单
+    const validStatuses = ['pending', 'confirmed', 'shipped', 'completed', 'cancelled'];
+    if (!status || !validStatuses.includes(status)) {
+      res.status(400).json({
+        success: false,
+        message: '无效的订单状态'
+      });
+      return;
+    }
+
     await OrderModel.updateOrderStatus(orderId, status);
 
     res.json({
@@ -250,6 +279,15 @@ export const cancelOrder = async (req: Request, res: Response): Promise<void> =>
       res.status(403).json({
         success: false,
         message: '无权取消此订单'
+      });
+      return;
+    }
+
+    // 已完成或已取消的订单不允许再取消
+    if (order.status === 'completed' || order.status === 'cancelled') {
+      res.status(400).json({
+        success: false,
+        message: `订单已是${order.status === 'completed' ? '完成' : '取消'}状态，无法取消`
       });
       return;
     }

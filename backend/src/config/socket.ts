@@ -64,7 +64,18 @@ export const initializeSocket = (httpServer: HTTPServer) => {
     socket.on('send_message', async (data: any) => {
       try {
         const { conversationId, receiverId, content, type = 'text' } = data;
-        
+
+        // 验证发送者是否是会话参与者
+        const conversation = await MessageModel.getConversationById(conversationId);
+        if (!conversation) {
+          socket.emit('message_error', { error: '会话不存在' });
+          return;
+        }
+        if (conversation.buyer_id !== userId && conversation.seller_id !== userId) {
+          socket.emit('message_error', { error: '无权在此会话中发送消息' });
+          return;
+        }
+
         // 保存消息到数据库
         const message = await MessageModel.sendMessage(
           conversationId,
@@ -106,7 +117,13 @@ export const initializeSocket = (httpServer: HTTPServer) => {
     socket.on('mark_as_read', async (data: any) => {
       try {
         const { conversationId } = data;
-        
+
+        // 验证用户是否是会话参与者
+        const conversation = await MessageModel.getConversationById(conversationId);
+        if (!conversation || (conversation.buyer_id !== userId && conversation.seller_id !== userId)) {
+          return;
+        }
+
         await MessageModel.markMessagesAsRead(conversationId, userId);
         
         // 更新未读数

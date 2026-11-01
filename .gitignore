@@ -113,12 +113,12 @@ ecosystem.config.json
 docker-compose.override.yml
 
 # ===========================================
-# 上传文件（根据需求调整）
+# 上传文件（用户上传的图片不进入版本库）
 # ===========================================
-# 如果不需要提交上传文件，取消下面的注释
-# uploads/
-# */uploads/
-# **/uploads/
+backend/uploads/*
+!backend/uploads/.gitkeep
+!backend/uploads/products/.gitkeep
+!backend/uploads/avatars/.gitkeep
 
 # ===========================================
 # 测试和覆盖率

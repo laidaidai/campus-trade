@@ -155,11 +155,14 @@ export const createProduct = async (productData: {
 
 export const updateProductStatus = async (
   id: number,
-  status: 'available' | 'sold' | 'reserved'
+  status: 'available' | 'sold' | 'reserved',
+  sellerId?: number
 ): Promise<boolean> => {
+  const where = sellerId !== undefined ? 'WHERE id = ? AND seller_id = ?' : 'WHERE id = ?';
+  const params: any[] = sellerId !== undefined ? [status, id, sellerId] : [status, id];
   const [result] = await pool.query<ResultSetHeader>(
-    'UPDATE products SET status = ? WHERE id = ?',
-    [status, id]
+    `UPDATE products SET status = ? ${where}`,
+    params
   );
   return result.affectedRows > 0;
 };
@@ -175,7 +178,8 @@ export const updateProduct = async (
     condition?: string;
     status?: 'available' | 'sold' | 'reserved';
     images?: string[];
-  }
+  },
+  sellerId?: number
 ): Promise<boolean> => {
   const fields: string[] = [];
   const params: any[] = [];
@@ -192,17 +196,21 @@ export const updateProduct = async (
     return false;
   }
 
+  const where = sellerId !== undefined ? 'WHERE id = ? AND seller_id = ?' : 'WHERE id = ?';
+  const whereParams = sellerId !== undefined ? [...params, id, sellerId] : [...params, id];
   const [result] = await pool.query<ResultSetHeader>(
-    `UPDATE products SET ${fields.join(', ')} WHERE id = ?`,
-    [...params, id]
+    `UPDATE products SET ${fields.join(', ')} ${where}`,
+    whereParams
   );
   return result.affectedRows > 0;
 };
 
-export const deleteProduct = async (id: number): Promise<boolean> => {
+export const deleteProduct = async (id: number, sellerId?: number): Promise<boolean> => {
   const [result] = await pool.query<ResultSetHeader>(
-    'DELETE FROM products WHERE id = ?',
-    [id]
+    sellerId !== undefined
+      ? 'DELETE FROM products WHERE id = ? AND seller_id = ?'
+      : 'DELETE FROM products WHERE id = ?',
+    sellerId !== undefined ? [id, sellerId] : [id]
   );
   return result.affectedRows > 0;
 };
