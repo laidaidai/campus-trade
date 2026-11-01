@@ -12,12 +12,17 @@
       </router-view>
     </div>
   </div>
+
+  <!-- AI 悬浮助手 -->
+  <AiAssistant />
+
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
+import AiAssistant from '@/components/AiAssistant.vue'
 import { startTokenMonitor, checkAndClearExpiredToken } from '@/utils/token'
 
 const router = useRouter()
