@@ -473,7 +473,7 @@ npm run preview
 
 #### 6. 访问应用
 
-- **前端**: http://localhost:5173
+- **前端**: http://localhost:5173（开发模式，Vite dev server）
 - **后端**: http://localhost:3000
 - **API健康检查**: http://localhost:3000/health
 
@@ -705,27 +705,120 @@ pm2 monit                   # 实时监控
 #### 访问应用
 
 部署成功后访问：
-- 🌐 前端：`http://你的服务器IP:5173` 或 `http://你的域名:5173`
-- 🔌 后端：`http://你的服务器IP:3000` 或 `http://你的域名:3000`
+- 🌐 前端：`http://你的服务器IP`（80 端口，Nginx 托管）
+- 🔌 后端 API：通过 Nginx 反向代理，`http://你的服务器IP/api`
+- ❤️ 健康检查：`http://你的服务器IP/health`
 
 #### 🌐 域名访问配置
 
-**重要说明：** 项目已配置支持域名访问，无需额外配置。
+**无需额外配置** —— Nginx 配置默认 `server_name _`，接受任意域名和 IP。
 
-**支持的访问方式：**
-- ✅ IP地址访问：`http://134.209.106.144:5173`
-- ✅ 域名访问：`http://www.laidaidai.xyz:5173`
-- ✅ 本地访问：`http://localhost:5173`
-
-**Host检查已禁用：**
-- 项目已完全禁用Vite的Host检查功能
-- 支持任意域名和IP地址访问
-- 无需在配置文件中硬编码域名
+绑定正式域名：编辑 `/etc/nginx/sites-available/campus-trade`，把 `server_name _;` 改成你的域名，
+然后 `sudo nginx -t && sudo systemctl reload nginx`。
 
 **端口说明：**
-- 前端服务运行在5173端口（避免与80端口冲突）
-- 后端API运行在3000端口
-- 数据库运行在3306端口
+
+| 服务 | 端口 | 是否对外 |
+|------|------|----------|
+| Nginx（前端 + 反代） | 80 / 443 | ✅ 对外 |
+| 后端 Express | 3000 | ❌ 仅本机，供 Nginx 反代 |
+| MySQL | 3306 | ❌ 仅本机 |
+
+> ⚠️ 后端 3000 端口**不要**在防火墙对外开放，所有请求都应经由 Nginx。
+> 这样能保证 `X-Forwarded-For` 正确传递、限流拿到真实 IP，也避免绕过 HTTPS。
+
+## 🚀 生产部署（VPS 前后端同域）⭐ 推荐
+
+这是**最推荐**的生产部署方式：前端静态文件和后端 API 都在同一台服务器、同一个域名下，
+没有跨域问题，Socket.IO 实时聊天和图片上传都能正常工作。
+
+### 为什么不用 Vercel / 纯静态托管
+
+本项目后端依赖以下能力，Serverless 平台**无法支持**：
+
+| 依赖 | 静态托管平台 |
+|------|-------------|
+| Socket.IO 长连接（实时聊天） | ❌ 不支持长连接 |
+| Express 常驻进程 | ⚠️ 需改造成函数 |
+| MySQL 连接池 | ⚠️ 需外接云数据库 |
+| 本地文件上传 `backend/uploads/` | ❌ 文件系统只读/临时 |
+
+如果前端部署到 Vercel 而后端在别处，还会多出跨域、Cookie、WebSocket 代理等一堆问题。
+**同域部署可以完全避开这些麻烦。**
+
+### 一键部署
+
+```bash
+# 1. 上传代码到服务器
+git clone https://github.com/laidaidai/campus-trade.git /opt/campus-trade
+cd /opt/campus-trade
+
+# 2. 初始化数据库（仅首次）
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS campus_trade DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -p campus_trade < backend/database/campus_trade_2025-10-18_143811.sql
+
+# 3. 执行部署脚本
+sudo bash deploy/deploy-vps.sh install
+```
+
+脚本会自动完成：
+
+- ✅ 检查 Node.js 20+ / PM2 / Nginx 环境（缺失则自动安装）
+- ✅ 交互式生成 `.env`（JWT 密钥自动随机生成，权限 600）
+- ✅ 构建后端（TypeScript 编译）与前端（`VITE_API_URL=/api`）
+- ✅ 用 PM2 启动后端并做健康检查
+- ✅ 生成并启用 Nginx 站点配置，禁用默认站点
+- ✅ 输出访问地址与常用运维命令
+
+### 日常运维
+
+```bash
+sudo bash deploy/deploy-vps.sh update    # 拉代码 + 重建 + 重启
+sudo bash deploy/deploy-vps.sh status    # 查看状态
+sudo bash deploy/deploy-vps.sh logs      # 查看后端日志
+sudo bash deploy/deploy-vps.sh restart   # 仅重启后端
+
+pm2 status                               # 进程状态
+pm2 logs campus-trade-backend            # 后端日志
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### 目录结构
+
+```
+/opt/campus-trade/
+├── .env                      # 环境变量（600 权限，勿提交）
+├── frontend/dist/            # 前端构建产物 ← Nginx root
+├── backend/dist/             # 后端编译产物 ← PM2 运行
+├── backend/uploads/          # 用户上传图片（务必纳入备份）
+├── logs/                     # PM2 日志
+└── deploy/
+    ├── deploy-vps.sh         # 生产部署脚本
+    ├── nginx.conf.template   # Nginx 站点配置模板
+    └── ecosystem.config.js   # PM2 配置
+```
+
+### 上线 HTTPS
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d your-domain.com
+```
+
+Certbot 会自动改写 Nginx 配置并配置证书自动续期。
+
+### 关于 PM2 多实例（重要）
+
+`deploy/ecosystem.config.js` 中固定 `instances: 1`。原因是 Socket.IO 当前使用**内存适配器**，
+多实例会导致同一用户连接落到不同进程、消息推送丢失。
+
+如需横向扩容，按顺序操作：
+
+1. 接入 Redis：`@socket.io/redis-adapter`
+2. Nginx `upstream` 改为 `ip_hash`（或配置 sticky cookie）
+3. 再把 `instances` 改为 `'max'`
+
+（验证码存储已迁移到 MySQL，本身不阻碍多实例。）
 
 ## 📝 开发指南
 

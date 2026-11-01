@@ -208,15 +208,8 @@ start_mysql() {
         read -p "请输入后端端口 (默认: 3000): " APP_PORT
         APP_PORT=${APP_PORT:-3000}
         
-        read -p "请输入前端端口 (默认: 5173): " FRONTEND_PORT
-        FRONTEND_PORT=${FRONTEND_PORT:-5173}
-        
-        # 检查端口是否被占用
-        while netstat -tlnp | grep -q ":$FRONTEND_PORT "; do
-            echo -e "${YELLOW}端口 $FRONTEND_PORT 已被占用，请选择其他端口${NC}"
-            read -p "请输入前端端口 (默认: 5173): " FRONTEND_PORT
-            FRONTEND_PORT=${FRONTEND_PORT:-5173}
-        done
+        read -p "请输入 Nginx 对外端口 (默认: 80): " FRONTEND_PORT
+        FRONTEND_PORT=${FRONTEND_PORT:-80}
         
         # 获取邮件配置
         echo -e "${YELLOW}邮件配置（可选）：${NC}"
@@ -259,7 +252,7 @@ ALLOWED_ORIGINS=http://$SERVER_IP:$FRONTEND_PORT,http://$SERVER_IP:$APP_PORT,htt
 # 前端配置
 VITE_PORT=$FRONTEND_PORT
 VITE_API_TARGET=http://$SERVER_IP:$APP_PORT
-VITE_BASE_URL=http://$SERVER_IP:$APP_PORT
+VITE_BASE_URL=
 VITE_API_URL=/api
 
 # 服务器信息
@@ -554,7 +547,7 @@ ALLOWED_ORIGINS=http://$SERVER_IP:$FRONTEND_PORT,http://$SERVER_IP:$APP_PORT,htt
 # 前端配置
 VITE_PORT=$FRONTEND_PORT
 VITE_API_TARGET=http://$SERVER_IP:$APP_PORT
-VITE_BASE_URL=http://$SERVER_IP:$APP_PORT
+VITE_BASE_URL=
 VITE_API_URL=/api
 
 # 服务器信息
@@ -587,69 +580,60 @@ create_env_file() {
     fi
 }
 
-# 启动前端服务
+# 部署前端（构建静态产物并交由 Nginx 托管）
+# 说明：不再使用 `vite preview` —— 那是预览服务器，不适合生产，
+# 且会引入 5173 端口、Host 检查、跨域等一堆问题。
+# 现在由 Nginx 直接托管 dist/ 并反向代理 /api、/uploads、/socket.io。
 start_frontend_service() {
-    echo -e "${BLUE}启动前端服务...${NC}"
-    
-    # 读取环境变量获取前端端口
+    echo -e "${BLUE}构建前端静态文件...${NC}"
+
     if [ -f "$PROJECT_DIR/.env" ]; then
         source "$PROJECT_DIR/.env"
     fi
-    
-    FRONTEND_PORT=${FRONTEND_PORT:-5173}
-    
-    # 检查端口是否被占用，如果被占用则寻找下一个可用端口（排除80端口）
-    while netstat -tlnp | grep -q ":$FRONTEND_PORT " || [ "$FRONTEND_PORT" = "80" ]; do
-        if [ "$FRONTEND_PORT" = "80" ]; then
-            echo -e "${YELLOW}跳过80端口（避免与Nginx冲突），尝试下一个端口...${NC}"
-        else
-            echo -e "${YELLOW}端口 $FRONTEND_PORT 已被占用，尝试下一个端口...${NC}"
-        fi
-        FRONTEND_PORT=$((FRONTEND_PORT + 1))
-    done
-    
-    echo -e "${GREEN}✓ 使用端口 $FRONTEND_PORT 启动前端服务${NC}"
-    
-    # 启动前端服务
-    cd "$FRONTEND_DIR"
-    
-    # 检查是否有构建好的文件
-    if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then
-        echo -e "${YELLOW}前端构建文件不存在，正在构建...${NC}"
-        npm run build
+
+    cd "$FRONTEND_DIR" || return 1
+
+    # 同域部署：API 走相对路径 /api，VITE_BASE_URL 留空
+    VITE_API_URL=/api VITE_BASE_URL="" npm run build
+
+    if [ ! -f "$FRONTEND_DIR/dist/index.html" ]; then
+        echo -e "${RED}✗ 前端构建失败：dist/index.html 不存在${NC}"
+        return 1
     fi
-    
-    # 启动前端预览服务器（使用PM2管理）
-    echo -e "${YELLOW}启动前端服务在端口 $FRONTEND_PORT...${NC}"
-    
-    # 使用PM2直接启动前端服务（避免配置文件问题）
-    cd "$PROJECT_DIR/frontend"
-    pm2 start start-preview.js \
-        --name campus-trade-frontend \
-        --env VITE_PORT=$FRONTEND_PORT \
-        --env VITE_DISABLE_HOST_CHECK=true \
-        --env NODE_ENV=production \
-        --instances 1 \
-        --max-memory-restart 1G \
-        --error "$LOG_DIR/frontend-error.log" \
-        --output "$LOG_DIR/frontend-out.log" \
-        --log "$LOG_DIR/frontend-combined.log" \
-        --time
-    
-    # 等待服务启动
-    sleep 5
-    
-    # 检查是否启动成功
-    if netstat -tlnp | grep -q ":$FRONTEND_PORT "; then
-        echo -e "${GREEN}✓ 前端服务启动成功，端口: $FRONTEND_PORT${NC}"
-        # 更新环境变量中的端口
-        if [ -f "$PROJECT_DIR/.env" ]; then
-            sed -i "s/FRONTEND_PORT=.*/FRONTEND_PORT=$FRONTEND_PORT/" "$PROJECT_DIR/.env" 2>/dev/null || true
+    echo -e "${GREEN}✓ 前端构建完成: $FRONTEND_DIR/dist${NC}"
+
+    # 清理旧的 vite preview 进程（历史遗留）
+    pm2 stop campus-trade-frontend 2>/dev/null || true
+    pm2 delete campus-trade-frontend 2>/dev/null || true
+    pkill -f "start-preview.js" 2>/dev/null || true
+
+    # 安装 Nginx 站点配置
+    if [ -f "$PROJECT_DIR/deploy/nginx.conf.template" ] && command -v nginx &> /dev/null; then
+        echo -e "${BLUE}配置 Nginx...${NC}"
+        local SERVER_NAME="${DOMAIN:-_}"
+        if [ -n "${FRONTEND_DOMAIN:-}" ]; then
+            SERVER_NAME="$FRONTEND_DOMAIN"
+        fi
+
+        sed -e "s|__SERVER_NAME__|$SERVER_NAME|g" \
+            -e "s|__ROOT__|$FRONTEND_DIR/dist|g" \
+            -e "s|__BACKEND__|127.0.0.1:${BACKEND_PORT:-3000}|g" \
+            "$PROJECT_DIR/deploy/nginx.conf.template" > /etc/nginx/sites-available/campus-trade
+
+        ln -sf /etc/nginx/sites-available/campus-trade /etc/nginx/sites-enabled/campus-trade
+        rm -f /etc/nginx/sites-enabled/default 2>/dev/null || true
+
+        if nginx -t 2>/dev/null; then
+            systemctl reload nginx 2>/dev/null || nginx -s reload
+            echo -e "${GREEN}✓ Nginx 已加载配置，前端通过 80 端口访问${NC}"
+        else
+            echo -e "${RED}✗ Nginx 配置校验失败，请检查 /etc/nginx/sites-available/campus-trade${NC}"
+            return 1
         fi
     else
-        echo -e "${RED}✗ 前端服务启动失败${NC}"
-        echo -e "${YELLOW}请检查日志: tail -f $LOG_DIR/frontend.log${NC}"
-        echo -e "${YELLOW}可能的原因: 端口被占用或依赖问题${NC}"
+        echo -e "${YELLOW}⚠ 未找到 deploy/nginx.conf.template 或未安装 Nginx${NC}"
+        echo -e "${YELLOW}  前端产物已就绪: $FRONTEND_DIR/dist${NC}"
+        echo -e "${YELLOW}  请手动配置 Web 服务器指向该目录${NC}"
     fi
 }
 
@@ -780,22 +764,14 @@ check_status() {
         BACKEND_STATUS="未运行"
     fi
     
-    # 检查前端端口（从环境变量读取）
-    FRONTEND_PORT=${FRONTEND_PORT:-5173}
+    # 检查 Nginx（前端静态托管）
     FRONTEND_PORT_DETECTED="未检测到"
-    if netstat -tlnp | grep -q ":$FRONTEND_PORT "; then
-        echo -e "${GREEN}✓ 前端服务端口 $FRONTEND_PORT 正在监听${NC}"
-        FRONTEND_PORT_DETECTED="$FRONTEND_PORT"
+    if curl -fsS "http://127.0.0.1:80/" >/dev/null 2>&1; then
+        echo -e "${GREEN}✓ Nginx 正在提供前端页面（80 端口）${NC}"
+        FRONTEND_PORT_DETECTED="80"
     else
-        echo -e "${YELLOW}⚠ 前端服务端口 $FRONTEND_PORT 未监听${NC}"
-        # 检查其他常见前端端口
-        for port in 80 8080 3001 5174 5175; do
-            if netstat -tlnp | grep -q ":$port "; then
-                echo -e "${YELLOW}  检测到其他前端端口 $port 正在监听${NC}"
-                FRONTEND_PORT_DETECTED="$port"
-                break
-            fi
-        done
+        echo -e "${YELLOW}⚠ Nginx 未在 80 端口响应${NC}"
+        echo -e "${YELLOW}  请检查: nginx -t && systemctl status nginx${NC}"
     fi
     
     # 检查数据库端口
@@ -902,7 +878,7 @@ stop_frontend_service() {
         source "$PROJECT_DIR/.env"
     fi
     
-    FRONTEND_PORT=${FRONTEND_PORT:-5173}
+    FRONTEND_PORT=${FRONTEND_PORT:-80}
     
     # 查找并停止Vite前端服务进程（备用）
     FRONTEND_PID=$(netstat -tlnp | grep ":$FRONTEND_PORT " | awk '{print $7}' | cut -d'/' -f1)

@@ -1,0 +1,139 @@
+# ============================================================
+# 校园交易平台 - Nginx 站点配置（前后端同域部署）
+#
+# 由 deploy/deploy-vps.sh 自动安装，也可手动使用：
+#   sudo cp deploy/nginx.conf.template /etc/nginx/sites-available/campus-trade
+#   sudo ln -s /etc/nginx/sites-available/campus-trade /etc/nginx/sites-enabled/
+#   sudo nginx -t && sudo systemctl reload nginx
+#
+# 占位符（部署脚本会自动替换）：
+#   __SERVER_NAME__  站点域名，未指定时为 _
+#   __ROOT__         前端构建产物目录，如 /var/www/campus-trade/frontend/dist
+#   __BACKEND__      后端地址，默认 127.0.0.1:3000
+# ============================================================
+
+# 后端上游：单个实例（Socket.IO 使用内存适配器，见 deploy/ecosystem.config.js 说明）
+upstream campus_trade_backend {
+    server __BACKEND__;
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name __SERVER_NAME__;
+
+    root __ROOT__;
+    index index.html;
+
+    # 上传限制：单文件 10MB，最多 9 张，留足余量
+    client_max_body_size 50M;
+
+    # ---------------- gzip ----------------
+    gzip on;
+    gzip_vary on;
+    gzip_comp_level 6;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_types
+        text/plain text/css text/xml text/javascript
+        application/javascript application/json application/xml
+        application/xml+rss image/svg+xml font/ttf font/otf font/woff font/woff2;
+
+    # ---------------- 基础安全头 ----------------
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # ============================================================
+    # 1. 后端 API
+    # ============================================================
+    location /api/ {
+        proxy_pass http://campus_trade_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_connect_timeout 15s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # ============================================================
+    # 2. Socket.IO 实时聊天（需要 WebSocket 升级）
+    # ============================================================
+    location /socket.io/ {
+        proxy_pass http://campus_trade_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # 实时性优先：关闭缓冲与缓存
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+    # ============================================================
+    # 3. 用户上传的图片（头像 / 商品图）
+    #    使用 ^~ 避免被下方静态资源正则捕获
+    #    文件名含内容哈希，可长期缓存
+    # ============================================================
+    location ^~ /uploads/ {
+        proxy_pass http://campus_trade_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_cache_valid 200 7d;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+    }
+
+    # ============================================================
+    # 4. 后端健康检查（运维用）
+    # ============================================================
+    location = /health {
+        proxy_pass http://campus_trade_backend/health;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        access_log off;
+    }
+
+    # ============================================================
+    # 5. 构建产物：文件名带哈希，可永久缓存
+    # ============================================================
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        access_log off;
+        try_files $uri =404;
+    }
+
+    # ============================================================
+    # 6. 前端 SPA 入口
+    #    index.html 不缓存，保证发版后用户立即拿到新版本
+    # ============================================================
+    location = /index.html {
+        add_header Cache-Control "no-cache, must-revalidate";
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # 隐藏文件与备份文件
+    location ~ /\.(?!well-known) {
+        deny all;
+    }
+}
