@@ -16,6 +16,7 @@ import viewHistoryRoutes from './routes/viewHistoryRoutes';
 import addressRoutes from './routes/addressRoutes';
 import messageRoutes from './routes/messageRoutes';
 import orderRoutes from './routes/orderRoutes';
+import aiRoutes from './routes/aiRoutes';
 import { scheduleCleanupJob } from './utils/cleanup';
 import { globalLimiter } from './middleware/rateLimit';
 
@@ -66,6 +67,7 @@ app.use('/api/view-history', viewHistoryRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/ai', aiRoutes);
 // 启动定时清理任务（每日凌晨3点）
 scheduleCleanupJob();
 

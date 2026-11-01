@@ -15,6 +15,8 @@ const createLimiter = (options: {
   windowMs: number;
   max: number;
   message: string;
+  /** 自定义计数维度，默认按 IP */
+  keyGenerator?: (req: Request) => string;
 }) =>
   rateLimit({
     windowMs: options.windowMs,
@@ -22,6 +24,7 @@ const createLimiter = (options: {
     standardHeaders: true, // 返回 RateLimit-* 响应头
     legacyHeaders: false, // 关闭 X-RateLimit-* 响应头
     skip: () => DISABLED,
+    ...(options.keyGenerator ? { keyGenerator: options.keyGenerator } : {}),
     // 统一的中文错误响应格式
     handler: (_req, res) => {
       res.status(429).json({
@@ -80,6 +83,31 @@ export const globalLimiter = createLimiter({
   windowMs: 60 * 1000,
   max: 300,
   message: '请求过于频繁，请稍后再试',
+});
+
+/**
+ * AI 助手：按「用户」而不是 IP 计数，因为 AI 调用有真实 token 成本
+ *   - 每分钟 10 次：防连点、防脚本
+ *   - 每天 300 次：防刷爆账单
+ * 注意：aiLimiter 必须挂在 authenticateToken 之后，才能拿到 req.user
+ */
+const aiKey = (req: Request): string => {
+  const userId = (req as Request & { user?: { userId: number } }).user?.userId;
+  return userId ? `ai:u:${userId}` : `ai:ip:${getClientIp(req)}`;
+};
+
+export const aiLimiter = createLimiter({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: 'AI 助手调用过于频繁，请稍等片刻再问',
+  keyGenerator: aiKey,
+});
+
+export const aiDailyLimiter = createLimiter({
+  windowMs: 24 * 60 * 60 * 1000,
+  max: 300,
+  message: '今天的 AI 助手使用次数已达上限，明天再来吧',
+  keyGenerator: aiKey,
 });
 
 /**
