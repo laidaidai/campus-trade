@@ -130,194 +130,172 @@ defineExpose({
 </script>
 
 <style scoped>
+/* 遮罩：深色纸面，不用模糊 */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  inset: 0;
+  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
-  padding: 20px;
+  padding: 24px;
+  background: color-mix(in srgb, var(--panel-deep) 62%, transparent);
 }
 
+/* 弹层：一张纸卡 */
 .modal-container {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 420px;
   width: 100%;
-  overflow: hidden;
-  animation: modalBounce 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  max-width: 440px;
+  padding: 24px;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 22px;
+  box-shadow: 7px 8px 0 var(--shadow);
+  animation: modalIn 0.26s var(--fish-ease) both;
 }
 
-@keyframes modalBounce {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .modal-header {
-  padding: 32px 32px 24px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
 .modal-icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 16px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--cream-1);
 }
 
 .modal-icon svg {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
 }
 
 .modal-icon.icon-info {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--cream-1);
+  border-color: var(--line-strong);
+  color: var(--text-2);
 }
 
 .modal-icon.icon-warning {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
+  background: var(--warn-bg);
+  border-color: var(--warn-text);
+  color: var(--warn-text);
 }
 
 .modal-icon.icon-danger {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-  color: white;
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
 }
 
 .modal-icon.icon-success {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: white;
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
 }
 
 .modal-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-primary);
   margin: 0;
+  color: var(--ink);
+  font-size: 21px;
+  font-weight: 900;
+  line-height: 1.25;
 }
 
 .modal-body {
-  padding: 0 32px 32px;
-  text-align: center;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .modal-body p {
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--text-secondary);
   margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
+/* 底部：次级 + 主操作 */
 .modal-footer {
-  padding: 20px 32px 32px;
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
 }
 
 .btn {
-  flex: 1;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  border: none;
+  min-height: 44px;
+  padding: 9px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 100px;
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-cancel {
-  background: #f5f5f5;
-  color: var(--text-secondary);
+  background: var(--card);
+  border: 2px solid var(--line-strong);
+  color: var(--text-2);
 }
 
 .btn-cancel:hover {
-  background: #e8e8e8;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: var(--cream-2);
+  color: var(--ink);
 }
 
 .btn-cancel:active {
-  transform: translateY(0);
+  transform: translateY(2px);
 }
 
 .btn-confirm {
-  color: white;
+  border: 2px solid var(--edge);
+  box-shadow: 3px 4px 0 var(--shadow);
+  background: var(--primary);
+  color: var(--on-primary);
 }
 
-.btn-confirm.btn-info {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-}
-
-.btn-confirm.btn-info:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-}
-
-.btn-confirm.btn-warning {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
-}
-
-.btn-confirm.btn-warning:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5);
-}
-
-.btn-confirm.btn-danger {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
-}
-
-.btn-confirm.btn-danger:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
-}
-
-.btn-confirm.btn-success {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-}
-
-.btn-confirm.btn-success:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.5);
+.btn-confirm:hover {
+  transform: translateY(-1px);
+  box-shadow: 4px 5px 0 var(--shadow);
 }
 
 .btn-confirm:active {
-  transform: translateY(0);
+  transform: translateY(2px);
+  box-shadow: 1px 2px 0 var(--shadow);
 }
 
-/* 动画 */
+.btn-confirm.btn-danger {
+  background: var(--danger);
+  color: var(--on-primary);
+}
+
+.btn-confirm.btn-success {
+  background: var(--success);
+  color: var(--on-primary);
+}
+
+.btn-confirm.btn-info,
+.btn-confirm.btn-warning {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+/* 过渡 */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.3s;
-}
-
-.modal-enter-active .modal-container,
-.modal-leave-active .modal-container {
-  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: opacity 0.22s var(--fish-ease);
 }
 
 .modal-enter-from,
@@ -325,51 +303,16 @@ defineExpose({
   opacity: 0;
 }
 
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
-  transform: scale(0.8);
-}
-
-/* 移动端适配 */
 @media (max-width: 768px) {
   .modal-container {
-    max-width: 90vw;
+    max-width: 100%;
+    padding: 20px;
+    border-radius: 18px;
   }
-
-  .modal-header {
-    padding: 24px 24px 20px;
-  }
-
-  .modal-icon {
-    width: 56px;
-    height: 56px;
-  }
-
-  .modal-icon svg {
-    width: 28px;
-    height: 28px;
-  }
-
-  .modal-title {
-    font-size: 20px;
-  }
-
-  .modal-body {
-    padding: 0 24px 24px;
-  }
-
-  .modal-body p {
-    font-size: 14px;
-  }
-
-  .modal-footer {
-    padding: 16px 24px 24px;
-    flex-direction: column-reverse;
-  }
-
-  .btn {
-    width: 100%;
-    min-width: auto;
-  }
+  .modal-icon { width: 48px; height: 48px; }
+  .modal-icon svg { width: 22px; height: 22px; }
+  .modal-title { font-size: 19px; }
+  .modal-footer { flex-direction: column-reverse; }
+  .btn { width: 100%; }
 }
 </style>

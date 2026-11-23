@@ -17,7 +17,7 @@ const dbConfig = {
   waitForConnections: true,
   connectionLimit: 20,
   queueLimit: 0,
-  acquireTimeoutMillis: 60000,
+  connectTimeout: 60000,
   charset: 'utf8mb4'
 };
 

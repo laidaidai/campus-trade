@@ -15,7 +15,7 @@
           </div>
           
           <div class="slider-tip">
-            <span v-if="!verified && !failed">👆 拖动下方滑块，将拼图块拖到暗色缺口处</span>
+            <span v-if="!verified && !failed">拖动滑块，将拼图块对齐缺口</span>
             <span v-if="verified" class="tip-success">✓ 验证成功</span>
             <span v-if="failed" class="tip-failed">✗ 验证失败，请重试</span>
           </div>
@@ -24,7 +24,7 @@
             <div class="slider-mask" :style="sliderMaskStyle">
               <span v-if="!verified && !failed">{{ sliderText }}</span>
               <span v-if="verified">✓ 验证成功</span>
-              <span v-if="failed">✗ 验证失败,请重试</span>
+              <span v-if="failed">✗ 验证失败，请重试</span>
             </div>
             <div 
               class="slider-button"
@@ -58,8 +58,8 @@
           
           <div class="puzzle-status">
             <span v-if="!verified && !failed">拖动拼图块到正确位置</span>
-            <span v-if="verified" class="success">✓ 验证成功!</span>
-            <span v-if="failed" class="failed">✗ 验证失败,请重试</span>
+            <span v-if="verified" class="success">验证成功</span>
+            <span v-if="failed" class="failed">验证失败，请重试</span>
           </div>
         </div>
 
@@ -142,11 +142,11 @@ const initSlider = async () => {
   block.height = canvasHeight
 
   // 先绘制一个占位背景
-  ctx.fillStyle = '#f0f0f0'
+  ctx.fillStyle = '#fbe9d6'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   
   // 添加加载提示
-  ctx.fillStyle = '#999'
+  ctx.fillStyle = '#8a6a58'
   ctx.font = '14px sans-serif'
   ctx.textAlign = 'center'
   ctx.fillText('加载中...', canvas.width / 2, canvas.height / 2)
@@ -196,7 +196,7 @@ const initSlider = async () => {
     // 绘制缺口边框，使其更明显
     ctx.save()
     drawPuzzlePath(ctx, puzzleX.value, puzzleY, puzzleSize, r)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)'
+    ctx.strokeStyle = '#2a1712'
     ctx.lineWidth = 2
     ctx.stroke()
     ctx.restore()
@@ -223,7 +223,7 @@ const initSlider = async () => {
     // 添加拼图块边框
     blockCtx.save()
     drawPuzzlePath(blockCtx, 0, puzzleY, puzzleSize, r)
-    blockCtx.strokeStyle = '#fff'
+    blockCtx.strokeStyle = '#fffdf8'
     blockCtx.lineWidth = 3
     blockCtx.stroke()
     blockCtx.restore()
@@ -241,15 +241,12 @@ const initSlider = async () => {
 const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   const width = canvasWidth
   const height = canvasHeight
-  // 生成渐变背景
-  const gradient = ctx.createLinearGradient(0, 0, width, height)
-  gradient.addColorStop(0, '#667eea')
-  gradient.addColorStop(1, '#764ba2')
-  ctx.fillStyle = gradient
+  // 纸底背景
+  ctx.fillStyle = '#fbe9d6'
   ctx.fillRect(0, 0, width, height)
   
   // 添加一些装饰图案
-  ctx.fillStyle = 'rgba(255,255,255,0.1)'
+  ctx.fillStyle = 'rgba(232,83,47,0.12)'
   for (let i = 0; i < 20; i++) {
     ctx.beginPath()
     ctx.arc(
@@ -278,7 +275,7 @@ const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   // 绘制缺口边框，使其更明显
   ctx.save()
   drawPuzzlePath(ctx, puzzleX.value, puzzleY, puzzleSize, r)
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)'
+  ctx.strokeStyle = '#2a1712'
   ctx.lineWidth = 2
   ctx.stroke()
   ctx.restore()
@@ -289,13 +286,10 @@ const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   tempCanvas.width = width
   tempCanvas.height = height
   const tempCtx = tempCanvas.getContext('2d')
-  const tempGradient = tempCtx.createLinearGradient(0, 0, width, height)
-  tempGradient.addColorStop(0, '#667eea')
-  tempGradient.addColorStop(1, '#764ba2')
-  tempCtx.fillStyle = tempGradient
+  tempCtx.fillStyle = '#fbe9d6'
   tempCtx.fillRect(0, 0, width, height)
   
-  tempCtx.fillStyle = 'rgba(255,255,255,0.1)'
+  tempCtx.fillStyle = 'rgba(232,83,47,0.12)'
   for (let i = 0; i < 20; i++) {
     tempCtx.beginPath()
     tempCtx.arc(
@@ -330,7 +324,7 @@ const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   // 添加拼图块边框
   blockCtx.save()
   drawPuzzlePath(blockCtx, 0, puzzleY, puzzleSize, r)
-  blockCtx.strokeStyle = '#fff'
+  blockCtx.strokeStyle = '#fffdf8'
   blockCtx.lineWidth = 3
   blockCtx.stroke()
   blockCtx.restore()
@@ -568,16 +562,14 @@ onUnmounted(() => {
 <style scoped>
 .captcha-modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
-  animation: fadeIn 0.2s;
+  padding: 24px;
+  background: color-mix(in srgb, var(--panel-deep) 68%, transparent);
+  animation: fadeIn 0.2s var(--fish-ease) both;
 }
 
 @keyframes fadeIn {
@@ -586,134 +578,138 @@ onUnmounted(() => {
 }
 
 .captcha-box {
-  background: white;
-  border-radius: var(--radius-md);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
-  width: 90%;
-  max-height: 90vh;
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100vh - 48px);
   overflow-y: auto;
-  animation: slideUp 0.3s;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 20px;
+  box-shadow: 7px 8px 0 var(--shadow);
+  animation: slideUp 0.26s var(--fish-ease) both;
 }
 
 @keyframes slideUp {
-  from { transform: translateY(50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .captcha-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #eee;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 2px solid var(--line-2);
 }
 
 .captcha-header h3 {
   margin: 0;
+  color: var(--ink);
   font-size: 18px;
-  color: var(--text-primary);
+  font-weight: 900;
 }
 
 .close-btn {
-  background: none;
-  border: none;
-  font-size: 28px;
-  color: var(--text-tertiary);
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 22px;
+  line-height: 1;
   cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s;
 }
 
 .close-btn:hover {
-  background: #f5f5f5;
-  color: var(--text-primary);
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-panel);
 }
 
 .captcha-content {
-  padding: 20px;
+  padding: 18px 20px;
 }
 
-/* 滑块验证样式 */
-.slider-captcha {
+/* 拼图台 */
+.slider-captcha,
+.puzzle-captcha {
   width: 100%;
 }
 
 .puzzle-container {
   position: relative;
-  margin-bottom: 15px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: #f5f5f5;
+  margin-bottom: 12px;
   min-height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.slider-tip {
-  text-align: center;
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 10px;
-  padding: 8px;
-  background: #f9f9f9;
-  border-radius: 6px;
-  font-weight: 500;
-}
-
-.slider-tip .tip-success {
-  color: #52c41a;
-}
-
-.slider-tip .tip-failed {
-  color: #ff4d4f;
+  overflow: hidden;
+  background: var(--cream-2);
+  border: 2px solid var(--edge);
+  border-radius: 12px;
 }
 
 .background-canvas {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: var(--radius-sm);
-  background: #f0f0f0;
+  background: var(--cream-2);
 }
 
 .block-canvas {
   position: absolute;
   top: 0;
   left: 0;
-  pointer-events: none;
   width: 100%;
   height: auto;
+  pointer-events: none;
 }
 
+/* 提示 */
+.slider-tip {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: var(--cream-1);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.slider-tip .tip-success { color: var(--success); }
+.slider-tip .tip-failed { color: var(--danger); }
+
+/* 滑块 */
 .slider-container {
   position: relative;
-  background: #f7f9fa;
-  border-radius: 25px;
-  height: 40px;
-  line-height: 40px;
+  height: 44px;
+  line-height: 44px;
   text-align: center;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
   user-select: none;
-  transition: all var(--transition-base) var(--ease-in-out);
   overflow: visible;
   z-index: 1;
 }
 
 .slider-container.success {
-  background: #e6f7e6;
-  color: #52c41a;
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
 }
 
 .slider-container.failed {
-  background: #ffe6e6;
-  color: #ff4d4f;
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
 }
 
 .slider-mask {
@@ -721,299 +717,117 @@ onUnmounted(() => {
   left: 0;
   top: 0;
   height: 100%;
-  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-  border-radius: 25px;
-  transition: width 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 14px;
+  overflow: hidden;
+  background: var(--primary-3);
+  border-radius: 999px;
+  color: var(--primary-2);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  transition: width 0.2s linear;
 }
 
 .slider-button {
   position: absolute;
-  top: 0;
+  top: -2px;
   left: 0;
-  width: 40px;
-  height: 40px;
-  background: white;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 2px 3px 0 var(--shadow);
   cursor: grab;
-  transition: box-shadow 0.2s;
   z-index: 10;
-  border: 2px solid #fff;
 }
 
-.slider-button:active {
-  cursor: grabbing;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
+.slider-button:active { cursor: grabbing; }
 
 .slider-button .arrow {
+  color: var(--on-primary);
+  font-size: 18px;
   font-style: normal;
-  font-size: 20px;
-  color: var(--primary-color);
-  font-weight: bold;
+  font-weight: 900;
 }
 
-/* 拼图验证样式 */
+/* 拼图块 */
 .puzzle-pieces {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
 }
 
 .puzzle-piece {
   position: absolute;
-  cursor: move;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  transition: box-shadow 0.2s;
+  cursor: grab;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
-.puzzle-piece:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-}
+.puzzle-piece:hover { border-color: var(--primary); }
 
 .puzzle-piece.placed {
-  cursor: default;
-  border-color: #52c41a;
+  border-color: var(--success);
 }
 
 .puzzle-piece canvas {
   display: block;
   width: 100%;
   height: 100%;
-  pointer-events: none;
 }
 
 .puzzle-status {
+  margin-top: 10px;
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 700;
   text-align: center;
-  padding: 10px;
-  font-size: 14px;
-  color: var(--text-secondary);
 }
 
-.puzzle-status .success {
-  color: #52c41a;
-}
-
-.puzzle-status .failed {
-  color: #ff4d4f;
-}
+.puzzle-status .success { color: var(--success); }
+.puzzle-status .failed { color: var(--danger); }
 
 .captcha-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 2px solid var(--line-2);
   display: flex;
   justify-content: flex-end;
-  margin-top: 15px;
 }
 
 .refresh-btn {
-  padding: 8px 16px;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  background: white;
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 14px;
-  transition: all 0.2s;
+  gap: 6px;
+  min-height: 38px;
+  padding: 7px 18px;
+  background: var(--card);
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .refresh-btn:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+  border-color: var(--edge);
+  color: var(--ink);
 }
 
-/* 移动端响应式 */
-@media (max-width: 768px) {
-  .captcha-modal {
-    padding: 10px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .captcha-box {
-    width: 95%;
-    max-width: 100%;
-    margin: auto;
-  }
-
-  .captcha-header {
-    padding: 15px;
-  }
-
-  .captcha-header h3 {
-    font-size: 16px;
-  }
-
-  .captcha-content {
-    padding: 15px;
-  }
-
-  .puzzle-container {
-    margin-bottom: 12px;
-    min-height: 120px;
-  }
-
-  .slider-tip {
-    font-size: 11px;
-    margin-bottom: 8px;
-    padding: 6px;
-    line-height: 1.4;
-  }
-
-  .background-canvas {
-    max-width: 100%;
-    width: 100%;
-    height: auto;
-  }
-
-  .block-canvas {
-    max-width: 100%;
-    width: 100%;
-    height: auto;
-  }
-
-  .slider-container {
-    height: 45px;
-    line-height: 45px;
-    font-size: 13px;
-    border: 1px solid #e0e0e0;
-  }
-
-  .slider-button {
-    width: 45px;
-    height: 45px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  }
-
-  .slider-button .arrow {
-    font-size: 22px;
-  }
-
-  .slider-mask {
-    font-size: 13px;
-  }
-  
-  .slider-mask span {
-    display: block;
-    width: 100%;
-  }
-
-  .puzzle-status {
-    font-size: 13px;
-    padding: 8px;
-  }
-
-  .refresh-btn {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
+.refresh-btn :deep(svg) {
+  width: 14px;
+  height: 14px;
 }
 
 @media (max-width: 480px) {
-  .captcha-box {
-    width: 98%;
-    border-radius: 10px;
-  }
-
-  .captcha-header {
-    padding: 12px;
-  }
-
-  .captcha-header h3 {
-    font-size: 15px;
-  }
-
-  .close-btn {
-    font-size: 24px;
-    width: 26px;
-    height: 26px;
-  }
-
-  .captcha-content {
-    padding: 12px;
-  }
-
-  .puzzle-container {
-    min-height: 100px;
-    margin-bottom: 10px;
-  }
-
-  .slider-tip {
-    font-size: 10px;
-    margin-bottom: 8px;
-    padding: 5px;
-    line-height: 1.3;
-  }
-
-  .slider-container {
-    height: 42px;
-    line-height: 42px;
-    font-size: 12px;
-    border: 1px solid #e0e0e0;
-  }
-
-  .slider-button {
-    width: 42px;
-    height: 42px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
-  }
-
-  .slider-button .arrow {
-    font-size: 20px;
-  }
-
-  .slider-mask {
-    font-size: 12px;
-  }
-  
-  .slider-mask span {
-    display: block;
-    width: 100%;
-  }
-}
-
-/* iPad竖屏优化 */
-@media (min-width: 481px) and (max-width: 1024px) and (orientation: portrait) {
-  .captcha-box {
-    max-width: 450px;
-    width: 85%;
-  }
-
-  .captcha-header {
-    padding: 18px;
-  }
-
-  .captcha-content {
-    padding: 18px;
-  }
-
-  .slider-container {
-    height: 48px;
-    line-height: 48px;
-    border: 1px solid #e0e0e0;
-  }
-
-  .slider-button {
-    width: 48px;
-    height: 48px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .slider-button .arrow {
-    font-size: 24px;
-  }
+  .captcha-modal { padding: 12px; }
+  .captcha-header { padding: 14px 16px; }
+  .captcha-content { padding: 14px 16px; }
 }
 </style>

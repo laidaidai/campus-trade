@@ -83,20 +83,21 @@ defineExpose({ show, close })
 </script>
 
 <style scoped>
+/* 纸卡提示条：墨线 + 左侧语义实线 */
 .toast-container {
   position: fixed;
-  top: 80px;
+  top: 88px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
-  min-width: 300px;
-  max-width: 500px;
-  padding: 16px 24px;
-  border-radius: 12px;
-  background: white;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  min-width: 280px;
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 12px 16px;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-left-width: 6px;
+  border-radius: 14px;
+  box-shadow: 4px 5px 0 var(--shadow);
 }
 
 .toast-content {
@@ -107,8 +108,8 @@ defineExpose({ show, close })
 
 .toast-icon {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 }
 
 .toast-icon svg {
@@ -118,61 +119,47 @@ defineExpose({ show, close })
 
 .toast-message {
   flex: 1;
-  font-size: 14px;
-  font-weight: 500;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
   line-height: 1.5;
-  color: #333;
+  word-break: break-word;
 }
 
-/* Success */
-.toast-success {
-  border-left: 4px solid #4caf50;
-}
+.toast-success { border-left-color: var(--success); }
+.toast-success .toast-icon { color: var(--success); }
 
-.toast-success .toast-icon {
-  color: #4caf50;
-}
+.toast-error { border-left-color: var(--danger); }
+.toast-error .toast-icon { color: var(--danger); }
 
-/* Error */
-.toast-error {
-  border-left: 4px solid #f44336;
-}
+.toast-warning { border-left-color: var(--warn-text); }
+.toast-warning .toast-icon { color: var(--warn-text); }
 
-.toast-error .toast-icon {
-  color: #f44336;
-}
+.toast-info { border-left-color: var(--primary); }
+.toast-info .toast-icon { color: var(--primary); }
 
-/* Warning */
-.toast-warning {
-  border-left: 4px solid #ff9800;
-}
-
-.toast-warning .toast-icon {
-  color: #ff9800;
-}
-
-/* Info */
-.toast-info {
-  border-left: 4px solid #2196f3;
-}
-
-.toast-info .toast-icon {
-  color: #2196f3;
-}
-
-/* Transitions */
+/* 过渡 */
 .toast-enter-active,
 .toast-leave-active {
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity 0.26s var(--fish-ease), transform 0.26s var(--fish-ease);
 }
 
-.toast-enter-from {
-  opacity: 0;
-  transform: translateX(-50%) translateY(-20px) scale(0.95);
-}
-
+.toast-enter-from,
 .toast-leave-to {
   opacity: 0;
-  transform: translateX(-50%) translateY(-20px) scale(0.95);
+  transform: translateX(-50%) translateY(-14px) scale(0.97);
+}
+
+@media (max-width: 768px) {
+  .toast-container {
+    top: 16px;
+    left: 12px;
+    right: 12px;
+    min-width: 0;
+    max-width: none;
+    transform: none;
+  }
+  .toast-enter-from,
+  .toast-leave-to { transform: translateY(-14px) scale(0.97); }
 }
 </style>

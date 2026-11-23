@@ -232,46 +232,45 @@ onMounted(() => {
   position: relative;
   width: 100%;
   overflow: hidden;
-  background: #f5f5f5;
+  background: var(--cream-2);
   border-radius: 8px;
 }
 
 .optimized-image {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s var(--fish-ease);
 }
 
-.optimized-image.image-loaded {
-  opacity: 1;
-}
+.optimized-image.image-loaded { opacity: 1; }
 
-/* 占位符样式 */
+/* 占位：纯色呼吸，不做渐变扫光 */
 .image-placeholder {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  background: var(--cream-2);
+  animation: breathe 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes breathe {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
 }
 
 .placeholder-content {
+  color: var(--text-3);
   text-align: center;
-  color: #999;
 }
 
 .placeholder-icon {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   margin: 0 auto 8px;
   opacity: 0.6;
 }
@@ -282,31 +281,28 @@ onMounted(() => {
 }
 
 .placeholder-text {
+  color: var(--text-4);
   font-size: 12px;
-  color: #999;
 }
 
-/* 错误占位符样式 */
+/* 失败占位 */
 .image-error {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fafafa;
+  background: var(--cream-1);
 }
 
 .error-content {
+  color: var(--text-3);
   text-align: center;
-  color: #999;
 }
 
 .error-icon {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   margin: 0 auto 8px;
   opacity: 0.6;
 }
@@ -317,64 +313,42 @@ onMounted(() => {
 }
 
 .error-text {
-  font-size: 12px;
-  color: #999;
   margin-bottom: 8px;
+  color: var(--text-4);
+  font-size: 12px;
 }
 
 .retry-btn {
+  min-height: 28px;
   padding: 4px 12px;
-  font-size: 12px;
-  color: #666;
-  background: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  background: var(--card);
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .retry-btn:hover {
-  background: #e0e0e0;
-  color: #333;
+  background: var(--cream-2);
+  color: var(--ink);
 }
 
-/* 加载进度条 */
+/* 进度 */
 .loading-progress {
   position: absolute;
-  bottom: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: rgba(0, 0, 0, 0.1);
+  bottom: 0;
+  height: 4px;
+  background: var(--cream-1);
+  border-top: 2px solid var(--edge);
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #4CAF50, #8BC34A);
-  transition: width 0.3s ease;
-}
-
-/* 闪烁动画 */
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-/* 响应式优化 */
-@media (max-width: 768px) {
-  .placeholder-icon,
-  .error-icon {
-    width: 24px;
-    height: 24px;
-  }
-  
-  .placeholder-text,
-  .error-text {
-    font-size: 11px;
-  }
+  background: var(--primary);
+  transition: width 0.3s var(--fish-ease);
 }
 </style>

@@ -141,91 +141,115 @@ onMounted(() => {
 
 <style scoped>
 .my-orders {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
+/* 分段切换：纸片胶囊 */
 .tabs {
   display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-  border-bottom: 2px solid #e5e7eb;
+  gap: 8px;
 }
 
 .tab-btn {
-  padding: 12px 24px;
-  background: none;
-  border: none;
-  font-size: 16px;
-  font-weight: 500;
-  color: #6b7280;
+  min-height: 40px;
+  padding: 8px 22px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--text-3);
+  font-size: 13px;
+  font-weight: 800;
   cursor: pointer;
-  position: relative;
-  transition: color 0.3s;
+  transition: background-color 0.26s var(--fish-ease),
+              border-color 0.26s var(--fish-ease),
+              color 0.26s var(--fish-ease),
+              box-shadow 0.26s var(--fish-ease);
+}
+
+.tab-btn:hover {
+  color: var(--ink);
+  border-color: var(--edge);
 }
 
 .tab-btn.active {
-  color: #ff2442;
-}
-
-.tab-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #ff2442;
+  background: var(--primary);
+  border-color: var(--edge);
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--on-primary);
 }
 
 .orders-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
-.loading,
-.empty {
+.loading {
+  padding: 40px 16px;
+  color: var(--text-3);
+  font-size: 13px;
   text-align: center;
-  padding: 60px 20px;
-  color: #9ca3af;
 }
 
+.empty {
+  padding: 44px 16px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 16px;
+  color: var(--text-3);
+  font-size: 13px;
+  text-align: center;
+}
+
+.empty p { margin: 0; }
+
+/* 订单行：纸卡 */
 .order-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  gap: 14px;
+  padding: 12px;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: transform 0.26s var(--fish-ease),
+              box-shadow 0.26s var(--fish-ease),
+              background-color 0.26s var(--fish-ease);
 }
 
 .order-card:hover {
-  border-color: #ff2442;
-  box-shadow: 0 4px 12px rgba(255, 36, 66, 0.1);
   transform: translateY(-2px);
+  background: var(--cream-1);
+  box-shadow: 4px 5px 0 var(--shadow);
 }
 
 .order-image {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 8px;
+  width: 72px;
+  height: 72px;
   flex-shrink: 0;
+  object-fit: cover;
+  background: var(--cream-2);
+  border: 2px solid var(--edge);
+  border-radius: 10px;
 }
 
 .order-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .order-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 8px 0;
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -234,112 +258,68 @@ onMounted(() => {
 .order-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 6px;
+  gap: 10px;
 }
 
 .order-price {
+  color: var(--primary-2);
   font-size: 18px;
-  font-weight: 700;
-  color: #ff2442;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .order-status {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 2px 9px;
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
 .status-pending {
-  background: #fef3c7;
-  color: #d97706;
+  background: var(--warn-bg);
+  border-color: var(--warn-text);
+  color: var(--warn-text);
 }
 
-.status-paid {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
+.status-paid,
 .status-shipped {
-  background: #e0e7ff;
-  color: #6366f1;
+  background: var(--primary-3);
+  border-color: var(--primary-2);
+  color: var(--primary-2);
 }
 
 .status-completed {
-  background: #d1fae5;
-  color: #059669;
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
 }
 
 .status-cancelled {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--cream-2);
+  border-color: var(--line-strong);
+  color: var(--text-3);
 }
 
 .order-time {
-  font-size: 13px;
-  color: #9ca3af;
+  color: var(--text-4);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
 }
 
 .order-arrow {
-  font-size: 24px;
-  color: #d1d5db;
   flex-shrink: 0;
+  color: var(--text-4);
+  font-size: 20px;
+  line-height: 1;
 }
 
-/* iPad 适配 */
-@media (max-width: 1024px) {
-  .order-image {
-    width: 70px;
-    height: 70px;
-  }
-
-  .order-title {
-    font-size: 15px;
-  }
-
-  .order-price {
-    font-size: 16px;
-  }
-}
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .tabs {
-    gap: 8px;
-  }
-
-  .tab-btn {
-    padding: 10px 16px;
-    font-size: 15px;
-  }
-
-  .order-card {
-    padding: 12px;
-    gap: 12px;
-  }
-
-  .order-image {
-    width: 60px;
-    height: 60px;
-  }
-
-  .order-title {
-    font-size: 14px;
-  }
-
-  .order-price {
-    font-size: 15px;
-  }
-
-  .order-status {
-    font-size: 11px;
-    padding: 3px 10px;
-  }
-
-  .order-time {
-    font-size: 12px;
-  }
+@media (max-width: 640px) {
+  .order-card { gap: 10px; padding: 10px; }
+  .order-image { width: 60px; height: 60px; }
+  .order-title { font-size: 13px; }
+  .order-price { font-size: 16px; }
 }
 </style>
-

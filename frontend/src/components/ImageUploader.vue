@@ -349,239 +349,206 @@ const updateModelValue = () => {
 
 .upload-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  max-width: 100%;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
 }
 
+/* 已上传：方形纸片 */
 .upload-item {
   position: relative;
-  width: 100%;
-  padding-bottom: 100%; /* 1:1 比例 */
-  border-radius: var(--radius-sm);
+  aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: #f5f5f5;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--cream-2);
+  border: 2px solid var(--edge);
+  border-radius: 12px;
 }
 
 .upload-item img {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+/* 悬浮操作：纸片钮 */
 .upload-item-actions {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  top: 6px;
+  right: 6px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 4px;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s var(--fish-ease);
 }
 
-/* 桌面端hover显示 */
 @media (hover: hover) and (pointer: fine) {
-  .upload-item:hover .upload-item-actions {
-    opacity: 1;
-  }
+  .upload-item:hover .upload-item-actions { opacity: 1; }
 }
 
-/* 移动端/触摸设备始终显示操作按钮 */
 @media (hover: none) or (pointer: coarse) {
-  .upload-item-actions {
-    opacity: 1;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.6) 100%);
-  }
-  
-  .btn-preview,
-  .btn-remove {
-    width: 44px;
-    height: 44px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
+  .upload-item-actions { opacity: 1; }
 }
 
 .btn-preview,
 .btn-remove {
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.95);
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  color: var(--text-2);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition-base) var(--ease-in-out);
-  padding: 8px;
+  transition: background-color 0.2s var(--fish-ease),
+              border-color 0.2s var(--fish-ease),
+              color 0.2s var(--fish-ease);
 }
 
 .btn-preview :deep(svg),
 .btn-remove :deep(svg) {
-  width: 18px;
-  height: 18px;
-  color: var(--text-primary);
-  transition: color var(--transition-base) var(--ease-in-out) ease;
+  width: 15px;
+  height: 15px;
 }
 
 .btn-preview:hover {
-  background: var(--primary-color);
-  transform: scale(1.1);
-}
-
-.btn-preview:hover :deep(svg) {
-  color: #fff;
+  background: var(--primary);
+  border-color: var(--edge);
+  color: var(--on-primary);
 }
 
 .btn-remove:hover {
-  background: #ff4d4f;
-  transform: scale(1.1);
+  background: var(--danger);
+  border-color: var(--edge);
+  color: var(--on-primary);
 }
 
-.btn-remove:hover :deep(svg) {
-  color: #fff;
-}
-
+/* 上传进度：实线槽 */
 .upload-progress {
   position: absolute;
-  bottom: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: rgba(0, 0, 0, 0.2);
+  bottom: 0;
+  height: 6px;
+  background: var(--cream-1);
+  border-top: 2px solid var(--edge);
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-light) 100%);
-  transition: width 0.3s ease;
+  background: var(--primary);
+  transition: width 0.2s linear;
 }
 
+/* 上传入口：实线纸片，不用虚线 */
 .upload-trigger {
-  position: relative;
-  width: 100%;
-  padding-bottom: 100%;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  transition: all var(--transition-base) var(--ease-in-out);
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.26s var(--fish-ease),
+              border-color 0.26s var(--fish-ease);
 }
 
 .upload-trigger:hover {
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--card);
+  border-color: var(--primary);
 }
 
 .upload-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
+  color: var(--text-3);
+  text-align: center;
 }
 
 .upload-text {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  color: var(--text-secondary);
-  transition: color var(--transition-base) var(--ease-in-out);
-}
-
-.upload-trigger:hover .upload-text {
-  color: var(--primary-color);
+  gap: 6px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .upload-text :deep(svg) {
-  width: 32px;
-  height: 32px;
-  stroke-width: 1.5;
-  color: inherit;
+  width: 26px;
+  height: 26px;
+  color: var(--text-3);
 }
 
-.upload-text span {
-  font-size: 14px;
-  font-weight: 500;
-  color: inherit;
+.upload-trigger:hover .upload-text {
+  color: var(--ink);
 }
 
 .upload-hint {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  margin-top: 4px;
+  color: var(--text-4);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-/* 预览弹窗 */
+/* 预览：深色台 */
 .preview-modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  inset: 0;
+  z-index: 10001;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
-  cursor: zoom-out;
+  padding: 32px;
+  background: color-mix(in srgb, var(--panel-deep) 82%, transparent);
 }
 
 .preview-content {
   position: relative;
-  max-width: 90vw;
-  max-height: 90vh;
-  cursor: default;
+  max-width: min(88vw, 720px);
+  max-height: 88vh;
+  padding: 6px;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 16px;
+  box-shadow: 6px 7px 0 var(--shadow);
 }
 
 .preview-content img {
+  display: block;
   max-width: 100%;
-  max-height: 90vh;
+  max-height: calc(88vh - 12px);
   object-fit: contain;
+  border-radius: 10px;
 }
 
 .btn-close {
   position: absolute;
-  top: -40px;
-  right: 0;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--text-primary);
-  font-size: 20px;
+  top: -14px;
+  right: -14px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 2px 3px 0 var(--shadow);
+  color: var(--on-primary);
+  font-size: 16px;
+  font-weight: 900;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition-base) var(--ease-in-out);
 }
 
 .btn-close:hover {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transform: rotate(90deg);
+  background: var(--danger);
 }
 
-/* 淡入淡出动画 */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.22s var(--fish-ease);
 }
 
 .fade-enter-from,
@@ -589,56 +556,15 @@ const updateModelValue = () => {
   opacity: 0;
 }
 
-/* 移动端响应式优化 */
-@media (max-width: 480px) {
-  .upload-list {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-  
-  .upload-text {
-    gap: 6px;
-  }
-  
-  .upload-text :deep(svg) {
-    width: 28px;
-    height: 28px;
-  }
-  
-  .upload-text span {
-    font-size: 13px;
-  }
-  
-  .upload-hint {
-    font-size: 11px;
-  }
+@media (max-width: 768px) {
+  .upload-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .preview-modal { padding: 16px; }
+  .btn-close { top: -10px; right: -10px; width: 34px; height: 34px; }
 }
 
-/* 大屏手机和平板优化 */
-@media (min-width: 481px) and (max-width: 768px) {
-  .upload-list {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-}
-
-/* 超小屏幕优化 */
-@media (max-width: 360px) {
-  .upload-list {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-  }
-  
-  .btn-preview,
-  .btn-remove {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .btn-preview :deep(svg),
-  .btn-remove :deep(svg) {
-    width: 16px;
-    height: 16px;
-  }
+@media (max-width: 380px) {
+  .upload-list { gap: 6px; }
+  .upload-text { font-size: 11px; }
+  .upload-text :deep(svg) { width: 22px; height: 22px; }
 }
 </style>

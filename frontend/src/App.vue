@@ -24,6 +24,7 @@ import { useRouter, useRoute } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
 import AiAssistant from '@/components/AiAssistant.vue'
 import { startTokenMonitor, checkAndClearExpiredToken } from '@/utils/token'
+import { initTheme } from '@/utils/theme'
 
 const router = useRouter()
 const route = useRoute()
@@ -45,6 +46,7 @@ const checkMobile = () => {
 let tokenMonitor = null
 
 onMounted(() => {
+  initTheme()
   checkMobile()
   window.addEventListener('resize', checkMobile)
   
@@ -98,87 +100,77 @@ html, body, #app {
   padding: 0;
 }
 
-/* 平滑的淡入淡出过渡动画 */
+/* 页面切换：纸张掀起，不弹跳 */
 .fade-enter-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.26s var(--fish-ease), transform 0.26s var(--fish-ease);
 }
-
 .fade-leave-active {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.18s var(--fish-ease), transform 0.18s var(--fish-ease);
 }
-
 .fade-enter-from {
   opacity: 0;
   transform: translateY(10px);
 }
-
-.fade-enter-to {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+.fade-enter-to,
 .fade-leave-from {
   opacity: 1;
   transform: translateY(0);
 }
-
 .fade-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-6px);
 }
 
-/* 新布局样式 */
+/* 网页壳：纸底铺满，内容列居中 */
 .app-container {
   display: flex;
   min-height: 100vh;
+  background: var(--bg);
 }
 
 .main-wrapper {
   flex: 1;
-  margin-left: 240px;
+  min-width: 0;
+  margin-left: 232px;
   min-height: 100vh;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow-x: hidden;
+  background: var(--bg);
+  transition: margin-left 0.26s var(--fish-ease);
 }
 
 .main-wrapper.full-width {
   margin-left: 0;
 }
 
-/* 移动端布局 */
+/* 移动端：底部导航，内容不压住 tab */
 .main-wrapper.mobile {
   margin-left: 0 !important;
-  margin-bottom: 70px; /* 为底部导航栏留出空间 */
+  margin-bottom: 76px;
 }
 
-/* 响应式 */
-/* iPad竖屏：手机模式 */
 @media (max-width: 1024px) and (orientation: portrait) {
   .main-wrapper {
     margin-left: 0 !important;
-    margin-bottom: 70px;
+    margin-bottom: 76px;
   }
-  
   .main-wrapper.full-width {
     margin-bottom: 0;
   }
 }
 
-/* iPad横屏：桌面模式（缩略侧边栏） */
+/* iPad 横屏：窄侧栏只留图标 */
 @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
   .main-wrapper:not(.full-width) {
-    margin-left: 80px;
+    margin-left: 76px;
   }
 }
 
-/* 手机 */
 @media (max-width: 768px) {
   .main-wrapper {
     margin-left: 0 !important;
-    margin-bottom: 70px;
+    margin-bottom: 76px;
   }
-  
   .main-wrapper.full-width {
     margin-bottom: 0;
   }

@@ -2,28 +2,34 @@
   <aside :class="['sidebar', { 'mobile': isMobile }]">
     <!-- Logo (桌面端) -->
     <div v-if="!isMobile" class="sidebar-logo">
-      <div class="logo-icon" aria-label="校园交易">
-        <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 24L32 12L56 24L32 36L8 24Z" fill="#ff2442"/>
-          <path d="M16 28V42C16 45.314 18.6863 48 22 48H42C45.3137 48 48 45.314 48 42V28L32 36L16 28Z" fill="#FF6B6B"/>
-          <rect x="28" y="36" width="8" height="16" rx="2" fill="#ffffff"/>
-        </svg>
+      <div class="logo-mark" aria-label="校园交易">校</div>
+      <div class="logo-copy">
+        <span class="logo-text">校园交易</span>
+        <span class="logo-sub">CAMPUS TRADE</span>
       </div>
-      <span class="logo-text">校园交易</span>
     </div>
+
+    <!-- 桌面端：发布作为唯一主操作 -->
+    <router-link v-if="!isMobile" to="/publish" class="sidebar-cta" @click="handleNavClick">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      <span>发布闲置</span>
+    </router-link>
 
     <!-- 导航菜单 -->
     <nav class="sidebar-nav">
       <router-link to="/" class="nav-item" :class="{ 'navigating': isNavigating }" @click="handleNavClick">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
           <polyline points="9 22 9 12 15 12 15 22"></polyline>
         </svg>
         <span class="nav-text">首页</span>
       </router-link>
 
-      <router-link to="/publish" class="nav-item" :class="{ 'navigating': isNavigating }" @click="handleNavClick">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <router-link v-if="isMobile" to="/publish" class="nav-item" :class="{ 'navigating': isNavigating }" @click="handleNavClick">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="8" x2="12" y2="16"></line>
           <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -32,22 +38,22 @@
       </router-link>
 
       <router-link to="/messages" class="nav-item" :class="{ 'navigating': isNavigating }" @click="handleNavClick">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
         </svg>
         <span class="nav-text">消息</span>
-        <span v-if="unreadCount > 0" class="badge">{{ unreadCount }}</span>
+        <span v-if="unreadCount > 0" class="badge nav-badge">{{ unreadCount }}</span>
       </router-link>
 
       <router-link to="/favorites" class="nav-item" :class="{ 'navigating': isNavigating }" @click="handleNavClick">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
         </svg>
         <span class="nav-text">收藏</span>
       </router-link>
 
       <router-link to="/profile" class="nav-item" :class="{ 'navigating': isNavigating }" @click="handleNavClick">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
@@ -55,23 +61,46 @@
       </router-link>
     </nav>
 
-    <!-- 用户信息 (桌面端) -->
-    <div v-if="!isMobile" class="sidebar-user">
-      <div v-if="userStore.isLoggedIn" class="user-info">
-        <img :src="userAvatar" alt="头像" class="user-avatar" />
-        <div class="user-details">
-          <div class="user-name">{{ userStore.userInfo?.username }}</div>
-          <button @click="logout" class="btn-logout">退出</button>
+    <!-- 底部：主题 + 用户（桌面端） -->
+    <div v-if="!isMobile" class="sidebar-foot">
+      <div class="theme-block">
+        <span class="theme-label">主题</span>
+        <div class="theme-dots" role="group" aria-label="主题选择">
+          <button
+            v-for="t in THEMES"
+            :key="t.id"
+            type="button"
+            class="theme-dot"
+            :class="{ active: currentTheme === t.id }"
+            :style="{ background: t.bg, borderColor: t.ink }"
+            :title="t.name"
+            :aria-label="t.name"
+            @click="pickTheme(t.id)"
+          >
+            <span class="dot-core" :style="{ background: t.primary }"></span>
+          </button>
         </div>
       </div>
-      <router-link v-else to="/auth" class="btn-login">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-          <polyline points="10 17 15 12 10 7"></polyline>
-          <line x1="15" y1="12" x2="3" y2="12"></line>
-        </svg>
-        登录 / 注册
-      </router-link>
+
+      <div class="sidebar-user">
+        <div v-if="userStore.isLoggedIn" class="user-info">
+          <div class="avatar-frame">
+            <img :src="userAvatar" alt="头像" class="user-avatar" />
+          </div>
+          <div class="user-details">
+            <div class="user-name">{{ userStore.userInfo?.username }}</div>
+            <button type="button" @click="logout" class="btn-logout">退出</button>
+          </div>
+        </div>
+        <router-link v-else to="/auth" class="btn-login">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+          登录 / 注册
+        </router-link>
+      </div>
     </div>
   </aside>
 </template>
@@ -82,7 +111,8 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import socketService from '@/utils/socket'
 import { getUnreadCount } from '@/api/message'
-import { getImageUrl } from '@/config'
+import { resolveAvatar } from '@/utils/avatar'
+import { THEMES, applyTheme, getSavedTheme } from '@/utils/theme'
 
 const props = defineProps({
   isMobile: {
@@ -96,22 +126,22 @@ const userStore = useUserStore()
 
 const unreadCount = ref(0)
 const isNavigating = ref(false)
+const currentTheme = ref(getSavedTheme())
+
+const pickTheme = (id) => {
+  currentTheme.value = applyTheme(id)
+}
 
 // 计算用户头像URL
 const userAvatar = computed(() => {
-  if (userStore.userInfo?.avatar) {
-    const avatarUrl = getImageUrl(userStore.userInfo.avatar)
-    console.log('侧边栏头像URL:', { original: userStore.userInfo.avatar, generated: avatarUrl })
-    return avatarUrl
-  }
-  // 使用 ui-avatars 生成默认头像
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(userStore.userInfo?.username || '用户')}&background=ff2442&color=fff&size=150`
+  const info = userStore.userInfo
+  return resolveAvatar(info?.avatar, info?.username)
 })
 
 // 获取未读消息数
 const fetchUnreadCount = async () => {
   if (!userStore.isLoggedIn) return
-  
+
   try {
     const response = await getUnreadCount()
     unreadCount.value = response.data?.count || 0
@@ -120,16 +150,11 @@ const fetchUnreadCount = async () => {
   }
 }
 
-// 监听未读消息更新
 const handleUnreadCountUpdate = (data) => {
-  console.log('📬 收到未读消息更新:', data)
   unreadCount.value = data.count || 0
 }
 
-// 监听新消息
-const handleNewMessage = (data) => {
-  console.log('💬 收到新消息通知:', data)
-  // 增加未读数
+const handleNewMessage = () => {
   unreadCount.value = (unreadCount.value || 0) + 1
 }
 
@@ -138,27 +163,22 @@ const logout = () => {
   router.push('/')
 }
 
-// 处理导航点击
 const handleNavClick = (event) => {
-  // 防止重复点击
   if (isNavigating.value) {
     event.preventDefault()
     return
   }
-  
+
   isNavigating.value = true
-  
-  // 短暂延迟后重置状态
+
   setTimeout(() => {
     isNavigating.value = false
   }, 300)
 }
 
-// 监听登录状态变化
 watch(() => userStore.isLoggedIn, (isLoggedIn) => {
   if (isLoggedIn) {
     fetchUnreadCount()
-    // 连接WebSocket
     const token = localStorage.getItem('token')
     if (token && !socketService.socket?.connected) {
       socketService.connect(token)
@@ -171,15 +191,13 @@ watch(() => userStore.isLoggedIn, (isLoggedIn) => {
 onMounted(() => {
   if (userStore.isLoggedIn) {
     fetchUnreadCount()
-    
-    // 注册WebSocket事件监听
+
     socketService.on('unread_count_updated', handleUnreadCountUpdate)
     socketService.on('new_message', handleNewMessage)
   }
 })
 
 onUnmounted(() => {
-  // 清理事件监听
   socketService.off('unread_count_updated', handleUnreadCountUpdate)
   socketService.off('new_message', handleNewMessage)
 })
@@ -190,16 +208,14 @@ onUnmounted(() => {
   position: fixed;
   left: 0;
   top: 0;
-  width: 240px;
+  width: 232px;
   height: 100vh;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
+  background: var(--card);
+  border-right: 2px solid var(--edge);
+  box-shadow: 4px 0 0 var(--shadow);
   z-index: 1000;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.03);
 }
 
 /* Logo */
@@ -207,29 +223,91 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 24px 20px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.05) 100%);
-  border-bottom: 1px solid rgba(255, 36, 66, 0.08);
+  padding: 22px 20px 20px;
+  border-bottom: 2px solid var(--line-2);
 }
 
-.logo-icon {
-  font-size: 32px;
+.logo-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--primary);
+  color: var(--on-primary);
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  box-shadow: 3px 4px 0 var(--shadow);
+  font-size: 21px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.logo-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .logo-text {
-  font-size: 20px;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.logo-sub {
+  color: var(--text-3);
+  font-size: 10px;
   font-weight: 700;
-  background: linear-gradient(135deg, #ff2442 0%, #ff6b6b 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: 0.16em;
+}
+
+/* 主操作：桌面端唯一的实心发布入口 */
+.sidebar-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  margin: 16px 14px 2px;
+  padding: 10px 14px;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--on-primary);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
+}
+
+.sidebar-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 4px 5px 0 var(--shadow);
+}
+
+.sidebar-cta:active {
+  transform: translateY(2px);
+  box-shadow: 1px 2px 0 var(--shadow);
+}
+
+.sidebar-cta svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 /* 导航菜单 */
 .sidebar-nav {
   flex: 1;
-  padding: 20px 0;
+  padding: 14px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .nav-item {
@@ -237,81 +315,146 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 20px;
-  color: var(--text-primary);
-  text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 16px;
-  font-weight: 500;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  color: var(--text-2);
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  transition: background-color 0.26s var(--fish-ease),
+              border-color 0.26s var(--fish-ease),
+              color 0.26s var(--fish-ease);
 }
 
 .nav-item:hover {
-  background: rgba(255, 36, 66, 0.05);
-  color: var(--primary-color);
-  transform: translateX(4px);
+  background: var(--cream-2);
+  color: var(--ink);
 }
 
 .nav-item:active {
-  transform: translateX(2px) scale(0.98);
-  transition: all 0.1s ease;
+  background: var(--cream-3);
 }
 
 .nav-item.router-link-active {
-  background: linear-gradient(90deg, rgba(255, 36, 66, 0.1) 0%, rgba(255, 36, 66, 0.05) 100%);
-  color: var(--primary-color);
-  border-right: 3px solid var(--primary-color);
-  font-weight: 600;
-  transform: translateX(0);
+  background: var(--cream-2);
+  border-color: var(--edge);
+  color: var(--ink);
+  box-shadow: 2px 3px 0 var(--shadow);
+}
+
+.nav-item.router-link-active .nav-icon {
+  color: var(--primary-2);
 }
 
 .nav-item.navigating {
-  opacity: 0.7;
   pointer-events: none;
-  transform: scale(0.98);
+  opacity: 0.75;
 }
 
 .nav-icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
+  color: var(--ink);
 }
 
 .nav-text {
   flex: 1;
 }
 
-.badge {
-  padding: 2px 8px;
-  background: var(--primary-color);
-  color: #fff;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 600;
-  min-width: 20px;
-  text-align: center;
+.nav-badge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: var(--primary);
+  border: 1.5px solid var(--edge);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 800;
 }
 
-/* 用户信息 */
+/* 底部 */
+.sidebar-foot {
+  padding: 14px 16px 18px;
+  border-top: 2px solid var(--line-2);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.theme-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.theme-label {
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.theme-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.theme-dot {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.2s var(--fish-ease), box-shadow 0.2s var(--fish-ease);
+}
+
+.theme-dot:hover {
+  transform: translateY(-2px);
+}
+
+.theme-dot.active {
+  box-shadow: 2px 3px 0 var(--shadow);
+  transform: scale(1.08);
+}
+
+.dot-core {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+}
+
 .sidebar-user {
-  padding: 20px;
-  border-top: 1px solid #f0f0f0;
+  min-height: 52px;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.avatar-frame {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--cream-2);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
 }
 
 .user-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -321,28 +464,27 @@ onUnmounted(() => {
 }
 
 .user-name {
+  color: var(--ink);
   font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-weight: 800;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .btn-logout {
-  margin-top: 4px;
-  padding: 4px 12px;
-  background: var(--bg-dark);
+  margin-top: 2px;
+  padding: 0;
+  background: none;
   border: none;
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
+  color: var(--text-3);
   font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-base) var(--ease-in-out);
 }
 
 .btn-logout:hover {
-  background: #e0e0e0;
+  color: var(--danger);
 }
 
 .btn-login {
@@ -351,14 +493,16 @@ onUnmounted(() => {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 12px;
-  background: var(--primary-color);
-  color: #fff;
-  border-radius: 20px;
-  text-decoration: none;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--on-primary);
   font-size: 14px;
-  font-weight: 600;
-  transition: all var(--transition-base) var(--ease-in-out);
+  font-weight: 800;
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-login svg {
@@ -367,103 +511,80 @@ onUnmounted(() => {
 }
 
 .btn-login:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-primary);
+  transform: translateY(-1px);
+  box-shadow: 4px 5px 0 var(--shadow);
 }
 
-/* 响应式 */
-/* iPad竖屏：手机模式（在mobile类下通过另一个媒体查询处理） */
+.btn-login:active {
+  transform: translateY(2px);
+  box-shadow: 1px 2px 0 var(--shadow);
+}
 
-/* iPad横屏：桌面模式（缩略显示，只显示图标） */
+/* iPad 横屏：只留图标 */
 @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
   .sidebar {
-    width: 80px;
+    width: 76px;
   }
 
-  .logo-text {
+  .logo-copy {
     display: none;
   }
 
   .sidebar-logo {
     justify-content: center;
-    padding: 24px 12px;
+    padding: 20px 0;
   }
 
-  .logo-icon {
-    font-size: 28px;
+  .logo-mark {
+    width: 40px;
+    height: 40px;
+    font-size: 19px;
   }
 
-  .nav-text {
+  .nav-text,
+  .theme-block,
+  .user-details,
+  .sidebar-cta span {
     display: none;
+  }
+
+  .sidebar-cta {
+    width: 52px;
+    height: 52px;
+    margin: 14px auto 2px;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .sidebar-nav {
+    padding: 12px 8px;
+    align-items: center;
   }
 
   .nav-item {
+    width: 52px;
+    height: 52px;
+    padding: 0;
     justify-content: center;
-    padding: 16px 12px;
-    position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .nav-item:hover {
-    background: rgba(255, 36, 66, 0.05);
-    transform: scale(1.05);
-  }
-
-  .nav-item:active {
-    transform: scale(0.95);
-    transition: all 0.1s ease;
-  }
-
-  .nav-item.router-link-active::before {
-    content: '';
+  .nav-badge {
     position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 32px;
-    background: var(--primary-color);
-    border-radius: 0 4px 4px 0;
+    top: 4px;
+    right: 4px;
   }
 
-  .badge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    font-size: 10px;
-    line-height: 18px;
-  }
-
-  .user-details {
-    display: none;
+  .sidebar-foot {
+    align-items: center;
+    padding: 12px 8px;
   }
 
   .user-info {
     justify-content: center;
   }
-
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-  }
-
-  .btn-login {
-    padding: 10px;
-    font-size: 13px;
-    gap: 6px;
-  }
-
-  .btn-login svg {
-    width: 16px;
-    height: 16px;
-  }
 }
 
-/* iPad竖屏 + 手机：底部导航栏 */
+/* 手机 / iPad 竖屏：底部 tab */
 @media (max-width: 1024px) and (orientation: portrait),
        (max-width: 768px) {
   .sidebar.mobile {
@@ -474,50 +595,60 @@ onUnmounted(() => {
     top: auto;
     width: 100%;
     height: auto;
-    border-right: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
     flex-direction: row;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    background: var(--card);
+    border-right: none;
+    border-top: 2px solid var(--edge);
+    box-shadow: 0 -4px 0 var(--shadow);
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.95);
   }
 
   .sidebar.mobile .sidebar-nav {
-    display: flex;
     flex-direction: row;
     width: 100%;
     padding: 0;
-    overflow-y: visible;
+    gap: 0;
+    overflow: visible;
   }
 
   .sidebar.mobile .nav-item {
     flex: 1;
     flex-direction: column;
-    gap: 4px;
-    padding: 10px 8px;
+    gap: 3px;
+    min-height: 64px;
+    padding: 8px 4px 6px;
+    border: none;
+    border-radius: 0;
     font-size: 11px;
-    border-right: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+    color: var(--text-2);
   }
 
-  .sidebar.mobile .nav-item:hover {
-    background: rgba(255, 36, 66, 0.05);
-    transform: translateY(-2px);
-  }
-
+  .sidebar.mobile .nav-item:hover,
   .sidebar.mobile .nav-item:active {
-    transform: translateY(0) scale(0.95);
-    transition: all 0.1s ease;
+    background: transparent;
   }
 
   .sidebar.mobile .nav-item.router-link-active {
     background: transparent;
-    border-right: none;
-    border-top: none;
-    border-bottom: 3px solid var(--primary-color);
-    color: var(--primary-color);
-    transform: translateY(0);
+    color: var(--ink);
+    box-shadow: none;
+    border: none;
+  }
+
+  .sidebar.mobile .nav-item.router-link-active::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+
+  .sidebar.mobile .nav-item.router-link-active .nav-icon {
+    color: var(--primary-2);
   }
 
   .sidebar.mobile .nav-icon {
@@ -526,20 +657,23 @@ onUnmounted(() => {
   }
 
   .sidebar.mobile .nav-text {
-    display: block !important;
+    display: block;
     font-size: 11px;
   }
 
-  .sidebar.mobile .badge {
+  .sidebar.mobile .nav-badge {
     position: absolute;
-    top: 6px;
-    right: 50%;
-    transform: translateX(12px);
-    padding: 1px 5px;
-    font-size: 10px;
+    top: 4px;
+    right: calc(50% - 20px);
     min-width: 16px;
     height: 16px;
-    line-height: 14px;
+    padding: 0 4px;
+    font-size: 10px;
+  }
+
+  .sidebar.mobile .sidebar-foot,
+  .sidebar.mobile .sidebar-logo {
+    display: none;
   }
 }
 </style>

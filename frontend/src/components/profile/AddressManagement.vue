@@ -16,7 +16,6 @@
     <div v-else-if="addresses.length === 0" class="empty-state">
       <div class="empty-icon icon-map-pin-large"></div>
       <p>还没有收货地址</p>
-      <small>添加地址后,购买商品更方便</small>
     </div>
 
     <!-- 地址列表 -->
@@ -285,344 +284,388 @@ onMounted(() => {
 
 <style scoped>
 .address-management {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* 添加按钮 */
+/* 新增：主操作 */
 .btn-add-address {
-  width: 100%;
-  padding: 20px;
-  border: 2px dashed #d0d0d0;
-  border-radius: var(--radius-md);
-  background: #fafafa;
-  color: var(--text-secondary);
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-base) var(--ease-in-out);
-  display: flex;
+  align-self: flex-start;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 6px;
+  min-height: 44px;
+  padding: 9px 22px;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--on-primary);
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-add-address:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  background: var(--bg-white);
+  transform: translateY(-1px);
+  box-shadow: 4px 5px 0 var(--shadow);
 }
 
 .btn-add-address .icon {
-  font-size: 24px;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
 }
 
-/* 加载状态 */
 .loading-state {
-  text-align: center;
-  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 44px 16px;
+  color: var(--text-3);
+  font-size: 13px;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--line-2);
+  border-top-color: var(--primary);
+  border-radius: 999px;
+  animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* 空状态 */
+/* 空态 */
 .empty-state {
-  text-align: center;
-  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 20px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 18px;
 }
 
 .empty-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 24px;
-  opacity: 0.3;
   position: relative;
+  width: 84px;
+  height: 84px;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 3px 4px 0 var(--shadow);
 }
 
+/* CSS 定位针 */
 .icon-map-pin-large::before {
   content: '';
   position: absolute;
-  width: 40px;
-  height: 40px;
-  border: 4px solid #999;
-  border-radius: 50% 50% 50% 0;
+  top: 18px;
+  left: 30px;
+  width: 22px;
+  height: 30px;
+  border: 2px solid var(--text-2);
+  border-radius: 14px 14px 14px 0;
   transform: rotate(-45deg);
-  top: 10px;
-  left: 50%;
-  margin-left: -20px;
 }
 
 .icon-map-pin-large::after {
   content: '';
   position: absolute;
-  width: 16px;
-  height: 16px;
-  background: #999;
-  border-radius: 50%;
-  top: 22px;
-  left: 50%;
-  margin-left: -8px;
+  top: 30px;
+  left: 39px;
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 999px;
 }
 
 .empty-state p {
-  font-size: 18px;
-  color: var(--text-secondary);
-  margin: 0 0 8px 0;
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
 }
 
 .empty-state small {
-  font-size: 14px;
-  color: var(--text-tertiary);
+  color: var(--text-4);
+  font-size: 12px;
 }
 
-/* 地址列表 */
+/* 地址卡 */
 .address-list {
   display: grid;
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .address-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 2px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: var(--card);
+  border: 2px solid var(--edge);
   border-radius: 16px;
-  padding: 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.26s var(--fish-ease),
+              box-shadow 0.26s var(--fish-ease),
+              background-color 0.26s var(--fish-ease);
 }
 
 .address-card:hover {
-  border-color: var(--primary-color);
-  box-shadow: 0 4px 16px rgba(255, 36, 66, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 4px 5px 0 var(--shadow);
 }
 
 .address-card.default {
-  border-color: var(--primary-color);
-  background: linear-gradient(135deg, #fff5f7 0%, #fff 100%);
+  background: var(--primary-3);
+  border-color: var(--primary-2);
 }
 
 .address-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .address-name {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 900;
 }
 
 .address-phone {
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--text-secondary);
+  margin-left: 8px;
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .default-badge {
-  background: var(--primary-color);
-  color: #fff;
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 3px 10px;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  color: var(--on-primary);
+  font-size: 11px;
+  font-weight: 900;
 }
 
 .address-detail {
-  font-size: 15px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 16px;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.7;
+  word-break: break-word;
 }
 
 .address-actions {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 2px solid var(--line);
 }
 
 .btn-action {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: var(--text-secondary);
-  font-size: 14px;
+  min-height: 34px;
+  padding: 6px 14px;
+  background: var(--card);
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-action:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+  border-color: var(--edge);
+  color: var(--ink);
 }
 
 .btn-delete:hover {
-  border-color: #f44336;
-  color: #f44336;
-  background: #ffebee;
+  background: var(--danger);
+  border-color: var(--edge);
+  color: var(--on-primary);
 }
 
-/* 对话框 */
+/* 编辑弹窗 */
 .dialog-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  padding: 24px;
+  background: color-mix(in srgb, var(--panel-deep) 62%, transparent);
 }
 
 .dialog-content {
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border-radius: 24px;
-  padding: 32px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100vh - 48px);
   overflow-y: auto;
-  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 22px;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 20px;
+  box-shadow: 7px 8px 0 var(--shadow);
+  animation: dialogIn 0.26s var(--fish-ease) both;
+}
+
+@keyframes dialogIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .dialog-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 24px 0;
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--line-2);
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 900;
 }
 
 .address-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 
 .form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
+  display: flex;
+  gap: 10px;
 }
+
+.form-row .form-group { flex: 1; }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
 }
 
 .form-group label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
 .form-group input,
 .form-group textarea {
-  padding: 12px;
-  border: 1px solid #d0d0d0;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  transition: all var(--transition-base) var(--ease-in-out);
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 10px;
+  color: var(--ink);
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.26s var(--fish-ease),
+              box-shadow 0.26s var(--fish-ease),
+              background-color 0.26s var(--fish-ease);
 }
+
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: var(--text-4); }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--primary-color);
+  background: var(--card);
+  border-color: var(--primary);
+  box-shadow: 3px 4px 0 var(--shadow);
+}
+
+.form-group textarea {
+  min-height: 76px;
+  resize: vertical;
+  line-height: 1.6;
 }
 
 .form-checkbox label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .form-checkbox input[type="checkbox"] {
   width: 18px;
   height: 18px;
+  accent-color: var(--primary);
   cursor: pointer;
 }
 
 .dialog-actions {
   display: flex;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 2px solid var(--line-2);
 }
 
 .btn-cancel,
 .btn-submit {
   flex: 1;
-  padding: 12px;
-  border-radius: var(--radius-sm);
-  border: none;
-  font-size: 16px;
-  font-weight: 600;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
   cursor: pointer;
-  transition: all var(--transition-base) var(--ease-in-out);
 }
 
 .btn-cancel {
-  background: var(--bg-dark);
-  color: var(--text-secondary);
+  background: var(--card);
+  border: 2px solid var(--line-strong);
+  color: var(--text-2);
 }
 
 .btn-cancel:hover {
-  background: #e0e0e0;
+  background: var(--cream-2);
+  color: var(--ink);
 }
 
 .btn-submit {
-  background: var(--primary-color);
-  color: #fff;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--on-primary);
 }
 
 .btn-submit:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-primary);
+  transform: translateY(-1px);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .address-list { grid-template-columns: 1fr; gap: 10px; }
+  .btn-add-address { width: 100%; justify-content: center; }
+  .dialog-overlay { padding: 0; align-items: flex-end; }
   .dialog-content {
-    padding: 24px 20px;
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    border-bottom: none;
+    box-shadow: 0 -4px 0 var(--shadow);
   }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-
-  .address-actions {
-    flex-direction: column;
-  }
-
-  .btn-action {
-    width: 100%;
-  }
+  .form-row { flex-direction: column; }
 }
 </style>

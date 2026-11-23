@@ -97,7 +97,14 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
  */
 export const getOrderById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const orderId = parseInt(req.params.id);
+    const orderId = parseInt(req.params.id, 10);
+    if (Number.isNaN(orderId)) {
+      res.status(400).json({
+        success: false,
+        message: '无效的订单ID'
+      });
+      return;
+    }
     const authenticatedReq = req as any;
     const userId = authenticatedReq.user?.userId;
 
@@ -190,7 +197,14 @@ export const getMyOrders = async (req: Request, res: Response): Promise<void> =>
  */
 export const updateOrderStatus = async (req: Request, res: Response): Promise<void> => {
   try {
-    const orderId = parseInt(req.params.id);
+    const orderId = parseInt(req.params.id, 10);
+    if (Number.isNaN(orderId)) {
+      res.status(400).json({
+        success: false,
+        message: '无效的订单ID'
+      });
+      return;
+    }
     const { status } = req.body;
     const authenticatedReq = req as any;
     const userId = authenticatedReq.user?.userId;
@@ -223,7 +237,7 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
     }
 
     // 验证订单状态白名单
-    const validStatuses = ['pending', 'confirmed', 'shipped', 'completed', 'cancelled'];
+    const validStatuses = ['pending', 'paid', 'shipped', 'completed', 'cancelled'];
     if (!status || !validStatuses.includes(status)) {
       res.status(400).json({
         success: false,
@@ -252,7 +266,14 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
  */
 export const cancelOrder = async (req: Request, res: Response): Promise<void> => {
   try {
-    const orderId = parseInt(req.params.id);
+    const orderId = parseInt(req.params.id, 10);
+    if (Number.isNaN(orderId)) {
+      res.status(400).json({
+        success: false,
+        message: '无效的订单ID'
+      });
+      return;
+    }
     const authenticatedReq = req as any;
     const userId = authenticatedReq.user?.userId;
 

@@ -21,7 +21,7 @@
 
       <!-- 商品列表 -->
       <div class="products-section">
-        <h2 class="section-title">TA的商品 ({{ products.length }})</h2>
+        <h2 class="section-title">TA的商品 <span class="title-count">{{ products.length }}</span></h2>
         
         <!-- 加载中 -->
         <div v-if="loading" class="loading-state">
@@ -31,8 +31,14 @@
 
         <!-- 空状态 -->
         <div v-else-if="products.length === 0" class="empty-state">
-          <div class="empty-icon">📦</div>
-          <p>该用户还没有发布商品</p>
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </div>
+          <p class="empty-title">暂无发布</p>
         </div>
 
         <!-- 商品网格 -->
@@ -68,6 +74,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { getUserById } from '@/api/user'
 import { getProducts } from '@/api/product'
 import { getImageUrl } from '@/config'
+import { resolveAvatar } from '@/utils/avatar'
 import toast from '@/utils/toast'
 
 const route = useRoute()
@@ -80,10 +87,7 @@ const loading = ref(false)
 
 // 获取用户头像
 const getUserAvatar = computed(() => {
-  if (userInfo.value?.avatar) {
-    return getImageUrl(userInfo.value.avatar)
-  }
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(userInfo.value?.username || '用户')}&background=ff2442&color=fff&size=200`
+  return resolveAvatar(userInfo.value?.avatar, userInfo.value?.username)
 })
 
 // 获取用户信息
@@ -168,398 +172,285 @@ onMounted(() => {
 <style scoped>
 .page {
   min-height: 100vh;
-  background: var(--bg-light);
+  background: var(--bg);
 }
 
 .user-homepage {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 32px 20px;
+  padding: 24px 32px 72px;
 }
 
-/* 返回按钮 */
-.back-btn {
-  position: absolute;
-  top: 24px;
-  left: 24px;
+/* 卖家身份：深色 Hero */
+.user-card {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: none;
-  border-radius: 50%;
-  color: var(--text-primary);
+  gap: 18px;
+  padding: 26px 24px;
+  background: var(--panel);
+  color: var(--on-panel);
+  border: 2px solid var(--edge);
+  border-radius: 24px;
+  box-shadow: 5px 6px 0 var(--shadow);
+}
+
+.back-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 2px 3px 0 var(--shadow);
+  color: var(--ink);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 10;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .back-btn svg {
-  width: 22px;
-  height: 22px;
-}
-
-.back-btn:hover {
-  background: rgba(255, 255, 255, 1);
-  transform: scale(1.08);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
-}
-
-/* 用户信息卡片 */
-.user-card {
-  background: linear-gradient(135deg, #f76477 0%, #f56363 100%);
-  border-radius: 24px;
-  padding: 56px 48px 48px;
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  margin-bottom: 40px;
-  box-shadow: 0 8px 32px rgba(255, 36, 66, 0.25);
-  position: relative; /* 让返回按钮相对于卡片定位 */
-  overflow: hidden;
-}
-
-.user-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
-  border-radius: 50%;
+  width: 18px;
+  height: 18px;
 }
 
 .user-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 5px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
   object-fit: cover;
-  position: relative;
-  z-index: 1;
+  background: var(--panel-deep);
+  border: 3px solid var(--primary);
+  border-radius: 999px;
 }
 
 .user-info {
   flex: 1;
-  color: #fff;
-  position: relative;
-  z-index: 1;
+  min-width: 0;
+  padding-right: 44px;
 }
 
 .username {
-  font-size: 36px;
-  font-weight: 700;
-  margin: 0 0 12px 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 0 6px;
+  color: var(--on-panel);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  word-break: break-word;
 }
 
 .user-meta {
-  font-size: 16px;
-  opacity: 0.9;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   margin: 0;
+  color: var(--on-panel-warm);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
-/* 商品列表 */
 .products-section {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 24px;
-  padding: 32px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  margin-top: 26px;
 }
 
 .section-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 24px 0;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #f0f0f0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--line-2);
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 900;
 }
 
-/* 加载状态 */
-.loading-state {
-  text-align: center;
-  padding: 60px 20px;
+.title-count {
+  color: var(--primary-2);
+  font-size: 22px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* 空状态 */
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-}
-
-.empty-icon {
-  font-size: 72px;
-  margin-bottom: 20px;
-  opacity: 0.5;
-}
-
-.empty-state p {
-  font-size: 18px;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-/* 商品网格 */
+/* 商品纸卡 */
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
 }
 
 .product-item {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 16px;
   overflow: hidden;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 18px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.34s var(--fish-ease),
+              box-shadow 0.34s var(--fish-ease),
+              background-color 0.34s var(--fish-ease);
 }
 
 .product-item:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  transform: translateY(-4px);
+  transform: translateY(-3px);
+  box-shadow: 5px 6px 0 var(--shadow);
+  background: var(--cream-1);
 }
 
 .product-image {
   position: relative;
-  width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: #f5f5f5;
+  background: var(--cream-2);
+  border-bottom: 2px solid var(--edge);
 }
 
 .product-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
 }
 
-.product-item:hover .product-image img {
-  transform: scale(1.05);
-}
-
-/* 已售出水印 */
 .sold-watermark {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-25deg);
-  font-size: 48px;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream-1);
+  opacity: 0.94;
+}
+
+.sold-watermark::before {
+  content: '已售出';
+  padding: 5px 14px;
+  color: var(--danger);
+  background: var(--card);
+  border: 3px solid var(--danger);
+  border-radius: 12px;
+  font-size: 16px;
   font-weight: 900;
-  font-style: italic;
-  color: rgba(255, 0, 0, 0.6);
-  text-shadow: 
-    2px 2px 4px rgba(255, 255, 255, 0.8),
-    -2px -2px 4px rgba(255, 255, 255, 0.8);
-  pointer-events: none;
-  z-index: 10;
+  letter-spacing: 0.06em;
+  transform: rotate(-10deg);
   white-space: nowrap;
 }
 
 .product-info {
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px 13px;
 }
 
 .product-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 8px 0;
+  margin: 0;
+  min-height: 42px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .product-price {
+  margin: 0;
+  color: var(--primary-2);
   font-size: 20px;
-  font-weight: 700;
-  color: var(--primary-color);
-  margin: 0 0 8px 0;
+  font-weight: 900;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .product-time {
-  font-size: 12px;
-  color: var(--text-tertiary);
   margin: 0;
+  color: var(--text-4);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
 }
 
-/* 响应式 */
-
-/* iPad横屏 - 4列 */
-@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
-  .products-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
+/* 加载 / 空态 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 60px 20px;
+  color: var(--text-3);
+  font-size: 13px;
 }
 
-/* iPad竖屏（包括iPad mini） - 3列 */
-@media (min-width: 744px) and (max-width: 1024px) and (orientation: portrait) {
-  .user-homepage {
-    padding: 24px 20px;
-  }
-
-  .back-btn {
-    top: 24px;
-    left: 24px;
-    width: 44px;
-    height: 44px;
-  }
-
-  .back-btn svg {
-    width: 22px;
-    height: 22px;
-  }
-
-  .user-card {
-    margin-bottom: 24px;
-    padding: 56px 24px 28px;
-  }
-
-  .user-avatar {
-    width: 80px;
-    height: 80px;
-  }
-
-  .username {
-    font-size: 24px;
-  }
-
-  .user-meta {
-    font-size: 14px;
-  }
-
-  .products-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-
-  .product-info {
-    padding: 12px;
-  }
-
-  .product-title {
-    font-size: 14px;
-  }
-
-  .product-price {
-    font-size: 18px;
-  }
-
-  .sold-watermark {
-    font-size: 36px;
-  }
-
-  .products-section {
-    padding: 20px;
-  }
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--line-2);
+  border-top-color: var(--primary);
+  border-radius: 999px;
+  animation: spin 0.9s linear infinite;
 }
 
-/* 手机 - 2列 */
-@media (max-width: 743px) {
-  .user-homepage {
-    padding: 16px;
-  }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
-  .back-btn {
-    top: 20px;
-    left: 20px;
-    width: 40px;
-    height: 40px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  }
+.empty-state {
+  gap: 14px;
+  min-height: 280px;
+  padding: 48px 20px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 20px;
+}
 
-  .back-btn svg {
-    width: 20px;
-    height: 20px;
-  }
+.empty-icon {
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--text-2);
+}
 
-  /* 移动端用户卡片 - 紧凑设计 */
-  .user-card {
-    flex-direction: row;
-    align-items: center;
-    text-align: left;
-    padding: 52px 16px 20px;
-    margin-bottom: 20px;
-    border-radius: 16px;
-    gap: 16px;
-  }
+.empty-icon svg {
+  width: 36px;
+  height: 36px;
+}
 
-  .user-card::before {
-    display: none; /* 移动端移除装饰背景 */
-  }
+.empty-title {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 800;
+}
 
-  .user-avatar {
-    width: 64px;
-    height: 64px;
-    border-width: 3px;
-    flex-shrink: 0;
-  }
+/* 平板 */
+@media (max-width: 1023px) {
+  .user-homepage { padding: 20px 24px 64px; }
+  .products-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .username { font-size: 24px; }
+  .user-avatar { width: 76px; height: 76px; }
+}
 
-  .user-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .username {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0 0 6px 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .user-meta {
-    font-size: 13px;
-  }
-
-  .products-section {
-    padding: 16px;
-    border-radius: 16px;
-  }
-
-  .section-title {
-    font-size: 18px;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-  }
-
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .sold-watermark {
-    font-size: 28px;
-  }
+/* 手机 */
+@media (max-width: 767px) {
+  .user-homepage { padding: 12px 12px 40px; }
+  .user-card { padding: 18px 16px; gap: 14px; border-radius: 20px; }
+  .user-avatar { width: 64px; height: 64px; }
+  .username { font-size: 21px; }
+  .user-info { padding-right: 40px; }
+  .back-btn { top: 10px; right: 10px; width: 36px; height: 36px; }
+  .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .product-info { padding: 10px; gap: 5px; }
+  .product-title { font-size: 13px; min-height: 38px; }
+  .product-price { font-size: 17px; }
 }
 </style>
-

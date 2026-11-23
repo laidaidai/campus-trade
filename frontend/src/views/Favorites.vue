@@ -2,7 +2,16 @@
   <div class="page">
     <main class="main-content">
       <div class="favorites-container">
-        <h1 class="page-title">我的收藏</h1>
+        <header class="page-head">
+          <div>
+            <span class="eyebrow">SAVED</span>
+            <h1 class="page-title">我的收藏</h1>
+          </div>
+          <div class="head-count">
+            <span class="count-value">{{ favorites.length }}</span>
+            <span class="count-label">件</span>
+          </div>
+        </header>
         
         <!-- 加载中 -->
         <div v-if="loading" class="loading">
@@ -12,10 +21,13 @@
 
         <!-- 空状态 -->
         <div v-else-if="!loading && favorites.length === 0" class="empty-state">
-          <div class="empty-icon">❤️</div>
-          <h3>还没有收藏</h3>
-          <p>去首页逛逛,收藏喜欢的商品吧~</p>
-          <button class="btn-browse" @click="$router.push('/')">去逛逛</button>
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </div>
+          <h3 class="empty-title">还没有收藏</h3>
+          <button class="btn btn-primary" @click="$router.push('/')">去逛逛</button>
         </div>
 
         <!-- 收藏列表 - 网格布局 -->
@@ -46,6 +58,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getUserFavorites, removeFavorite, addFavorite } from '@/api/favorite'
 import { getImageUrl } from '@/config'
+import { resolveAvatar } from '@/utils/avatar'
 import XHSProductCard from '@/components/XHSProductCard.vue'
 import UndoToast from '@/components/UndoToast.vue'
 import toast from '@/utils/toast'
@@ -98,9 +111,7 @@ const fetchFavorites = async () => {
       location: '校园',
       views: 0,
       favoriteCount: item.favorite_count ?? item.favoriteCount ?? 0, // 收藏人数
-      sellerAvatar: item.seller_avatar 
-        ? getImageUrl(item.seller_avatar)
-        : `https://ui-avatars.com/api/?name=${encodeURIComponent(item.seller_name || '用户')}&background=ff2442&color=fff&size=80`,
+      sellerAvatar: resolveAvatar(item.seller_avatar, item.seller_name || '用户'),
       sellerName: item.seller_name || '匿名用户',
       publishTime: formatTime(item.created_at),
       status: item.status
@@ -207,241 +218,162 @@ onMounted(() => {
 <style scoped>
 .page {
   min-height: 100vh;
-  background: var(--bg-gray);
+  background: var(--bg);
 }
 
 .main-content {
-  max-width: 100%;
-  margin: 0 20px; /* 左右边距都是20px，和消息页一致 */
-  padding: 32px 20px;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 32px 72px;
 }
 
 .favorites-container {
   width: 100%;
-  margin: 0 auto;
+}
+
+/* 页头：一个标题 + 一个数字 */
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 2px 22px;
 }
 
 .page-title {
+  margin: 4px 0 0;
+  color: var(--ink);
   font-size: 32px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 32px 0;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
-/* 加载状态 */
+.head-count {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.count-value {
+  color: var(--primary-2);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.count-label {
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 加载：实线转环 */
 .loading {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
   padding: 80px 20px;
+  color: var(--text-3);
+  font-size: 14px;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--line-2);
+  border-top-color: var(--primary);
+  border-radius: 999px;
+  animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* 收藏为空状态 */
+/* 空态：实线圆 + 唯一主操作 */
 .empty-state {
-  text-align: center;
-  padding: 80px 20px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  gap: 16px;
+  min-height: 320px;
+  max-height: none;
+  padding: 56px 24px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
   border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .empty-icon {
-  font-size: 80px;
-  margin-bottom: 24px;
-  opacity: 0.5;
+  width: 96px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--primary-2);
 }
 
-.empty-state h3 {
-  font-size: 24px;
-  color: var(--text-primary);
-  margin: 0 0 12px 0;
+.empty-icon svg {
+  width: 42px;
+  height: 42px;
 }
 
-.empty-state p {
-  font-size: 16px;
-  color: var(--text-tertiary);
-  margin: 0 0 32px 0;
+.empty-title {
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 800;
 }
 
-.btn-browse {
-  padding: 12px 40px;
-  border-radius: 24px;
-  border: none;
-  background: linear-gradient(135deg, #ff2442 0%, #ff4757 100%);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(255, 36, 66, 0.3);
-}
-
-.btn-browse:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(255, 36, 66, 0.45);
-}
-
-/* 收藏网格布局 */
+/* 收藏网格：与首页同一套纸卡 */
 .favorites-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
 }
 
-/* 响应式网格 */
-@media (min-width: 1536px) {
-  .favorites-grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
+@media (max-width: 1023px) {
+  .main-content { padding: 20px 24px 64px; }
+  .favorites-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .page-title { font-size: 28px; }
 }
 
-@media (min-width: 1280px) and (max-width: 1535px) {
-  .favorites-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-@media (min-width: 1024px) and (max-width: 1279px) {
-  .favorites-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-  .favorites-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-  
-  .page-title {
-    font-size: 28px;
-  }
-}
-
-/* iPad横屏：统一边距 */
-@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
-  .main-content {
-    margin: 0 20px; /* 统一为20px，和其他页面一致 */
-    padding: 32px 20px;
-  }
-}
-
-/* iPad竖屏：统一边距 */
-@media (max-width: 1024px) and (orientation: portrait) {
-  .main-content {
-    margin: 0; /* 移除左右边距 */
-    padding: 20px 16px;
-  }
-}
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .main-content {
-    margin: 0; /* 移除左右边距 */
-    padding: 12px;
-  }
-  
-  .favorites-container {
-    padding: 0;
-  }
-  
-  .page-title {
-    font-size: 24px;
-    margin-bottom: 20px;
-    padding: 0 4px;
-  }
-
-  .favorites-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-
-  .empty-state {
-    padding: 60px 20px;
-    border-radius: 16px;
-  }
-
-  .empty-icon {
-    font-size: 64px;
-  }
-
-  .empty-state h3 {
-    font-size: 20px;
-  }
-
-  .empty-state p {
-    font-size: 14px;
-  }
-
-  .btn-browse {
-    padding: 10px 32px;
-    font-size: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .page-title {
-    font-size: 20px;
-    margin-bottom: 16px;
-  }
-
-  .favorites-grid {
-    gap: 8px;
-  }
-
-  .empty-state {
-    padding: 40px 16px;
-  }
-
-  .empty-icon {
-    font-size: 56px;
-  }
-
-  .empty-state h3 {
-    font-size: 18px;
-  }
-
-  .btn-browse {
-    padding: 8px 28px;
-    font-size: 14px;
-  }
+@media (max-width: 767px) {
+  .main-content { padding: 16px 12px 40px; }
+  .page-head { padding-bottom: 16px; }
+  .page-title { font-size: 24px; }
+  .count-value { font-size: 22px; }
+  .favorites-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .empty-icon { width: 80px; height: 80px; }
+  .empty-icon svg { width: 34px; height: 34px; }
 }
 </style>
 
 <style>
-/* 全局消息提示样式 */
+/* 全局消息提示：纸卡墨线 */
 .custom-message {
   position: fixed;
   top: 20px;
   left: 50%;
-  transform: translateX(-50%) translateY(-100px);
-  padding: 12px 24px;
-  border-radius: 8px;
+  transform: translateX(-50%) translateY(-120px);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
   font-size: 14px;
-  font-weight: 500;
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-weight: 700;
+  box-shadow: 4px 5px 0 var(--shadow);
   z-index: 9999;
   opacity: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.26s var(--fish-ease), opacity 0.26s var(--fish-ease);
 }
 
 .custom-message.show {
@@ -449,15 +381,7 @@ onMounted(() => {
   opacity: 1;
 }
 
-.custom-message-success {
-  background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
-}
-
-.custom-message-error {
-  background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
-}
-
-.custom-message-info {
-  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
-}
+.custom-message-success { border-color: var(--success); color: var(--success); }
+.custom-message-error { border-color: var(--danger); color: var(--danger); }
+.custom-message-info { border-color: var(--edge); color: var(--ink); }
 </style>

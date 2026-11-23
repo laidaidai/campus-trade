@@ -1,7 +1,6 @@
 <template>
   <div class="order-message" :class="[`status-${orderData.status}`, { 'is-mine': isMine }]">
     <div class="order-header">
-      <span class="order-icon">📦</span>
       <span class="order-title">订单信息</span>
       <span class="order-status-badge" :class="`status-${orderData.status}`">
         {{ getStatusText(orderData.status) }}
@@ -32,7 +31,7 @@
 
       <!-- 地址信息 -->
       <div v-if="orderData.address_detail" class="address-info">
-        <div class="info-label">📍 收货地址</div>
+        <div class="info-label">收货地址</div>
         <div class="info-content">
           {{ formatAddress(orderData.address_detail) }}
         </div>
@@ -40,7 +39,7 @@
 
       <!-- 备注信息 -->
       <div v-if="orderData.remark" class="remark-info">
-        <div class="info-label">💬 买家留言</div>
+        <div class="info-label">买家留言</div>
         <div class="info-content">{{ orderData.remark }}</div>
       </div>
     </div>
@@ -49,7 +48,7 @@
     <div class="order-actions">
       <!-- 非最新订单，显示已过期提示 -->
       <template v-if="!isLatestOrder && orderData.status !== 'confirmed' && orderData.status !== 'rejected'">
-        <span class="expired-text">该订单已更新，请查看最新订单</span>
+        <span class="expired-text">订单已更新</span>
       </template>
 
       <!-- 卖家视图 -->
@@ -157,253 +156,223 @@ const viewOrderDetail = () => {
 </script>
 
 <style scoped>
+/* 聊天流里的订单卡：纸卡 + 墨线，状态用实线徽章 */
 .order-message {
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  margin: 8px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  max-width: 400px;
+  width: 100%;
+  max-width: 340px;
+  padding: 12px;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 16px;
+  box-shadow: 3px 4px 0 var(--shadow-soft);
 }
 
 .order-message.is-mine {
-  margin-left: auto;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
+  background: var(--cream-1);
 }
 
 .order-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.order-message.is-mine .order-header {
-  border-bottom-color: rgba(255, 255, 255, 0.2);
-}
-
-.order-icon {
-  font-size: 20px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--line-2);
 }
 
 .order-title {
-  font-weight: 600;
-  flex: 1;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
 }
 
 .order-status-badge {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
-.order-status-badge.status-pending {
-  background: #fef3c7;
-  color: #92400e;
+.status-pending,
+.status-modified {
+  background: var(--warn-bg);
+  border-color: var(--warn-text);
+  color: var(--warn-text);
 }
 
-.order-status-badge.status-modified {
-  background: #dbeafe;
-  color: #1e40af;
+.status-confirmed {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
 }
 
-.order-status-badge.status-confirmed {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.order-status-badge.status-rejected {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.order-message.is-mine .order-status-badge {
-  background: rgba(255, 255, 255, 0.25);
-  color: #fff;
+.status-rejected {
+  background: var(--cream-2);
+  border-color: var(--line-strong);
+  color: var(--text-3);
 }
 
 .order-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .product-info {
   display: flex;
-  gap: 12px;
+  gap: 10px;
 }
 
 .product-image {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
   object-fit: cover;
+  border: 2px solid var(--edge);
+  border-radius: 10px;
+  background: var(--cream-2);
 }
 
 .product-details {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
 }
 
 .product-title {
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .price-info {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
 }
 
 .original-price {
-  font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-4);
+  font-size: 11px;
   text-decoration: line-through;
-}
-
-.order-message.is-mine .original-price {
-  color: rgba(255, 255, 255, 0.6);
+  font-variant-numeric: tabular-nums;
 }
 
 .final-price {
+  color: var(--primary-2);
   font-size: 18px;
-  font-weight: 700;
-  color: #ff2442;
-}
-
-.order-message.is-mine .final-price {
-  color: #fff;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .address-info,
 .remark-info {
-  padding: 12px;
-  background: #f9fafb;
-  border-radius: 8px;
-}
-
-.order-message.is-mine .address-info,
-.order-message.is-mine .remark-info {
-  background: rgba(255, 255, 255, 0.15);
+  padding: 9px 10px;
+  background: var(--cream-2);
+  border: 2px solid var(--line);
+  border-radius: 10px;
 }
 
 .info-label {
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  opacity: 0.8;
+  margin-bottom: 3px;
+  color: var(--text-3);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
 }
 
 .info-content {
-  font-size: 13px;
-  line-height: 1.5;
+  color: var(--text-2);
+  font-size: 12px;
+  line-height: 1.6;
+  word-break: break-word;
 }
 
 .order-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.order-message.is-mine .order-actions {
-  border-top-color: rgba(255, 255, 255, 0.2);
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 2px solid var(--line-2);
 }
 
 .btn {
   flex: 1;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
+  min-width: 96px;
+  min-height: 38px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #ff2442 0%, #ff6b6b 100%);
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, #e02039 0%, #e05858 100%);
-}
-
-.order-message.is-mine .btn-primary {
-  background: #fff;
-  color: #ff2442;
-}
-
-.order-message.is-mine .btn-primary:hover {
-  background: #f3f4f6;
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-secondary {
-  background: #6b7280;
-  color: #fff;
+  background: var(--card);
+  border: 2px solid var(--line-strong);
+  color: var(--text-2);
 }
 
 .btn-secondary:hover {
-  background: #4b5563;
+  background: var(--cream-2);
+  color: var(--ink);
 }
 
-.order-message.is-mine .btn-secondary {
-  background: rgba(255, 255, 255, 0.25);
-  color: #fff;
+.btn-primary {
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  box-shadow: 2px 3px 0 var(--shadow);
+  color: var(--on-primary);
 }
 
-.order-message.is-mine .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.35);
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 3px 4px 0 var(--shadow);
 }
 
 .btn-outline {
-  background: transparent;
-  border: 1px solid #d1d5db;
-  color: #374151;
+  background: var(--card);
+  border: 2px solid var(--primary-2);
+  color: var(--primary-2);
 }
 
 .btn-outline:hover {
-  background: #f9fafb;
+  background: var(--primary);
+  border-color: var(--edge);
+  color: var(--on-primary);
 }
 
-.order-message.is-mine .btn-outline {
-  border-color: rgba(255, 255, 255, 0.4);
-  color: #fff;
+.expired-text,
+.rejected-text {
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 700;
 }
 
-.order-message.is-mine .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.rejected-text,
-.expired-text {
-  flex: 1;
-  text-align: center;
-  color: #9ca3af;
-  font-size: 14px;
-}
-
-.expired-text {
-  color: #f59e0b;
-  font-style: italic;
-}
-
-.order-message.is-mine .rejected-text,
-.order-message.is-mine .expired-text {
-  color: rgba(255, 255, 255, 0.7);
+@media (max-width: 768px) {
+  .order-message {
+    max-width: 100%;
+    padding: 10px;
+  }
+  .product-image { width: 48px; height: 48px; }
+  .btn { min-width: 0; min-height: 36px; }
 }
 </style>
-

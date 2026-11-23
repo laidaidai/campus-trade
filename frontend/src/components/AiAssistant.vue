@@ -15,7 +15,7 @@
     <!-- 头部 -->
     <div class="ai-panel-header">
       <div class="header-left">
-        <div class="avatar-sm">🤖</div>
+        <div class="avatar-sm">AI</div>
         <div>
           <div class="header-title">小易</div>
           <div class="header-sub" :class="{ online: aiEnabled }">
@@ -34,21 +34,18 @@
     <div ref="scrollRef" class="ai-panel-body">
       <!-- 未启用 -->
       <div v-if="!aiEnabled" class="empty-state">
-        <div class="empty-icon">😴</div>
-        <p>AI 助手还没启用</p>
-        <span class="empty-hint">联系管理员在服务器 .env 中配置 AI_API_KEY 即可开启</span>
+        <p class="empty-title">AI 助手未启用</p>
       </div>
 
       <!-- 未登录 -->
       <div v-else-if="!isLoggedIn" class="empty-state">
-        <div class="empty-icon">🔐</div>
-        <p>登录后可使用 AI 助手</p>
+        <p class="empty-title">登录后可使用</p>
         <button class="login-btn" @click="$router.push('/auth')">去登录</button>
       </div>
 
       <!-- 欢迎语 -->
       <div v-else-if="messages.length === 0" class="welcome">
-        <p class="welcome-text">你好呀同学！我是小易 🎓</p>
+        <p class="welcome-text">你好，我是小易</p>
         <div class="suggestion-list">
           <button v-for="s in suggestions" :key="s" class="suggestion-chip" @click="sendQuick(s)">
             {{ s }}
@@ -59,7 +56,7 @@
       <!-- 对话 -->
       <template v-else>
         <div v-for="(msg, i) in messages" :key="i" class="msg-row" :class="msg.role">
-          <div v-if="msg.role === 'assistant'" class="msg-avatar">🤖</div>
+          <div v-if="msg.role === 'assistant'" class="msg-avatar">AI</div>
           <div class="msg-bubble-wrap">
             <div class="msg-bubble">{{ msg.content || (msg.pending ? '思考中…' : '') }}</div>
             <!-- 商品卡片 -->
@@ -72,7 +69,7 @@
               >
                 <div class="card-img-wrap">
                   <img v-if="card.image" :src="getImageUrl(card.image)" :alt="card.title" loading="lazy" @error="onImgError" />
-                  <div v-else class="card-img-fallback">📦</div>
+                  <div v-else class="card-img-fallback"></div>
                 </div>
                 <div class="card-body">
                   <div class="card-title">{{ card.title }}</div>
@@ -201,7 +198,7 @@ const onImgError = (e) => {
   if (!fallback) {
     const d = document.createElement('div')
     d.className = 'card-img-fallback'
-    d.textContent = '📦'
+    d.textContent = ''
     e.target.parentElement.appendChild(d)
   }
 }
@@ -254,7 +251,7 @@ const sendMessage = async () => {
             break
           case 'error':
             assistantMsg.pending = false
-            assistantMsg.content = assistantMsg.content || `⚠️ ${event.message}`
+            assistantMsg.content = assistantMsg.content || `${event.message}`
             toolStatus.value = ''
             break
           case 'done':
@@ -268,7 +265,7 @@ const sendMessage = async () => {
   } catch (e) {
     if (e.name !== 'AbortError') {
       assistantMsg.pending = false
-      assistantMsg.content = assistantMsg.content || `⚠️ ${e.message || '网络错误，请稍后重试'}`
+      assistantMsg.content = assistantMsg.content || `${e.message || '网络错误，请稍后重试'}`
     }
   } finally {
     assistantMsg.pending = false
@@ -290,144 +287,146 @@ const clearHistory = () => {
 </script>
 
 <style scoped>
-/* ============ 悬浮球 ============ */
+/* 悬浮球：主色圆 + 墨线硬影 */
 .ai-fab {
   position: fixed;
-  right: 24px;
-  bottom: 24px;
+  right: 28px;
+  bottom: 28px;
+  z-index: 9998;
   width: 56px;
   height: 56px;
-  border-radius: 50%;
-  background: var(--primary-gradient);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 4px 5px 0 var(--shadow);
+  color: var(--on-primary);
   cursor: pointer;
-  box-shadow: var(--shadow-primary);
-  z-index: 1000;
-  transition: transform var(--transition-base) var(--ease-in-out), opacity var(--transition-base);
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
+
 .ai-fab:hover {
-  transform: scale(1.08);
+  transform: translateY(-2px);
+  box-shadow: 5px 6px 0 var(--shadow);
 }
+
 .ai-fab.active {
-  transform: rotate(90deg);
+  background: var(--panel);
+  color: var(--on-panel);
 }
+
 .fab-icon {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
 }
 
-/* 移动端：给底部导航让位 */
-@media (max-width: 768px) {
-  .ai-fab {
-    right: 16px;
-    bottom: 84px;
-    width: 50px;
-    height: 50px;
-  }
-}
-
-/* ============ 面板 ============ */
+/* 面板：纸卡 */
 .ai-panel {
   position: fixed;
-  right: 24px;
-  bottom: 92px;
-  width: 360px;
-  max-width: calc(100vw - 32px);
-  height: 520px;
-  max-height: calc(100vh - 120px);
-  background: var(--bg-white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  right: 28px;
+  bottom: 96px;
+  z-index: 9998;
   display: flex;
   flex-direction: column;
+  width: 380px;
+  height: min(560px, calc(100vh - 140px));
   overflow: hidden;
-  z-index: 1000;
-  animation: panel-in 0.25s var(--ease-out);
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 20px;
+  box-shadow: 7px 8px 0 var(--shadow);
+  animation: panelIn 0.26s var(--fish-ease) both;
 }
 
-@keyframes panel-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-@media (max-width: 768px) {
-  .ai-panel {
-    right: 16px;
-    bottom: 84px;
-    width: calc(100vw - 32px);
-    height: min(520px, calc(100vh - 100px));
-  }
-}
-
-/* 头部 */
 .ai-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
   padding: 14px 16px;
-  background: var(--primary-gradient);
-  color: #fff;
-  flex-shrink: 0;
+  border-bottom: 2px solid var(--line-2);
 }
+
 .header-left {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
+
 .avatar-sm {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--panel);
+  border: 2px solid var(--edge);
+  border-radius: 10px;
+  color: var(--on-panel);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.header-title {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.header-sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  color: var(--text-4);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.header-sub.online {
+  color: var(--success);
+}
+
+.header-sub.online::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--success);
+  border-radius: 999px;
+}
+
+.clear-btn {
   width: 34px;
   height: 34px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-}
-.header-title {
-  font-weight: 600;
-  font-size: 15px;
-}
-.header-sub {
-  font-size: 12px;
-  opacity: 0.85;
-}
-.header-sub.online::before {
-  content: '●';
-  margin-right: 4px;
-  color: #6bff9e;
-  font-size: 10px;
-}
-.clear-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: #fff;
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--text-3);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--transition-fast);
 }
+
 .clear-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--cream-2);
+  color: var(--ink);
 }
+
 .clear-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
 }
+
 .clear-btn svg {
   width: 16px;
   height: 16px;
@@ -440,286 +439,324 @@ const clearHistory = () => {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  background: var(--bg-gray);
+  gap: 12px;
 }
 
-/* 空状态 */
 .empty-state,
 .welcome {
+  margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 12px;
+  padding: 24px 12px;
   text-align: center;
-  gap: 8px;
-  flex: 1;
-  padding: 20px;
 }
-.empty-icon {
-  font-size: 40px;
-}
-.empty-state p {
+
+.empty-title {
   margin: 0;
-  font-size: 15px;
-  color: var(--text-primary);
-  font-weight: 500;
-}
-.empty-hint {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  line-height: 1.5;
-}
-.login-btn {
-  margin-top: 8px;
-  padding: 8px 28px;
-  background: var(--primary-color);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-full);
+  color: var(--text-2);
   font-size: 14px;
-  cursor: pointer;
-  transition: opacity var(--transition-fast);
+  font-weight: 800;
 }
+
+.login-btn {
+  min-height: 38px;
+  padding: 8px 22px;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 2px 3px 0 var(--shadow);
+  color: var(--on-primary);
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
 .login-btn:hover {
-  opacity: 0.85;
+  transform: translateY(-1px);
 }
 
 .welcome-text {
-  font-size: 15px;
-  color: var(--text-primary);
-  font-weight: 500;
-  margin-bottom: 4px;
+  margin: 0;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 800;
 }
+
 .suggestion-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
   justify-content: center;
-}
-.suggestion-chip {
-  padding: 7px 14px;
-  background: var(--bg-white);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-full);
-  font-size: 13px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-.suggestion-chip:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  background: #fff5f6;
+  gap: 8px;
 }
 
-/* 消息 */
+.suggestion-chip {
+  min-height: 34px;
+  padding: 6px 12px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s var(--fish-ease), color 0.2s var(--fish-ease);
+}
+
+.suggestion-chip:hover {
+  background: var(--primary);
+  border-color: var(--edge);
+  color: var(--on-primary);
+}
+
+/* 对话 */
 .msg-row {
   display: flex;
   gap: 8px;
   align-items: flex-start;
 }
+
 .msg-row.user {
-  justify-content: flex-end;
+  flex-direction: row-reverse;
 }
+
 .msg-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--bg-white);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
-  margin-top: 2px;
+  display: grid;
+  place-items: center;
+  background: var(--panel);
+  border: 2px solid var(--edge);
+  border-radius: 8px;
+  color: var(--on-panel);
+  font-size: 10px;
+  font-weight: 900;
 }
+
 .msg-bubble-wrap {
-  max-width: 82%;
+  min-width: 0;
+  max-width: calc(100% - 40px);
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
+
+.msg-row.user .msg-bubble-wrap {
+  align-items: flex-end;
+}
+
 .msg-bubble {
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  font-size: 14px;
+  padding: 9px 13px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 14px;
+  color: var(--text-2);
+  font-size: 13px;
   line-height: 1.65;
   word-break: break-word;
   white-space: pre-wrap;
 }
+
 .msg-row.assistant .msg-bubble {
-  background: var(--bg-white);
-  color: var(--text-primary);
-  border-top-left-radius: 4px;
-  box-shadow: var(--shadow-sm);
-}
-.msg-row.user .msg-bubble {
-  background: var(--primary-gradient);
-  color: #fff;
-  border-top-right-radius: 4px;
-}
-.msg-bubble:empty {
-  display: none;
+  border-top-left-radius: 6px;
 }
 
-/* 商品卡片 */
+.msg-row.user .msg-bubble {
+  background: var(--primary);
+  border-color: var(--edge);
+  color: var(--on-primary);
+  border-top-right-radius: 6px;
+}
+
+.msg-bubble:empty { display: none; }
+
+/* 商品卡 */
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+  width: 100%;
 }
+
 .product-card {
-  background: var(--bg-white);
-  border-radius: var(--radius-sm);
   overflow: hidden;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 12px;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: transform 0.2s var(--fish-ease), box-shadow 0.2s var(--fish-ease);
 }
+
 .product-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 3px 4px 0 var(--shadow);
 }
+
 .card-img-wrap {
-  width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: var(--bg-dark);
-  position: relative;
+  background: var(--cream-2);
+  border-bottom: 2px solid var(--edge);
 }
+
 .card-img-wrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .card-img-fallback {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  background: var(--bg-dark);
-}
-.card-body {
-  padding: 8px 10px;
-}
-.card-title {
-  font-size: 12.5px;
-  color: var(--text-primary);
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  height: 35px;
-}
-.card-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 5px;
-}
-.card-price {
-  color: var(--primary-color);
-  font-weight: 700;
-  font-size: 14px;
-}
-.card-cond {
-  font-size: 11px;
-  color: var(--text-tertiary);
+  width: 100%;
+  height: 100%;
+  background: var(--cream-2);
 }
 
-/* 工具状态 */
+.card-body {
+  padding: 7px 8px 8px;
+}
+
+.card-title {
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.card-price {
+  color: var(--primary-2);
+  font-size: 13px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-cond {
+  color: var(--text-4);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* 状态 / 输入 */
 .tool-status {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12.5px;
-  color: var(--text-tertiary);
-  padding-left: 38px;
+  color: var(--text-3);
+  font-size: 12px;
 }
+
 .spinner {
   width: 14px;
   height: 14px;
-  border: 2px solid var(--border-color);
-  border-top-color: var(--primary-color);
-  border-radius: 50%;
+  border: 2px solid var(--line-2);
+  border-top-color: var(--primary);
+  border-radius: 999px;
   animation: spin 0.8s linear infinite;
-  flex-shrink: 0;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
-/* 输入区 */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .ai-panel-footer {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  padding: 12px;
-  border-top: 1px solid var(--border-light);
-  background: var(--bg-white);
-  flex-shrink: 0;
+  padding: 12px 14px 8px;
+  border-top: 2px solid var(--line-2);
 }
+
 .ai-input {
   flex: 1;
-  resize: none;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 9px 12px;
-  font-size: 14px;
-  line-height: 1.5;
-  max-height: 100px;
-  outline: none;
+  min-height: 42px;
+  max-height: 110px;
+  padding: 10px 12px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  color: var(--ink);
+  font-size: 13px;
   font-family: inherit;
-  background: var(--bg-gray);
-  transition: border-color var(--transition-fast);
+  line-height: 1.5;
+  resize: none;
+  transition: border-color 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
+
 .ai-input:focus {
-  border-color: var(--primary-color);
-  background: var(--bg-white);
+  outline: none;
+  background: var(--card);
+  border-color: var(--primary);
+  box-shadow: 3px 4px 0 var(--shadow);
 }
+
 .ai-input:disabled {
-  opacity: 0.6;
+  background: var(--cream-2);
   cursor: not-allowed;
 }
+
 .send-btn {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   flex-shrink: 0;
-  border: none;
-  border-radius: 50%;
-  background: var(--primary-gradient);
-  color: #fff;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  box-shadow: 2px 3px 0 var(--shadow);
+  color: var(--on-primary);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity var(--transition-fast), transform var(--transition-fast);
 }
+
 .send-btn:hover:not(:disabled) {
-  transform: scale(1.06);
+  transform: translateY(-1px);
 }
+
 .send-btn:disabled {
-  opacity: 0.4;
+  background: var(--cream-2);
+  border-color: var(--line-strong);
+  box-shadow: none;
+  color: var(--text-4);
   cursor: not-allowed;
 }
+
 .send-btn svg {
   width: 18px;
   height: 18px;
 }
+
 .ai-panel-tip {
-  font-size: 10.5px;
-  color: var(--text-tertiary);
-  text-align: center;
-  padding: 0 12px 8px;
-  background: var(--bg-white);
-  flex-shrink: 0;
+  padding: 0 14px 10px;
+  color: var(--text-4);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .ai-fab {
+    right: 16px;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+  .ai-panel {
+    right: 12px;
+    left: 12px;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    height: min(70vh, 560px);
+  }
 }
 </style>

@@ -1,21 +1,38 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
 import * as MessageModel from '../models/messageModel';
+import { getProductById } from '../models/productModel';
 
 /**
  * 获取或创建会话
  */
 export const getOrCreateConversation = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { productId, sellerId } = req.body;
-    const buyerId = req.user?.userId;
+    const productId = Number(req.body.productId);
+    const sellerId = Number(req.body.sellerId);
+    const buyerId = Number(req.user?.userId);
 
-    if (!buyerId) {
+    if (!Number.isInteger(buyerId) || buyerId <= 0) {
       return res.status(401).json({ error: '未授权' });
     }
 
-    if (!productId || !sellerId) {
+    if (!Number.isInteger(productId) || productId <= 0 || !Number.isInteger(sellerId) || sellerId <= 0) {
       return res.status(400).json({ error: '缺少必要参数' });
+    }
+
+    const product = await getProductById(productId);
+    if (!product) {
+      return res.status(404).json({ error: '商品不存在' });
+    }
+
+    // 卖家必须与商品实际归属一致，避免用伪造的 sellerId 建会话
+    if (Number(product.seller_id) !== sellerId) {
+      return res.status(400).json({ error: '商品卖家信息不匹配' });
+    }
+
+    // 自己不能和自己创建买卖会话
+    if (buyerId === sellerId) {
+      return res.status(400).json({ error: '不能与自己创建会话' });
     }
 
     const conversation = await MessageModel.getOrCreateConversation(
@@ -119,13 +136,24 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
       return res.status(404).json({ error: '会话不存在' });
     }
 
-    if (conversation.buyer_id !== senderId && conversation.seller_id !== senderId) {
+    const buyerId = Number(conversation.buyer_id);
+    const sellerId = Number(conversation.seller_id);
+    if (buyerId === sellerId) {
+      return res.status(400).json({ error: '该会话无效，请从商品页重新发起会话' });
+    }
+
+    if (Number(senderId) !== buyerId && Number(senderId) !== sellerId) {
       console.error('❌ 无权发送消息:', { 
         senderId, 
         buyer_id: conversation.buyer_id, 
         seller_id: conversation.seller_id 
       });
       return res.status(403).json({ error: '无权在此会话中发送消息' });
+    }
+
+    const expectedReceiverId = Number(senderId) === buyerId ? sellerId : buyerId;
+    if (Number(receiver_id) !== expectedReceiverId) {
+      return res.status(400).json({ error: '消息接收人不正确' });
     }
 
     console.log('✅ 开始发送消息:', { conversationId, senderId, receiver_id, type });

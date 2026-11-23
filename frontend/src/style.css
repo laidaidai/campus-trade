@@ -1,63 +1,127 @@
-/* src/style.css - 全局基础，必须存在且被 main.js 引入 */
+/* src/style.css - Fish UI 全局底：纸底、墨线、等宽数字 */
+
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
-html, body, #app {
-    height: 100%;
-    margin: 0;
-    padding: 0;
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-    font-family: "Inter", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    background: #f8fafc;
-    color: #111827;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    min-width: 320px; /* 最小宽度 */
+  min-width: 320px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
 
+p {
+  margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--primary-3);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* 滚动条：实线墨色，不用渐变 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) var(--cream-1);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream-1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border: 2px solid var(--cream-1);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-3);
+}
+
+/* 网页内容列：880–1120px，桌面 12 栏逻辑 */
 .container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 16px;
-}
-
-/* 确保在大屏幕上正确显示 */
-@media (min-width: 1200px) {
-    .container {
-        padding: 0 24px;
-    }
-}
-
-/* 全局可复用按钮 */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 8px 14px;
-    border-radius: 9999px;
-    cursor: pointer;
-    border: none;
-    font-size: 14px;
-}
-
-/* 响应式字体大小 */
-html {
-    font-size: 16px;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
 @media (max-width: 768px) {
-    html { 
-        font-size: 14px; 
-    }
-    .container {
-        padding: 0 12px;
-    }
+  .container {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 12px;
+  }
 }

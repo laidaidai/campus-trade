@@ -51,7 +51,6 @@
             required
             disabled
           />
-          <small class="form-hint">邮箱不可修改</small>
         </div>
 
         <div class="form-group">
@@ -67,7 +66,6 @@
       <!-- 密码修改 -->
       <div class="form-section">
         <label class="section-label">修改密码</label>
-        <p class="section-hint">如不需要修改密码,请留空</p>
         
         <div class="form-group">
           <label>当前密码</label>
@@ -112,7 +110,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { uploadSingleImage } from '@/api/upload'
 import { changePassword } from '@/api/user'
-import { getImageUrl } from '@/config'
+import { resolveAvatar } from '@/utils/avatar'
 import toast from '@/utils/toast'
 
 const userStore = useUserStore()
@@ -132,17 +130,7 @@ const passwordForm = ref({
   confirmPassword: ''
 })
 
-const avatarUrl = computed(() => {
-  if (form.value.avatar) {
-    const url = getImageUrl(form.value.avatar)
-    console.log('UserProfile 组件头像:', {
-      原始路径: form.value.avatar,
-      转换后URL: url
-    })
-    return url
-  }
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(form.value.username || '用户')}&background=ff2442&color=fff&size=200`
-})
+const avatarUrl = computed(() => resolveAvatar(form.value.avatar, form.value.username))
 
 // 初始化表单
 const initForm = () => {
@@ -313,51 +301,55 @@ onMounted(() => {
 .profile-form {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
 }
 
-/* 表单分区 */
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  padding-bottom: 22px;
+  border-bottom: 2px solid var(--line);
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .section-label {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 8px;
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
 }
 
 .section-hint {
-  font-size: 14px;
-  color: var(--text-tertiary);
-  margin: -8px 0 8px 0;
+  margin: -4px 0 0;
+  color: var(--text-4);
+  font-size: 12px;
 }
 
-/* 头像上传 */
+/* 头像：墨线圆 + 悬浮换头像 */
 .avatar-section {
+  flex-direction: row;
   align-items: center;
+  gap: 20px;
 }
 
 .avatar-upload {
-  width: 150px;
-  height: 150px;
+  flex-shrink: 0;
 }
 
 .avatar-preview {
   position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
+  width: 96px;
+  height: 96px;
   overflow: hidden;
-  border: 4px solid #f0f0f0;
-  transition: all var(--transition-base) var(--ease-in-out);
-}
-
-.avatar-preview:hover {
-  border-color: var(--primary-color);
+  background: var(--cream-2);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 3px 4px 0 var(--shadow);
 }
 
 .avatar-preview img {
@@ -368,129 +360,121 @@ onMounted(() => {
 
 .avatar-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--panel);
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.2s var(--fish-ease);
 }
 
-.avatar-preview:hover .avatar-overlay {
-  opacity: 1;
-}
+.avatar-preview:hover .avatar-overlay { opacity: 1; }
 
 .btn-upload {
-  padding: 10px 20px;
-  border-radius: 20px;
-  border: none;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 600;
+  min-height: 32px;
+  padding: 4px 12px;
+  background: transparent;
+  border: 2px solid var(--on-panel);
+  border-radius: 999px;
+  color: var(--on-panel);
+  font-size: 11px;
+  font-weight: 900;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-upload:hover {
-  background: var(--primary-color);
-  color: #fff;
-  transform: translateY(-2px);
+  background: var(--primary);
+  border-color: var(--primary);
 }
 
-/* 表单组 */
+/* 输入 */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .form-group label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
 .form-group input {
-  padding: 12px 16px;
-  border: 1px solid #d0d0d0;
-  border-radius: var(--radius-sm);
-  font-size: 15px;
-  transition: all var(--transition-base) var(--ease-in-out);
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 14px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  color: var(--ink);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.26s var(--fish-ease),
+              box-shadow 0.26s var(--fish-ease),
+              background-color 0.26s var(--fish-ease);
 }
+
+.form-group input::placeholder { color: var(--text-4); }
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(255, 36, 66, 0.1);
+  background: var(--card);
+  border-color: var(--primary);
+  box-shadow: 3px 4px 0 var(--shadow);
 }
 
 .form-group input:disabled {
-  background: #f5f5f5;
-  color: var(--text-tertiary);
+  background: var(--cream-2);
+  color: var(--text-3);
   cursor: not-allowed;
 }
 
 .form-hint {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  margin-top: -4px;
+  color: var(--text-4);
+  font-size: 11px;
 }
 
-/* 提交按钮 */
 .form-actions {
   display: flex;
-  justify-content: center;
-  padding-top: 16px;
+  justify-content: flex-end;
 }
 
 .btn-submit {
-  padding: 14px 60px;
-  border-radius: 28px;
-  border: none;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
+  min-width: 160px;
+  min-height: 46px;
+  padding: 10px 28px;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--on-primary);
+  font-size: 14px;
+  font-weight: 900;
   cursor: pointer;
-  transition: all var(--transition-base) var(--ease-in-out);
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 36, 66, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 4px 5px 0 var(--shadow);
 }
 
 .btn-submit:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
+  box-shadow: none;
   cursor: not-allowed;
 }
 
 @media (max-width: 640px) {
-  .profile-form {
-    gap: 24px;
+  .avatar-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
-
-  .form-section {
-    gap: 12px;
-  }
-
-  .avatar-upload {
-    width: 120px;
-    height: 120px;
-  }
-
-  .btn-submit {
-    width: 100%;
-  }
+  .avatar-preview { width: 80px; height: 80px; }
+  .form-actions { justify-content: stretch; }
+  .btn-submit { width: 100%; }
 }
 </style>

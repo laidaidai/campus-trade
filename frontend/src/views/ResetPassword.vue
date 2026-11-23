@@ -3,8 +3,8 @@
     <div class="container">
       <div class="reset-box">
         <div class="reset-header">
+          <span class="eyebrow">RESET</span>
           <h2>找回密码</h2>
-          <p class="subtitle">通过邮箱验证码重置密码</p>
         </div>
 
         <!-- 错误提示 -->
@@ -195,241 +195,181 @@ const handleSubmit = async () => {
 <style scoped>
 .reset-password-page {
   min-height: 100vh;
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-  padding: 20px;
-  width: 100%;
+  padding: 32px;
 }
 
 .container {
   width: 100%;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-  display: flex;
-  justify-content: center;
+  max-width: 560px;
+  margin: 0 auto;
 }
 
 .reset-box {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.15);
-  padding: 40px;
-  width: 100%;
-  max-width: 500px;
+  padding: 34px;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 24px;
+  box-shadow: 7px 8px 0 var(--shadow);
 }
 
 .reset-header {
-  text-align: center;
-  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--line-2);
 }
 
 .reset-header h2 {
+  margin: 0;
+  color: var(--ink);
   font-size: 28px;
-  font-weight: 700;
-  margin: 0 0 10px;
-  color: var(--text-primary);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
-.subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0;
-}
+.subtitle { display: none; }
 
 .message {
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  margin-bottom: 20px;
-  font-size: 14px;
-  animation: slideDown 0.3s ease-out;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  animation: messageIn 0.26s var(--fish-ease) both;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes messageIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .error-message {
-  background-color: #fee;
-  color: #c33;
-  border: 1px solid #fcc;
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
 }
 
 .success-message {
-  background-color: #efe;
-  color: #3c3;
-  border: 1px solid #cfc;
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
 }
 
 .reset-form {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .input-group {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .input-group label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 8px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
 }
 
 .input-group input {
   width: 100%;
-  padding: 14px 18px;
-  border: 2px solid #e8e8e8;
-  border-radius: 10px;
+  min-height: 46px;
+  padding: 11px 14px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  color: var(--ink);
   font-size: 15px;
-  transition: all var(--transition-base) var(--ease-in-out);
-  background: #f9f9f9;
-  box-sizing: border-box;
+  transition: border-color 0.26s var(--fish-ease),
+              box-shadow 0.26s var(--fish-ease),
+              background-color 0.26s var(--fish-ease);
 }
+
+.input-group input::placeholder { color: var(--text-4); }
 
 .input-group input:focus {
   outline: none;
-  border-color: var(--primary-color);
-  background: var(--bg-white);
+  background: var(--card);
+  border-color: var(--primary);
+  box-shadow: 3px 4px 0 var(--shadow);
 }
 
 .input-group input:disabled {
-  background: var(--bg-dark);
+  background: var(--cream-2);
+  color: var(--text-3);
   cursor: not-allowed;
 }
 
 .submit-btn {
   width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
+  min-height: 48px;
+  margin-top: 4px;
+  padding: 12px;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--on-primary);
+  font-size: 15px;
+  font-weight: 900;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  margin-top: 10px;
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .submit-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 36, 66, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 4px 5px 0 var(--shadow);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 1px 2px 0 var(--shadow);
 }
 
 .submit-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
+  box-shadow: none;
   cursor: not-allowed;
-  transform: none;
 }
 
 .back-to-login {
+  margin-top: 2px;
   text-align: center;
-  margin-top: 20px;
+  font-size: 13px;
 }
 
 .back-to-login a {
-  color: var(--primary-color);
+  color: var(--text-3);
+  font-weight: 700;
   text-decoration: none;
-  font-size: 14px;
-  transition: color 0.2s;
 }
 
 .back-to-login a:hover {
-  color: var(--primary-light);
-  text-decoration: underline;
+  color: var(--ink);
+  border-bottom: 2px solid var(--primary-2);
 }
 
-/* 响应式 */
 @media (max-width: 768px) {
-  .reset-password-page {
-    padding: 20px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .container {
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .reset-box {
-    padding: 25px 20px;
-    width: 100%;
-  }
-
-  .reset-header h2 {
-    font-size: 24px;
-  }
-
-  .reset-header {
-    margin-bottom: 25px;
-  }
-
-  .input-group {
-    margin-bottom: 18px;
-  }
-
-  .input-group input {
-    padding: 12px 16px;
-    font-size: 14px;
-  }
-
-  .submit-btn {
-    padding: 12px;
-    font-size: 15px;
-  }
+  .reset-password-page { padding: 16px 12px 32px; align-items: flex-start; }
+  .reset-box { padding: 24px 18px; border-radius: 20px; }
+  .reset-header h2 { font-size: 24px; }
 }
 
 @media (max-width: 480px) {
-  .reset-password-page {
-    padding: 15px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .container {
-    width: 100%;
-  }
-
-  .reset-box {
-    padding: 20px 15px;
-    border-radius: 15px;
-    width: 100%;
-  }
-
-  .reset-header h2 {
-    font-size: 20px;
-  }
-
-  .subtitle {
-    font-size: 13px;
-  }
-}
-
-/* iPad竖屏特殊优化 */
-@media (min-width: 481px) and (max-width: 1024px) and (orientation: portrait) {
-  .reset-password-page {
-    padding: 30px;
-  }
-  
-  .container {
-    width: 100%;
-    max-width: 600px;
-  }
-  
-  .reset-box {
-    width: 100%;
-  }
+  .reset-password-page { padding: 12px 8px 24px; }
+  .reset-box { padding: 20px 16px; box-shadow: 5px 6px 0 var(--shadow); }
+  .input-group input { min-height: 44px; padding: 10px 12px; font-size: 14px; }
+  .submit-btn { min-height: 44px; font-size: 14px; }
 }
 </style>

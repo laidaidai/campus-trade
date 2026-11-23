@@ -27,7 +27,6 @@
               step="0.01"
             />
           </div>
-          <p class="price-hint">请输入合理的价格</p>
         </div>
       </div>
 
@@ -108,172 +107,228 @@ watch(() => props.visible, (newVal) => {
 <style scoped>
 .dialog-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
-  padding: 20px;
+  padding: 24px;
+  background: color-mix(in srgb, var(--panel-deep) 62%, transparent);
 }
 
 .dialog-content {
-  background: #fff;
-  border-radius: 16px;
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 440px;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 22px;
+  box-shadow: 7px 8px 0 var(--shadow);
+  overflow: hidden;
+  animation: dialogIn 0.26s var(--fish-ease) both;
+}
+
+@keyframes dialogIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .dialog-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 2px solid var(--line-2);
 }
 
 .dialog-header h3 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 900;
 }
 
 .close-btn {
-  background: none;
-  border: none;
-  font-size: 32px;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
-  color: #9ca3af;
-  transition: color 0.3s;
-  padding: 0;
-  width: 32px;
-  height: 32px;
 }
 
 .close-btn:hover {
-  color: #374151;
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-panel);
 }
 
 .dialog-body {
-  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px 22px;
 }
 
+/* 原价 */
 .price-item {
-  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 14px;
 }
 
 .price-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: #6b7280;
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
 }
 
 .price-value {
-  font-size: 24px;
-  font-weight: 700;
+  color: var(--ink);
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .price-value.original {
-  color: #9ca3af;
+  color: var(--text-2);
 }
 
 .form-section {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #374151;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
 }
 
 .price-input-wrapper {
-  position: relative;
   display: flex;
   align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  transition: border-color 0.26s var(--fish-ease),
+              box-shadow 0.26s var(--fish-ease),
+              background-color 0.26s var(--fish-ease);
+}
+
+.price-input-wrapper:focus-within {
+  background: var(--card);
+  border-color: var(--primary);
+  box-shadow: 3px 4px 0 var(--shadow);
 }
 
 .price-symbol {
-  position: absolute;
-  left: 16px;
-  font-size: 20px;
-  font-weight: 600;
-  color: #ff2442;
+  color: var(--text-3);
+  font-size: 18px;
+  font-weight: 900;
 }
 
 .price-input {
+  flex: 1;
   width: 100%;
-  padding: 16px 16px 16px 40px;
-  border: 2px solid #d1d5db;
-  border-radius: 12px;
-  font-size: 20px;
-  font-weight: 600;
-  transition: border-color 0.3s;
-}
-
-.price-input:focus {
+  min-height: 44px;
+  padding: 10px 0;
+  background: transparent;
+  border: none;
   outline: none;
-  border-color: #ff2442;
+  color: var(--ink);
+  font-size: 22px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  font-family: inherit;
 }
 
-.price-hint {
-  margin: 8px 0 0 0;
-  font-size: 12px;
-  color: #9ca3af;
+.price-input::placeholder {
+  color: var(--text-4);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.price-input::-webkit-outer-spin-button,
+.price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .dialog-footer {
   display: flex;
-  gap: 12px;
-  padding: 20px 24px;
-  border-top: 1px solid #e5e7eb;
+  gap: 10px;
+  padding: 16px 22px;
+  border-top: 2px solid var(--line-2);
 }
 
 .btn {
   flex: 1;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--card);
+  border: 2px solid var(--line-strong);
+  color: var(--text-2);
 }
 
-.btn-secondary:hover:not(:disabled) {
-  background: #e5e7eb;
+.btn-secondary:hover {
+  background: var(--cream-2);
+  color: var(--ink);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #ff2442 0%, #ff6b6b 100%);
-  color: #fff;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--on-primary);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #e02039 0%, #e05858 100%);
+  transform: translateY(-1px);
+  box-shadow: 4px 5px 0 var(--shadow);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
+  .dialog-overlay { padding: 0; align-items: flex-end; }
   .dialog-content {
     max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    border-bottom: none;
+    box-shadow: 0 -4px 0 var(--shadow);
   }
+  .dialog-header { padding: 16px 18px; }
+  .dialog-body { padding: 16px 18px; }
+  .dialog-footer { padding: 14px 18px; }
 }
 </style>
-

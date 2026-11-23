@@ -105,105 +105,105 @@ const handleGoHome = () => {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 20px;
-  background: var(--bg-gray, #f5f5f5);
+  padding: 40px 24px;
+  background: var(--bg);
 }
 
 .error-content {
-  text-align: center;
-  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
   width: 100%;
+  max-width: 520px;
+  text-align: center;
 }
 
+/* 实线圆 + 墨线图标，不用插画 */
 .error-icon {
-  font-size: 64px;
-  color: var(--primary-color, #ff2442);
-  margin-bottom: 24px;
+  width: 104px;
+  height: 104px;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 5px 6px 0 var(--shadow);
+  color: var(--text-2);
+}
+
+.error-icon :deep(svg) {
+  width: 40px;
+  height: 40px;
 }
 
 .error-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--text-primary, #333);
-  margin: 0 0 12px 0;
+  margin: 6px 0 0;
+  color: var(--ink);
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .error-message {
-  font-size: 16px;
-  color: var(--text-secondary, #666);
-  margin: 0 0 32px 0;
-  line-height: 1.5;
+  margin: 0;
+  max-width: 400px;
+  color: var(--text-3);
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .error-actions {
   display: flex;
   gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
+  margin-top: 10px;
 }
 
 .btn-retry,
 .btn-home {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
+  min-height: 46px;
+  padding: 10px 28px;
+  border-radius: 999px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 100px;
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-retry {
-  background: var(--bg-white, #fff);
-  color: var(--text-primary, #333);
-  border: 1px solid var(--border-color, #ddd);
+  background: var(--card);
+  border: 2px solid var(--line-strong);
+  color: var(--text-2);
 }
 
 .btn-retry:hover {
-  background: var(--bg-gray, #f5f5f5);
-  transform: translateY(-1px);
+  background: var(--cream-2);
+  color: var(--ink);
 }
 
 .btn-home {
-  background: var(--primary-color, #ff2442);
-  color: white;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--on-primary);
 }
 
 .btn-home:hover {
-  background: var(--primary-dark, #e01e3c);
   transform: translateY(-1px);
+  box-shadow: 4px 5px 0 var(--shadow);
 }
 
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .error-page {
-    padding: 16px;
-  }
-  
-  .error-icon {
-    font-size: 48px;
-    margin-bottom: 20px;
-  }
-  
-  .error-title {
-    font-size: 20px;
-  }
-  
-  .error-message {
-    font-size: 14px;
-  }
-  
-  .error-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .btn-retry,
-  .btn-home {
-    width: 100%;
-    max-width: 200px;
-  }
+.btn-home:active {
+  transform: translateY(2px);
+  box-shadow: 1px 2px 0 var(--shadow);
+}
+
+@media (max-width: 767px) {
+  .error-icon { width: 88px; height: 88px; }
+  .error-icon :deep(svg) { width: 34px; height: 34px; }
+  .error-title { font-size: 24px; }
+  .error-actions { flex-direction: column; width: 100%; max-width: 280px; }
+  .btn-retry, .btn-home { width: 100%; }
 }
 </style>
-

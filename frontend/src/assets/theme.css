@@ -1,308 +1,727 @@
-/* ============================================
-   Campus Trade - 统一主题配置
-   ============================================ */
+/* ============================================================
+   Campus Trade × Fish UI（小鱼手绘）
+   奶油纸底 / 墨色硬线 / 单层硬影 / 大圆角 / 高饱和主色 / 巨大数字
+   ------------------------------------------------------------
+   颜色只有一套来源：先用 token，再写组件。
+   主题切换：document.documentElement.dataset.theme = 'tomato'
+   ============================================================ */
 
+/* ---------- 1. 主题 token ---------- */
+
+/* 默认主题：tomato 红黄汽水（承接原有红色品牌气质） */
+:root,
+html[data-theme='tomato'] {
+  color-scheme: light;
+
+  --bg: #fff4e4;
+  --cream-1: #fff9f0;
+  --cream-2: #fbe9d6;
+  --cream-3: #f6dcc3;
+  --cream-4: #eec8a5;
+
+  --card: #fffdf8;
+  --panel: #2a1712;
+  --panel-deep: #1b0e0a;
+
+  --ink: #3d1f18;
+  --edge: #3d1f18;
+  --edge-deep: #24100b;
+
+  --shadow: #d9b391;
+  --shadow-soft: 3px 4px 0 var(--shadow);
+
+  --line: #f0dcc6;
+  --line-2: #e4cab0;
+  --line-strong: #cba883;
+
+  --primary: #f2603c;
+  --primary-2: #d9481f;
+  --primary-3: #ffb49e;
+  --on-primary: #fff7ef;
+
+  --success: #2f8a52;
+  --success-bg: #e2f2e6;
+  --danger: #cf3325;
+  --danger-bg: #ffe4de;
+  --warn-bg: #ffe9b8;
+  --warn-text: #6b4300;
+
+  --text-2: #5f4436;
+  --text-3: #7b634d;
+  --text-4: #a58e76;
+  --text-warm: #8a5b3c;
+  --text-mid: #6f5443;
+
+  --on-panel: #fff1e6;
+  --on-panel-warm: #ffc9a8;
+
+  --canvas-bg: #fff4e4;
+  --canvas-card: #fffdf8;
+  --canvas-panel: #2a1712;
+  --canvas-ink: #3d1f18;
+  --canvas-accent: #f2603c;
+}
+
+/* cream 蜂蜜奶霜 */
+html[data-theme='cream'] {
+  --bg: #fbf3df;
+  --cream-1: #fdf8ec;
+  --cream-2: #f6ebcf;
+  --cream-3: #efe1be;
+  --cream-4: #e3d2a6;
+
+  --card: #fffdf5;
+  --panel: #2b2118;
+  --panel-deep: #1d1710;
+
+  --ink: #4b3a2a;
+  --edge: #4b3a2a;
+  --edge-deep: #33261a;
+
+  --shadow: #d9c49a;
+  --line: #eadfc2;
+  --line-2: #dccdab;
+  --line-strong: #c9b68f;
+
+  --primary: #ffc94d;
+  --primary-2: #e5a30f;
+  --primary-3: #ffe3a1;
+  --on-primary: #4b3a2a;
+
+  --success: #2f8a52;
+  --success-bg: #e3f1e2;
+  --danger: #d4402c;
+  --danger-bg: #ffe4d9;
+  --warn-bg: #ffe9b8;
+  --warn-text: #6b4300;
+
+  --text-2: #6b5947;
+  --text-3: #7f6a53;
+  --text-4: #a99680;
+  --text-warm: #8a6236;
+  --text-mid: #6f5c49;
+
+  --on-panel: #fff6df;
+  --on-panel-warm: #ffe0a3;
+
+  --canvas-bg: #fbf3df;
+  --canvas-card: #fffdf5;
+  --canvas-panel: #2b2118;
+  --canvas-ink: #4b3a2a;
+  --canvas-accent: #ffc94d;
+}
+
+/* rose 蜜桃雪酪 */
+html[data-theme='rose'] {
+  --bg: #fff1f3;
+  --cream-1: #fff7f8;
+  --cream-2: #ffe4e9;
+  --cream-3: #fbd5dd;
+  --cream-4: #f3bdc8;
+
+  --card: #fffdfe;
+  --panel: #3a2027;
+  --panel-deep: #2a161b;
+
+  --ink: #4a2a31;
+  --edge: #4a2a31;
+  --edge-deep: #331a20;
+
+  --shadow: #e8c2c9;
+  --line: #f4d8dd;
+  --line-2: #eac2ca;
+  --line-strong: #d6a2ac;
+
+  --primary: #ff9fb6;
+  --primary-2: #ef7594;
+  --primary-3: #ffd3dd;
+  --on-primary: #4a2a31;
+
+  --success: #2f8a52;
+  --success-bg: #e2f2e6;
+  --danger: #c9342f;
+  --danger-bg: #ffe3e0;
+  --warn-bg: #ffe9c4;
+  --warn-text: #6b4300;
+
+  --text-2: #6b4650;
+  --text-3: #7d5a63;
+  --text-4: #a7858d;
+  --text-warm: #8c4f5e;
+  --text-mid: #74525b;
+
+  --on-panel: #fff3f5;
+  --on-panel-warm: #ffc9d5;
+
+  --canvas-bg: #fff1f3;
+  --canvas-card: #fffdfe;
+  --canvas-panel: #3a2027;
+  --canvas-ink: #4a2a31;
+  --canvas-accent: #ff9fb6;
+}
+
+/* sky 晴空苏打 */
+html[data-theme='sky'] {
+  --bg: #eff6fe;
+  --cream-1: #f6fafe;
+  --cream-2: #e4effa;
+  --cream-3: #d6e6f6;
+  --cream-4: #bfd8ee;
+
+  --card: #ffffff;
+  --panel: #12283a;
+  --panel-deep: #0b1c29;
+
+  --ink: #1e3a52;
+  --edge: #1e3a52;
+  --edge-deep: #122a3d;
+
+  --shadow: #a9c7e0;
+  --line: #d9e7f4;
+  --line-2: #c6dcef;
+  --line-strong: #a3c2dc;
+
+  --primary: #5eb0e8;
+  --primary-2: #3d93cf;
+  --primary-3: #c6e5f9;
+  --on-primary: #0f2f47;
+
+  --success: #2f8a52;
+  --success-bg: #e2f2e6;
+  --danger: #cc3a2b;
+  --danger-bg: #ffe4de;
+  --warn-bg: #ffe9b8;
+  --warn-text: #6b4300;
+
+  --text-2: #38556f;
+  --text-3: #566f87;
+  --text-4: #8098ad;
+  --text-warm: #3f647f;
+  --text-mid: #466379;
+
+  --on-panel: #eaf4ff;
+  --on-panel-warm: #bfe0f7;
+
+  --canvas-bg: #eff6fe;
+  --canvas-card: #ffffff;
+  --canvas-panel: #12283a;
+  --canvas-ink: #1e3a52;
+  --canvas-accent: #5eb0e8;
+}
+
+/* sketch 铅笔手绘 */
+html[data-theme='sketch'] {
+  --bg: #f5f0e6;
+  --cream-1: #faf7ef;
+  --cream-2: #ebe4d5;
+  --cream-3: #ded5c2;
+  --cream-4: #cbc0a9;
+
+  --card: #fdfaf0;
+  --panel: #2f2c27;
+  --panel-deep: #211f1b;
+
+  --ink: #3b3832;
+  --edge: #3b3832;
+  --edge-deep: #26241f;
+
+  --shadow: #cfc5ae;
+  --line: #e2dacb;
+  --line-2: #d1c7b5;
+  --line-strong: #b6a992;
+
+  --primary: #7fa3bd;
+  --primary-2: #5f86a3;
+  --primary-3: #c4d8e6;
+  --on-primary: #17242d;
+
+  --success: #3f7d55;
+  --success-bg: #e2ebdf;
+  --danger: #b4463a;
+  --danger-bg: #f6e2dc;
+  --warn-bg: #f3e6c6;
+  --warn-text: #5f4a1d;
+
+  --text-2: #57534a;
+  --text-3: #6d685c;
+  --text-4: #948e7f;
+  --text-warm: #7a6446;
+  --text-mid: #6a6255;
+
+  --on-panel: #f4efe3;
+  --on-panel-warm: #d9c6a2;
+
+  --canvas-bg: #f5f0e6;
+  --canvas-card: #fdfaf0;
+  --canvas-panel: #2f2c27;
+  --canvas-ink: #3b3832;
+  --canvas-accent: #7fa3bd;
+}
+
+/* mint 薄荷青瓷 */
+html[data-theme='mint'] {
+  --bg: #eaf6f2;
+  --cream-1: #f4fbf8;
+  --cream-2: #d8ede6;
+  --cream-3: #c7e4db;
+  --cream-4: #aed3c7;
+
+  --card: #ffffff;
+  --panel: #10312b;
+  --panel-deep: #082219;
+
+  --ink: #17403a;
+  --edge: #17403a;
+  --edge-deep: #0d2b26;
+
+  --shadow: #a7cabe;
+  --line: #d2e9e1;
+  --line-2: #bcdcd2;
+  --line-strong: #94c2b5;
+
+  --primary: #6acfb4;
+  --primary-2: #3fae90;
+  --primary-3: #c2f0e2;
+  --on-primary: #0d2c25;
+
+  --success: #2f8a52;
+  --success-bg: #ddf1e4;
+  --danger: #c4332b;
+  --danger-bg: #ffe3e0;
+  --warn-bg: #ffe9b8;
+  --warn-text: #6b4300;
+
+  --text-2: #2e5a52;
+  --text-3: #4b6f68;
+  --text-4: #7b9a93;
+  --text-warm: #3f6b5b;
+  --text-mid: #416a61;
+
+  --on-panel: #e8fbf5;
+  --on-panel-warm: #adeddb;
+
+  --canvas-bg: #eaf6f2;
+  --canvas-card: #ffffff;
+  --canvas-panel: #10312b;
+  --canvas-ink: #17403a;
+  --canvas-accent: #6acfb4;
+}
+
+/* obsidian 曜石鎏金 */
+html[data-theme='obsidian'] {
+  color-scheme: dark;
+
+  --bg: #12100c;
+  --cream-1: #1a1711;
+  --cream-2: #221e16;
+  --cream-3: #2b2519;
+  --cream-4: #3a3120;
+
+  --card: #1c1913;
+  --panel: #23201a;
+  --panel-deep: #0b0a07;
+
+  --ink: #f0e2c0;
+  --edge: #e7c066;
+  --edge-deep: #9c7a2f;
+
+  --shadow: #000000;
+  --line: #332e24;
+  --line-2: #42392b;
+  --line-strong: #5a4e39;
+
+  --primary: #e7c066;
+  --primary-2: #c99b3d;
+  --primary-3: #4a3b1c;
+  --on-primary: #1a160e;
+
+  --success: #7ecf9a;
+  --success-bg: #1f3a2a;
+  --danger: #f08a77;
+  --danger-bg: #3d1d17;
+  --warn-bg: #44350f;
+  --warn-text: #ffd97a;
+
+  --text-2: #d3c29c;
+  --text-3: #b3a07a;
+  --text-4: #8d7c5c;
+  --text-warm: #e0b978;
+  --text-mid: #cbb891;
+
+  --on-panel: #f4e8c8;
+  --on-panel-warm: #ffd98a;
+
+  --canvas-bg: #12100c;
+  --canvas-card: #1c1913;
+  --canvas-panel: #23201a;
+  --canvas-ink: #f0e2c0;
+  --canvas-accent: #e7c066;
+}
+
+/* ---------- 2. 旧变量别名（一个都不少，组件不用改就能换肤） ---------- */
 :root {
-  /* 小红书主题色 */
-  --primary-color: #ff2442;
-  --primary-light: #ff4757;
-  --primary-dark: #e51e3a;
-  --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-  
-  /* 辅助色 */
-  --secondary-color: var(--primary-color);
-  --secondary-light: var(--primary-light);
-  
-  /* 中性色 */
-  --text-primary: #333;
-  --text-secondary: #666;
-  --text-tertiary: #999;
-  --text-disabled: #ccc;
-  
-  /* 背景色 */
-  --bg-white: #fff;
-  --bg-gray: #f8f9fa;
-  --bg-light: #f8f8f8;
-  --bg-dark: #f0f0f0;
-  
-  /* 边框色 */
-  --border-color: #e5e5e5;
-  --border-light: #f0f0f0;
-  
-  /* 阴影 */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-primary: 0 4px 12px rgba(255, 36, 66, 0.3);
-  
-  /* 圆角 */
+  --primary-color: var(--primary);
+  --primary-light: var(--primary-2);
+  --primary-dark: var(--primary-2);
+  --primary-gradient: var(--primary);
+
+  --secondary-color: var(--primary-2);
+  --secondary-light: var(--primary-3);
+
+  --text-primary: var(--ink);
+  --text-secondary: var(--text-2);
+  --text-tertiary: var(--text-3);
+  --text-disabled: var(--text-4);
+
+  --bg-white: var(--card);
+  --bg-gray: var(--cream-1);
+  --bg-light: var(--bg);
+  --bg-dark: var(--cream-2);
+
+  --border-color: var(--line-2);
+  --border-light: var(--line);
+
+  --shadow-sm: var(--shadow-soft);
+  --shadow-md: 4px 5px 0 var(--shadow);
+  --shadow-lg: 7px 9px 0 var(--shadow);
+  --shadow-primary: 4px 5px 0 var(--shadow);
+
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-lg: 18px;
   --radius-xl: 24px;
-  --radius-full: 9999px;
-  
-  /* 间距 */
+  --radius-full: 999px;
+
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
   --spacing-2xl: 40px;
-  
-  /* 动画时长 */
+
   --transition-fast: 0.15s;
-  --transition-base: 0.3s;
-  --transition-slow: 0.5s;
-  
-  /* 动画函数 */
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-out: cubic-bezier(0.0, 0, 0.2, 1);
+  --transition-base: 0.26s;
+  --transition-slow: 0.4s;
+
+  --ease-in-out: cubic-bezier(0.2, 0.8, 0.3, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.3, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --fish-ease: cubic-bezier(0.2, 0.8, 0.3, 1);
+
+  /* 玻璃态变量：保留名称、不再产生模糊 */
+  --glass-bg: var(--card);
+  --glass-border: var(--line-2);
+  --glass-shadow: var(--shadow-soft);
+  --blur-amount: 0px;
+  --transition-smooth: var(--fish-ease);
+  --transition-duration: 0.26s;
 }
 
-/* ============================================
-   通用按钮样式
-   ============================================ */
+/* ---------- 3. 基础原语 ---------- */
 
 .btn {
-  padding: 12px 32px;
-  border-radius: var(--radius-xl);
-  border: none;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-base) var(--ease-in-out);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: 44px;
+  padding: 10px 22px;
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: transform var(--transition-base) var(--fish-ease),
+              box-shadow var(--transition-base) var(--fish-ease),
+              background-color var(--transition-base) var(--fish-ease);
 }
 
-.btn-primary {
-  background: var(--primary-color);
-  color: white;
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 5px 6px 0 var(--shadow);
 }
 
-.btn-primary:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-primary);
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 1px 2px 0 var(--shadow);
 }
 
-.btn-primary:active {
-  transform: translateY(0);
+.btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.btn-primary,
+.btn-gradient {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--edge);
+}
+
+.btn-primary:hover,
+.btn-gradient:hover {
+  background: var(--primary-2);
+  color: var(--on-primary);
 }
 
 .btn-outline {
-  background: transparent;
-  border: 2px solid var(--primary-color);
-  color: var(--primary-color);
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--edge);
 }
 
 .btn-outline:hover {
-  background: var(--primary-color);
-  color: white;
-  transform: translateY(-2px);
+  background: var(--cream-1);
 }
 
-.btn-gradient {
-  background: var(--primary-gradient);
-  color: white;
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--text-2);
 }
 
-.btn-gradient:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-primary);
+.btn-ghost:hover {
+  background: var(--cream-2);
+  box-shadow: none;
+  transform: none;
 }
 
-/* ============================================
-   通用卡片样式
-   ============================================ */
+.btn-danger {
+  background: var(--danger);
+  color: var(--on-primary);
+}
 
+.btn[disabled],
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* 卡片：默认只留墨线；硬影是层级信号，用 .card--raised 显式声明 */
 .card {
-  background: var(--bg-white);
+  background: var(--card);
+  border: 2px solid var(--edge);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-base) var(--ease-in-out);
+  box-shadow: none;
+  transition: transform var(--transition-base) var(--fish-ease),
+              box-shadow var(--transition-base) var(--fish-ease);
 }
 
-.card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-4px);
+.card--raised {
+  box-shadow: 5px 6px 0 var(--shadow);
 }
 
 .card-bordered {
-  border: 1px solid var(--border-color);
+  border-color: var(--line-strong);
 }
 
-.card-active {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(255, 36, 66, 0.1);
-}
-
-/* ============================================
-   通用输入框样式
-   ============================================ */
-
+/* 输入框 */
 .input {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  transition: all var(--transition-base) var(--ease-in-out);
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(255, 36, 66, 0.1);
-}
-
-.input:hover {
-  border-color: var(--primary-light);
+  min-height: 44px;
+  padding: 11px 14px;
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color var(--transition-base) var(--fish-ease),
+              box-shadow var(--transition-base) var(--fish-ease);
 }
 
 .input::placeholder {
-  color: var(--text-tertiary);
+  color: var(--text-4);
 }
 
-/* ============================================
-   通用标签样式
-   ============================================ */
+.input:hover {
+  border-color: var(--text-3);
+}
 
+.input:focus,
+.input:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 3px 4px 0 var(--shadow);
+}
+
+/* 徽标 */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
+  justify-content: center;
+  gap: 4px;
+  min-height: 24px;
+  padding: 3px 10px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--cream-1);
+  color: var(--text-2);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
 .badge-primary {
-  background: rgba(255, 36, 66, 0.1);
-  color: var(--primary-color);
+  background: var(--primary-3);
+  border-color: var(--primary-2);
+  color: var(--ink);
 }
 
 .badge-success {
-  background: rgba(76, 175, 80, 0.1);
-  color: #4caf50;
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
 }
 
 .badge-warning {
-  background: rgba(255, 152, 0, 0.1);
-  color: #ff9800;
+  background: var(--warn-bg);
+  border-color: var(--warn-text);
+  color: var(--warn-text);
 }
 
 .badge-info {
-  background: rgba(33, 150, 243, 0.1);
-  color: #2196f3;
+  background: var(--cream-2);
+  border-color: var(--line-strong);
+  color: var(--text-2);
 }
 
-/* ============================================
-   通用动画
-   ============================================ */
+/* 数字：所有金额/计数/时间必须等宽，切换不抖 */
+.num,
+.price,
+.count,
+.stat-value,
+.money {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- 4. 页面骨架工具 ---------- */
+
+.page-column {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 32px 64px;
+}
+
+.page-column--narrow {
+  max-width: 900px;
+}
+
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 32px 0 14px;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.eyebrow {
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--line-2);
+  border-radius: 14px;
+  background: var(--card);
+  transition: background-color var(--transition-base) var(--fish-ease),
+              border-color var(--transition-base) var(--fish-ease);
+}
+
+.list-row:hover {
+  background: var(--cream-1);
+  border-color: var(--line-strong);
+}
+
+/* 空态：实线圆，不用虚线框 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 240px;
+  max-height: 60vh;
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--text-3);
+}
+
+/* ---------- 5. 动效 ---------- */
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-.fade-in {
-  animation: fadeIn var(--transition-base) var(--ease-out);
-}
+.fade-in { animation: fadeIn var(--transition-base) var(--fish-ease) both; }
+.slide-up { animation: slideUp 0.34s var(--fish-ease) both; }
+.slide-down { animation: slideDown 0.34s var(--fish-ease) both; }
+.scale-in { animation: scaleIn 0.3s var(--fish-ease) both; }
 
-.slide-up {
-  animation: slideUp var(--transition-base) var(--ease-out);
-}
-
-.slide-down {
-  animation: slideDown var(--transition-base) var(--ease-out);
-}
-
-.scale-in {
-  animation: scaleIn var(--transition-base) var(--ease-out);
-}
-
-/* ============================================
-   过渡效果
-   ============================================ */
-
-.transition-all {
-  transition: all var(--transition-base) var(--ease-in-out);
-}
-
+.transition-all { transition: all var(--transition-base) var(--fish-ease); }
 .transition-colors {
-  transition: color var(--transition-base) var(--ease-in-out),
-              background-color var(--transition-base) var(--ease-in-out),
-              border-color var(--transition-base) var(--ease-in-out);
+  transition: color var(--transition-base) var(--fish-ease),
+              background-color var(--transition-base) var(--fish-ease),
+              border-color var(--transition-base) var(--fish-ease);
 }
-
-.transition-transform {
-  transition: transform var(--transition-base) var(--ease-in-out);
-}
-
-.transition-shadow {
-  transition: box-shadow var(--transition-base) var(--ease-in-out);
-}
-
-/* ============================================
-   悬停效果
-   ============================================ */
+.transition-transform { transition: transform var(--transition-base) var(--fish-ease); }
+.transition-shadow { transition: box-shadow var(--transition-base) var(--fish-ease); }
 
 .hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  box-shadow: 5px 6px 0 var(--shadow);
 }
 
-.hover-grow:hover {
-  transform: scale(1.05);
-}
+.hover-primary:hover { color: var(--primary-2); }
+.hover-bg-gray:hover { background-color: var(--cream-1); }
 
-.hover-primary:hover {
-  color: var(--primary-color);
-}
-
-.hover-bg-gray:hover {
-  background-color: var(--bg-light);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

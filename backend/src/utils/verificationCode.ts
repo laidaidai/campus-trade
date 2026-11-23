@@ -28,8 +28,62 @@ const MAX_ATTEMPTS = 5;
 
 /**
  * 创建验证码表（幂等）
+ *
+ * 兼容旧版本 dump 中的 verification_codes 表：
+ * 旧表使用 datetime + is_used，且缺少 attempts 字段；当前代码使用毫秒时间戳。
+ * 检测到旧结构时，保留未使用且未过期的验证码并迁移到新结构。
  */
 export const ensureVerificationTable = async (): Promise<void> => {
+  const [columns] = await pool.query<RowDataPacket[]>(
+    `SELECT COLUMN_NAME, DATA_TYPE
+       FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'verification_codes'`
+  );
+
+  if (columns.length > 0) {
+    const columnMap = new Map(columns.map(col => [col.COLUMN_NAME as string, col.DATA_TYPE as string]));
+    const needsMigration =
+      !columnMap.has('attempts') ||
+      columnMap.get('created_at') !== 'bigint' ||
+      columnMap.get('expires_at') !== 'bigint';
+
+    if (needsMigration) {
+      const createdAtExpr = columnMap.get('created_at') === 'datetime'
+        ? 'COALESCE(UNIX_TIMESTAMP(created_at) * 1000, 0)'
+        : 'created_at';
+      const expiresAtExpr = columnMap.get('expires_at') === 'datetime'
+        ? 'UNIX_TIMESTAMP(expires_at) * 1000'
+        : 'expires_at';
+      const legacyFilter = columnMap.has('is_used') ? 'WHERE is_used = 0' : '';
+
+      await pool.query('DROP TABLE IF EXISTS verification_codes_migrating');
+      await pool.query(`
+        CREATE TABLE verification_codes_migrating (
+          id INT PRIMARY KEY AUTO_INCREMENT,
+          email VARCHAR(255) NOT NULL,
+          type VARCHAR(32) NOT NULL,
+          code VARCHAR(8) NOT NULL,
+          attempts INT DEFAULT 0,
+          created_at BIGINT NOT NULL,
+          expires_at BIGINT NOT NULL,
+          UNIQUE KEY unique_email_type (email, type),
+          INDEX idx_expires (expires_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+      await pool.query(`
+        INSERT IGNORE INTO verification_codes_migrating
+          (email, type, code, attempts, created_at, expires_at)
+        SELECT email, type, code, 0, ${createdAtExpr}, ${expiresAtExpr}
+          FROM verification_codes
+          ${legacyFilter}
+      `);
+      await pool.query('DROP TABLE verification_codes');
+      await pool.query('RENAME TABLE verification_codes_migrating TO verification_codes');
+      console.log('✅ verification_codes 表已迁移到当前结构');
+      return;
+    }
+  }
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS verification_codes (
       id INT PRIMARY KEY AUTO_INCREMENT,

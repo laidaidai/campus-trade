@@ -88,98 +88,86 @@ watch(() => props.modelValue, (newVal) => {
 
 .input-wrapper {
   display: flex;
-  gap: 10px;
+  align-items: stretch;
+  gap: 8px;
 }
 
 .code-input {
   flex: 1;
-  padding: 14px 18px;
-  border: 2px solid #e8e8e8;
-  border-radius: 10px;
+  min-width: 0;
+  min-height: 46px;
+  padding: 11px 14px;
+  background: var(--cream-1);
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  color: var(--ink);
   font-size: 15px;
-  transition: all var(--transition-base) var(--ease-in-out);
-  background: #f9f9f9;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  font-family: inherit;
+  transition: border-color 0.26s var(--fish-ease),
+              box-shadow 0.26s var(--fish-ease),
+              background-color 0.26s var(--fish-ease);
+}
+
+.code-input::placeholder {
+  color: var(--text-4);
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .code-input:focus {
   outline: none;
-  border-color: var(--primary-color);
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--card);
+  border-color: var(--primary);
+  box-shadow: 3px 4px 0 var(--shadow);
 }
 
 .code-input:disabled {
-  background: #f5f5f5;
+  background: var(--cream-2);
+  color: var(--text-3);
   cursor: not-allowed;
 }
 
 .send-code-btn {
-  padding: 0 20px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+  flex-shrink: 0;
+  min-width: 108px;
+  min-height: 46px;
+  padding: 9px 16px;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  box-shadow: 3px 4px 0 var(--shadow);
+  color: var(--on-primary);
+  font-size: 12px;
+  font-weight: 900;
   white-space: nowrap;
-  min-width: 110px;
+  cursor: pointer;
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .send-code-btn:hover:not(.disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-primary);
-}
-
-.send-code-btn.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
+  transform: translateY(-1px);
+  box-shadow: 4px 5px 0 var(--shadow);
 }
 
 .send-code-btn:active:not(.disabled) {
-  transform: translateY(0);
+  transform: translateY(2px);
+  box-shadow: 1px 2px 0 var(--shadow);
 }
 
-/* 移动端响应式 */
-@media (max-width: 768px) {
-  .input-wrapper {
-    gap: 8px;
-  }
-
-  .code-input {
-    padding: 12px 16px;
-    font-size: 14px;
-  }
-
-  .send-code-btn {
-    padding: 0 16px;
-    font-size: 13px;
-    min-width: 100px;
-  }
+.send-code-btn.disabled {
+  background: var(--cream-2);
+  border-color: var(--line-strong);
+  box-shadow: none;
+  color: var(--text-4);
+  cursor: not-allowed;
 }
 
 @media (max-width: 480px) {
-  .input-wrapper {
-    gap: 6px;
-  }
-
-  .code-input {
-    padding: 12px 14px;
-    font-size: 13px;
-  }
-
-  .send-code-btn {
-    padding: 0 12px;
-    font-size: 12px;
-    min-width: 90px;
-  }
-}
-
-/* iPad竖屏优化 */
-@media (min-width: 481px) and (max-width: 1024px) and (orientation: portrait) {
-  .send-code-btn {
-    min-width: 120px;
-  }
+  .input-wrapper { gap: 6px; }
+  .code-input { min-height: 44px; padding: 10px 12px; font-size: 14px; }
+  .send-code-btn { min-width: 92px; min-height: 44px; padding: 8px 10px; font-size: 11px; }
 }
 </style>

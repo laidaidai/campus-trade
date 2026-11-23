@@ -63,92 +63,78 @@ defineExpose({
 <style scoped>
 .undo-toast {
   position: fixed;
-  bottom: 80px;
   left: 50%;
+  bottom: 32px;
+  z-index: 9999;
   transform: translateX(-50%);
-  background: rgba(48, 49, 51, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 10000;
-  font-size: 14px;
-  min-width: 320px;
-  max-width: 600px;
-  white-space: nowrap;
+  gap: 16px;
+  min-width: 280px;
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 12px 14px 12px 18px;
+  background: var(--panel);
+  color: var(--on-panel);
+  border: 2px solid var(--edge);
+  border-radius: 16px;
+  box-shadow: 5px 6px 0 var(--shadow);
 }
 
 .message {
   flex: 1;
-  color: rgba(255, 255, 255, 0.9);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .undo-btn {
-  background: transparent;
-  border: none;
-  color: #4a9eff;
-  font-size: 14px;
-  font-weight: 500;
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 6px 16px;
+  background: var(--primary);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 2px 3px 0 var(--shadow);
+  color: var(--on-primary);
+  font-size: 13px;
+  font-weight: 900;
   cursor: pointer;
-  padding: 4px 12px;
-  border-radius: 4px;
-  transition: all 0.2s;
-  white-space: nowrap;
+  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .undo-btn:hover {
-  background: rgba(74, 158, 255, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 3px 4px 0 var(--shadow);
 }
 
 .undo-btn:active {
-  transform: scale(0.95);
+  transform: translateY(2px);
+  box-shadow: 1px 2px 0 var(--shadow);
 }
 
-/* 动画效果 */
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.26s var(--fish-ease), transform 0.26s var(--fish-ease);
 }
 
-.slide-up-enter-from {
-  opacity: 0;
-  transform: translateX(-50%) translateY(20px);
-}
-
+.slide-up-enter-from,
 .slide-up-leave-to {
   opacity: 0;
-  transform: translateX(-50%) translateY(10px);
+  transform: translateX(-50%) translateY(16px);
 }
 
-/* iPad 适配 */
-@media (max-width: 1024px) and (min-width: 769px) {
-  .undo-toast {
-    min-width: 400px;
-    max-width: 500px;
-  }
-}
-
-/* 移动端适配 */
 @media (max-width: 768px) {
   .undo-toast {
-    bottom: 70px;
-    padding: 10px 16px;
-    font-size: 13px;
-    min-width: 280px;
-    max-width: calc(100vw - 40px);
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    left: 12px;
+    right: 12px;
+    min-width: 0;
+    max-width: none;
+    transform: none;
   }
-  
-  .undo-btn {
-    font-size: 13px;
-    padding: 4px 10px;
+  .slide-up-enter-from,
+  .slide-up-leave-to {
+    transform: translateY(16px);
   }
 }
 </style>

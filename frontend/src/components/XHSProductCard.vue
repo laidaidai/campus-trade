@@ -130,227 +130,146 @@ function formatNumber(num) {
 </script>
 
 <style scoped>
+/* Fish UI 纸卡：墨线 + 大圆角，硬影只给悬停 */
 .xhs-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 18px;
+  cursor: pointer;
+  transition: transform 0.34s var(--fish-ease),
+              box-shadow 0.34s var(--fish-ease),
+              background-color 0.34s var(--fish-ease);
+  animation: cardIn 0.34s var(--fish-ease) both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .xhs-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+  box-shadow: 5px 6px 0 var(--shadow);
+  background: var(--cream-1);
 }
 
-/* 图片容器 */
+.xhs-card:active {
+  transform: translateY(1px);
+  box-shadow: 2px 3px 0 var(--shadow);
+}
+
+/* 图片：正方形，切口圆角 */
 .card-image {
   position: relative;
   width: 100%;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: #f5f5f5;
-  aspect-ratio: 1 / 1; /* 保持正方形比例 */
+  background: var(--cream-2);
+  border-bottom: 2px solid var(--edge);
 }
 
-.xhs-card:hover .card-image {
-  transform: scale(1.02);
+.card-image :deep(img) {
+  transition: transform 0.34s var(--fish-ease);
 }
 
-/* 已售出遮罩和水印 */
+.xhs-card:hover .card-image :deep(img) {
+  transform: scale(1.03);
+}
+
+/* 已售出：图章，不是水印 */
 .sold-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2;
+  background: var(--cream-1);
+  opacity: 0.94;
   pointer-events: none;
+  z-index: 2;
 }
 
 .sold-watermark {
-  font-size: 40px;
+  padding: 6px 16px;
+  color: var(--danger);
+  background: var(--card);
+  border: 3px solid var(--danger);
+  border-radius: 14px;
+  font-size: 22px;
   font-weight: 900;
-  font-style: italic;
-  color: rgba(255, 0, 0, 0.6);
-  text-shadow: 
-    2px 2px 4px rgba(255, 255, 255, 0.8),
-    -2px -2px 4px rgba(255, 255, 255, 0.8);
-  transform: rotate(-25deg);
-  user-select: none;
-  pointer-events: none;
+  letter-spacing: 0.08em;
   white-space: nowrap;
+  transform: rotate(-12deg);
+  user-select: none;
 }
 
-/* 删除图标 */
+/* 删除：圆钮，危险色只在悬停 */
 .delete-icon {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 44px;
-  height: 44px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 50%;
+  top: 10px;
+  right: 10px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--card);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  box-shadow: 2px 3px 0 var(--shadow);
   cursor: pointer;
-  opacity: 1; /* 默认显示 */
-  transform: scale(1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 3;
-  pointer-events: auto; /* 确保可点击 */
+  transition: background-color 0.26s var(--fish-ease),
+              transform 0.26s var(--fish-ease);
 }
 
-/* 强制显示模式（收藏页面） */
-.delete-icon.force-show {
-  opacity: 1 !important;
-}
-
-.xhs-card:hover .delete-icon {
-  transform: scale(1.05);
-}
+.delete-icon.force-show { opacity: 1 !important; }
 
 .delete-icon svg {
-  width: 22px;
-  height: 22px;
-  color: #ff4757;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 18px;
+  height: 18px;
+  color: var(--text-2);
+  transition: color 0.26s var(--fish-ease);
 }
 
 .delete-icon:hover {
-  background: #ff4757;
-  transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+  background: var(--danger);
+  transform: translateY(-1px);
 }
 
 .delete-icon:hover svg {
-  color: #fff;
-  animation: shake 0.5s ease;
+  color: var(--on-primary);
 }
 
-@keyframes shake {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-10deg); }
-  75% { transform: rotate(10deg); }
-}
-
-/* 操作按钮容器 */
-.card-actions {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  display: flex;
-  gap: 8px;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.xhs-card:hover .card-actions {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* 操作按钮 */
-.action-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-}
-
-.action-btn svg {
-  width: 20px;
-  height: 20px;
-  color: var(--text-secondary);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.action-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-.favorite-btn:hover svg {
-  color: #ff4757;
-}
-
-.favorite-btn.active {
-  background: linear-gradient(135deg, #ff2442 0%, #ff4757 100%);
-  box-shadow: 0 4px 16px rgba(255, 36, 66, 0.4);
-}
-
-.favorite-btn.active svg {
-  color: #fff;
-  animation: heartbeat 0.5s ease;
-}
-
-.contact-btn {
-  background: linear-gradient(135deg, #ff2442 0%, #ff4757 100%);
-}
-
-.contact-btn svg {
-  color: #fff;
-}
-
-.contact-btn:hover {
-  box-shadow: 0 6px 20px rgba(255, 36, 66, 0.5);
-}
-
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.3); }
-  50% { transform: scale(1.1); }
-}
-
-/* 内容区域 */
+/* 信息区 */
 .card-content {
-  padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 14px 14px 12px;
 }
 
 .card-title {
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--text-primary);
   margin: 0;
+  min-height: 44px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-weight: 500;
-  min-height: 45px;
 }
 
-/* 底部信息 */
 .card-footer {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 8px;
 }
@@ -359,183 +278,104 @@ function formatNumber(num) {
   display: flex;
   align-items: baseline;
   gap: 6px;
+  min-width: 0;
 }
 
 .price {
-  font-size: 20px;
-  font-weight: 700;
-  color: #ff4757;
+  color: var(--primary-2);
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .original-price {
+  color: var(--text-4);
   font-size: 12px;
-  color: var(--text-tertiary);
   text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
 }
 
 .seller-info {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex: 1;
+  gap: 5px;
   min-width: 0;
 }
 
 .avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  object-fit: cover;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
+  object-fit: cover;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 999px;
 }
 
 .seller-name {
-  font-size: 12px;
-  color: var(--text-secondary);
+  max-width: 76px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* 点赞和浏览 */
-.card-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-top: 8px;
-  border-top: 1px solid #f0f0f0;
+  color: var(--text-3);
+  font-size: 11px;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: all var(--transition-base) var(--ease-in-out);
+  gap: 5px;
+  padding-top: 9px;
+  border-top: 1.5px solid var(--line);
+  color: var(--text-3);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
 }
 
 .meta-item svg {
-  width: 14px;
-  height: 14px;
-  transition: all var(--transition-base) var(--ease-in-out);
+  width: 13px;
+  height: 13px;
+  color: var(--text-3);
 }
 
-.meta-item:hover {
-  color: var(--primary-color);
-}
-
-.meta-item:hover svg {
-  stroke: var(--primary-color);
-}
-
-.meta-item.liked {
-  color: var(--primary-color);
-}
-
-.meta-item.liked svg {
-  fill: var(--primary-color);
-  stroke: var(--primary-color);
-  animation: likeAnimation 0.5s ease;
-}
-
-@keyframes likeAnimation {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.3); }
-  50% { transform: scale(1.1); }
-}
-
-/* 响应式 */
-@media (max-width: 968px) {
-  .sold-watermark {
-    font-size: 36px;
-  }
-}
-
+/* 响应式：窄屏不缩字号，只收紧间距 */
 @media (max-width: 768px) {
   .card-content {
-    padding: 6px;
+    gap: 8px;
+    padding: 10px 10px 9px;
   }
 
   .card-title {
-    font-size: 11px;
-    min-height: 32px;
-    line-height: 1.3;
+    min-height: 40px;
+    font-size: 14px;
   }
 
   .price {
-    font-size: 13px;
-    margin-bottom: 2px;
+    font-size: 18px;
   }
 
-  .card-footer {
-    margin-top: 4px;
-    font-size: 9px;
+  .seller-name {
+    max-width: 62px;
+    font-size: 10px;
   }
 
-  .tag {
-    padding: 1px 4px;
-    font-size: 9px;
-    border-radius: 3px;
-  }
-
-  /* 移动端始终显示收藏按钮 */
-  .favorite-btn {
-    opacity: 1 !important;
-    transform: scale(1) !important;
-    width: 24px;
-    height: 24px;
-    top: 6px;
-    right: 6px;
-  }
-
-  .favorite-btn svg {
-    width: 12px;
-    height: 12px;
-  }
-
-  /* 移动端始终显示删除图标 */
   .delete-icon {
-    opacity: 1 !important;
-    transform: scale(1) !important;
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     top: 6px;
     right: 6px;
   }
 
   .delete-icon svg {
-    width: 12px;
-    height: 12px;
+    width: 15px;
+    height: 15px;
   }
 
-  /* 移动端始终显示操作按钮容器 */
-  .card-actions {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    padding: 4px;
-    gap: 4px;
-  }
-
-  /* 移动端始终显示所有操作按钮 */
-  .action-btn {
-    opacity: 1 !important;
-    transform: scale(1) !important;
-    padding: 4px 8px;
-    font-size: 10px;
-    border-radius: 4px;
-  }
-
-  .action-btn svg {
-    width: 10px;
-    height: 10px;
-  }
-}
-
-@media (max-width: 640px) {
   .sold-watermark {
-    font-size: 24px;
+    padding: 4px 10px;
+    border-width: 2px;
+    font-size: 15px;
   }
 }
 </style>
