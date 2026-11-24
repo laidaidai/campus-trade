@@ -2,6 +2,14 @@ import { Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
 import { calculateFileHash, findExistingFile } from '../middleware/upload';
+import * as UploadModel from '../models/uploadModel';
+
+const normalizeUploadType = (raw: unknown): 'products' | 'avatars' | null => {
+  const value = String(raw || 'products');
+  if (value === 'products') return 'products';
+  if (value === 'avatar' || value === 'avatars') return 'avatars';
+  return null;
+};
 
 /**
  * 单张图片上传(支持去重)
@@ -16,7 +24,13 @@ export const uploadSingleImage = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    const uploadType = req.body.uploadType || 'products';
+    const uploadType = normalizeUploadType(req.body.uploadType);
+    if (!uploadType) {
+      fs.unlinkSync(req.file.path);
+      res.status(400).json({ success: false, message: '不支持的上传类型' });
+      return;
+    }
+    const userId = (req as any).user?.userId;
     const uploadedFilePath = req.file.path;
     
     console.log('📤 上传文件信息:', {
@@ -53,6 +67,10 @@ export const uploadSingleImage = async (req: Request, res: Response): Promise<vo
       imageUrl = `/uploads/${uploadType}/${newFilename}`;
     }
 
+    if (Number.isInteger(Number(userId)) && Number(userId) > 0) {
+      await UploadModel.recordUploadedFile(finalFilename, uploadType, Number(userId));
+    }
+
     res.json({
       success: true,
       data: {
@@ -87,7 +105,13 @@ export const uploadMultipleImages = async (req: Request, res: Response): Promise
       return;
     }
 
-    const uploadType = req.body.uploadType || 'products';
+    const uploadType = normalizeUploadType(req.body.uploadType);
+    if (!uploadType) {
+      for (const file of req.files) fs.unlinkSync(file.path);
+      res.status(400).json({ success: false, message: '不支持的上传类型' });
+      return;
+    }
+    const userId = Number((req as any).user?.userId);
     const imageUrls = [];
     let duplicateCount = 0;
 
@@ -131,6 +155,10 @@ export const uploadMultipleImages = async (req: Request, res: Response): Promise
         hash: fileHash,
         isDuplicate
       });
+
+      if (Number.isInteger(userId) && userId > 0) {
+        await UploadModel.recordUploadedFile(finalFilename, uploadType, userId);
+      }
     }
 
     const message = duplicateCount > 0 
@@ -153,10 +181,13 @@ export const uploadMultipleImages = async (req: Request, res: Response): Promise
 
 /**
  * 删除图片
+ *
+ * 仅允许上传者本人删除，且文件没有被商品、头像或聊天图片引用。
  */
 export const deleteImage = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { filename, uploadType = 'products' } = req.body;
+    const { filename } = req.body;
+    const userId = Number((req as any).user?.userId);
 
     if (!filename) {
       res.status(400).json({
@@ -166,35 +197,50 @@ export const deleteImage = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    // 校验上传类型白名单
-    const validTypes = ['products', 'avatars'];
-    const type = validTypes.includes(uploadType) ? uploadType : 'products';
+    const type = normalizeUploadType(req.body.uploadType);
+    if (!type) {
+      res.status(400).json({ success: false, message: '不支持的上传类型' });
+      return;
+    }
 
     // 仅保留文件名部分，防止路径穿越攻击（如 ../../.env）
-    const safeFilename = path.basename(filename);
+    const safeFilename = path.basename(String(filename));
+    if (!safeFilename || safeFilename !== String(filename)) {
+      res.status(400).json({ success: false, message: '非法的文件名' });
+      return;
+    }
+
     const uploadsDir = path.resolve(__dirname, '../../uploads');
     const filePath = path.resolve(uploadsDir, type, safeFilename);
 
     // 双重校验：确保最终路径仍在上传目录内
-    if (!filePath.startsWith(uploadsDir + path.sep)) {
-      res.status(400).json({
+    if (!filePath.startsWith(path.resolve(uploadsDir, type) + path.sep)) {
+      res.status(400).json({ success: false, message: '非法的文件名' });
+      return;
+    }
+
+    const ownerId = await UploadModel.getUploadOwner(safeFilename, type);
+    if (ownerId === null || ownerId !== userId) {
+      res.status(403).json({ success: false, message: '无权删除该文件' });
+      return;
+    }
+
+    if (await UploadModel.isUploadReferenced(safeFilename, type)) {
+      res.status(409).json({
         success: false,
-        message: '非法的文件名'
+        message: '该图片仍被商品或头像使用，不能删除'
       });
       return;
     }
 
-    // 检查文件是否存在
     if (!fs.existsSync(filePath)) {
-      res.status(404).json({
-        success: false,
-        message: '文件不存在'
-      });
+      await UploadModel.deleteUploadRecord(safeFilename, type);
+      res.status(404).json({ success: false, message: '文件不存在' });
       return;
     }
 
-    // 删除文件
     fs.unlinkSync(filePath);
+    await UploadModel.deleteUploadRecord(safeFilename, type);
 
     res.json({
       success: true,

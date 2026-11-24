@@ -28,6 +28,12 @@ export interface Order extends RowDataPacket {
   address_full?: string;
 }
 
+export interface AddressSnapshot {
+  name: string;
+  phone: string;
+  full: string;
+}
+
 /**
  * 创建订单
  */
@@ -37,12 +43,25 @@ export const createOrder = async (
   buyerId: number,
   price: number,
   addressId?: number,
-  remark?: string
+  remark?: string,
+  addressSnapshot?: AddressSnapshot
 ): Promise<number> => {
   const [result] = await pool.query<ResultSetHeader>(
-    `INSERT INTO orders (product_id, seller_id, buyer_id, price, address_id, remark, status)
-     VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
-    [productId, sellerId, buyerId, price, addressId, remark]
+    `INSERT INTO orders
+       (product_id, seller_id, buyer_id, price, address_id,
+        address_name, address_phone, address_full, remark, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+    [
+      productId,
+      sellerId,
+      buyerId,
+      price,
+      addressId ?? null,
+      addressSnapshot?.name ?? null,
+      addressSnapshot?.phone ?? null,
+      addressSnapshot?.full ?? null,
+      remark ?? null
+    ]
   );
 
   return result.insertId;
@@ -60,13 +79,26 @@ export const getOrderById = async (orderId: number): Promise<Order | null> => {
             u_buyer.avatar as buyer_avatar,
             u_seller.username as seller_name,
             u_seller.avatar as seller_avatar,
-            CONCAT_WS(' ', 
-              addr.province, addr.city, addr.district, addr.detail,
-              '(', addr.name, ' ', addr.phone, ')'
-            ) as address_detail,
-            addr.name as address_name,
-            addr.phone as address_phone,
-            CONCAT_WS(' ', addr.province, addr.city, addr.district, addr.detail) as address_full
+            COALESCE(NULLIF(o.address_name, ''), addr.name) as address_name,
+            COALESCE(NULLIF(o.address_phone, ''), addr.phone) as address_phone,
+            COALESCE(
+              NULLIF(o.address_full, ''),
+              CONCAT_WS(' ', addr.province, addr.city, addr.district, addr.detail)
+            ) as address_full,
+            CASE
+              WHEN COALESCE(o.address_full, '') = ''
+               AND COALESCE(o.address_name, '') = ''
+               AND COALESCE(addr.name, '') = ''
+              THEN NULL
+              ELSE CONCAT(
+                COALESCE(
+                  NULLIF(o.address_full, ''),
+                  CONCAT_WS(' ', addr.province, addr.city, addr.district, addr.detail)
+                ),
+                ' (', COALESCE(NULLIF(o.address_name, ''), addr.name, ''), ' ',
+                COALESCE(NULLIF(o.address_phone, ''), addr.phone, ''), ')'
+              )
+            END as address_detail
      FROM orders o
      LEFT JOIN products p ON o.product_id = p.id
      LEFT JOIN users u_buyer ON o.buyer_id = u_buyer.id
@@ -135,7 +167,7 @@ export const getUserOrders = async (
 export const updateOrderStatus = async (
   orderId: number,
   status: 'pending' | 'paid' | 'shipped' | 'completed' | 'cancelled'
-): Promise<void> => {
+): Promise<boolean> => {
   const statusTimeMap: { [key: string]: string } = {
     'paid': 'paid_at',
     'shipped': 'shipped_at',
@@ -144,27 +176,28 @@ export const updateOrderStatus = async (
 
   const statusTimeField = statusTimeMap[status];
 
-  if (statusTimeField) {
-    await pool.query(
-      `UPDATE orders SET status = ?, ${statusTimeField} = NOW() WHERE id = ?`,
-      [status, orderId]
-    );
-  } else {
-    await pool.query(
-      'UPDATE orders SET status = ? WHERE id = ?',
-      [status, orderId]
-    );
-  }
+  const [result] = statusTimeField
+    ? await pool.query<ResultSetHeader>(
+        `UPDATE orders SET status = ?, ${statusTimeField} = NOW() WHERE id = ?`,
+        [status, orderId]
+      )
+    : await pool.query<ResultSetHeader>(
+        'UPDATE orders SET status = ? WHERE id = ?',
+        [status, orderId]
+      );
+
+  return result.affectedRows > 0;
 };
 
 /**
  * 取消订单
  */
-export const cancelOrder = async (orderId: number): Promise<void> => {
-  await pool.query(
+export const cancelOrder = async (orderId: number): Promise<boolean> => {
+  const [result] = await pool.query<ResultSetHeader>(
     'UPDATE orders SET status = ? WHERE id = ?',
     ['cancelled', orderId]
   );
+  return result.affectedRows > 0;
 };
 
 /**
@@ -195,5 +228,25 @@ export const hardDeleteOrders = async (orderIds: number[]): Promise<void> => {
   } finally {
     connection.release();
   }
+};
+
+/**
+ * 同一商品是否还有其他进行中的订单。
+ * 取消订单时只有不存在其他进行中订单，才把商品恢复为可售。
+ */
+export const hasActiveOrdersForProduct = async (
+  productId: number,
+  excludeOrderId: number
+): Promise<boolean> => {
+  const [rows] = await pool.query<RowDataPacket[]>(
+    `SELECT 1
+       FROM orders
+      WHERE product_id = ?
+        AND id <> ?
+        AND status IN ('pending', 'paid', 'shipped')
+      LIMIT 1`,
+    [productId, excludeOrderId]
+  );
+  return rows.length > 0;
 };
 

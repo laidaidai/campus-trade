@@ -3,6 +3,13 @@ import { AuthenticatedRequest } from '../middleware/auth';
 import * as MessageModel from '../models/messageModel';
 import { getProductById } from '../models/productModel';
 
+const MESSAGE_TYPES = ['text', 'image', 'order'] as const;
+
+const parseInteger = (raw: unknown): number | null => {
+  const value = Number(raw);
+  return Number.isInteger(value) && value > 0 ? value : null;
+};
+
 /**
  * 获取或创建会话
  */
@@ -72,9 +79,14 @@ export const getUserConversations = async (req: AuthenticatedRequest, res: Respo
  */
 export const getConversationMessages = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const conversationId = parseInt(req.params.conversationId);
-    const limit = parseInt(req.query.limit as string) || 50;
-    const offset = parseInt(req.query.offset as string) || 0;
+    const conversationId = parseInteger(req.params.conversationId);
+    if (!conversationId) {
+      return res.status(400).json({ error: '无效的会话ID' });
+    }
+    const limitRaw = Number(req.query.limit ?? 50);
+    const offsetRaw = Number(req.query.offset ?? 0);
+    const limit = Number.isInteger(limitRaw) ? Math.min(100, Math.max(1, limitRaw)) : 50;
+    const offset = Number.isInteger(offsetRaw) && offsetRaw >= 0 ? offsetRaw : 0;
     const userId = req.user?.userId;
 
     if (!userId) {
@@ -113,18 +125,29 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
       userId: req.user?.userId
     });
 
-    const conversationId = parseInt(req.params.conversationId);
+    const conversationId = parseInteger(req.params.conversationId);
     const senderId = req.user?.userId;
-    const { receiver_id, content, type } = req.body;
+    const { receiver_id } = req.body;
+    const receiverId = parseInteger(receiver_id);
+    const type = String(req.body.type || 'text');
+    const content = typeof req.body.content === 'string' ? req.body.content.trim() : '';
 
     if (!senderId) {
       console.error('❌ 未授权: userId 不存在');
       return res.status(401).json({ error: '未授权' });
     }
 
-    if (!receiver_id || !content) {
-      console.error('❌ 缺少必要参数:', { receiver_id, content });
+    if (!conversationId || !receiverId || !content) {
+      console.error('❌ 缺少必要参数:', { conversationId, receiver_id, content });
       return res.status(400).json({ error: '缺少必要参数' });
+    }
+
+    if (!MESSAGE_TYPES.includes(type as any)) {
+      return res.status(400).json({ error: '不支持的消息类型' });
+    }
+
+    if (content.length > 5000) {
+      return res.status(400).json({ error: '消息内容不能超过5000个字符' });
     }
 
     // 验证用户是否是会话参与者
@@ -152,18 +175,35 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
     }
 
     const expectedReceiverId = Number(senderId) === buyerId ? sellerId : buyerId;
-    if (Number(receiver_id) !== expectedReceiverId) {
+    if (receiverId !== expectedReceiverId) {
       return res.status(400).json({ error: '消息接收人不正确' });
     }
 
-    console.log('✅ 开始发送消息:', { conversationId, senderId, receiver_id, type });
-    
+    if (type === 'order') {
+      let orderData: any;
+      try {
+        orderData = JSON.parse(content);
+      } catch {
+        return res.status(400).json({ error: '订单数据格式不正确' });
+      }
+      if (
+        !orderData ||
+        Number(orderData.product_id) !== Number(conversation.product_id) ||
+        !Number.isFinite(Number(orderData.final_price)) ||
+        Number(orderData.final_price) <= 0
+      ) {
+        return res.status(400).json({ error: '订单数据与当前商品不匹配' });
+      }
+    }
+
+    console.log('✅ 开始发送消息:', { conversationId, senderId, receiver_id: receiverId, type });
+
     const message = await MessageModel.sendMessage(
       conversationId,
       senderId,
-      receiver_id,
+      receiverId,
       content,
-      type || 'text'
+      type as 'text' | 'image' | 'order'
     );
 
     console.log('✅ 消息发送成功:', message);
@@ -189,11 +229,14 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
  */
 export const markAsRead = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const conversationId = parseInt(req.params.conversationId);
+    const conversationId = parseInteger(req.params.conversationId);
     const userId = req.user?.userId;
 
     if (!userId) {
       return res.status(401).json({ error: '未授权' });
+    }
+    if (!conversationId) {
+      return res.status(400).json({ error: '无效的会话ID' });
     }
 
     // 验证用户是否是会话参与者
@@ -237,14 +280,14 @@ export const getUnreadCount = async (req: AuthenticatedRequest, res: Response) =
  */
 export const deleteConversation = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const conversationId = parseInt(req.params.conversationId);
+    const conversationId = parseInteger(req.params.conversationId);
     const userId = req.user?.userId;
 
     if (!userId) {
       return res.status(401).json({ error: '未授权' });
     }
 
-    if (!conversationId || isNaN(conversationId)) {
+    if (!conversationId) {
       return res.status(400).json({ error: '无效的会话ID' });
     }
 

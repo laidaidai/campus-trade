@@ -827,7 +827,8 @@ const handleBuyerConfirm = async (orderData) => {
       seller_id: currentConversation.value.seller_id,
       price: orderData.final_price,
       address_id: orderData.address_id,
-      remark: orderData.remark
+      remark: orderData.remark,
+      conversation_id: currentConversation.value.id
     });
 
     if (response.success) {
@@ -878,7 +879,8 @@ const handleSellerConfirm = async (orderData) => {
       seller_id: currentConversation.value.seller_id,
       price: orderData.final_price,
       address_id: orderData.address_id,
-      remark: orderData.remark
+      remark: orderData.remark,
+      conversation_id: currentConversation.value.id
     });
 
     if (response.success) {

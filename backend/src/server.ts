@@ -27,6 +27,7 @@ import { connectDatabase } from './config/database';
 import { createServer } from 'http';
 import { initializeSocket } from './config/socket';
 import { ensureVerificationTable } from './utils/verificationCode';
+import { ensureSchema } from './config/ensureSchema';
 
 const PORT = process.env.PORT || 3000;
 
@@ -58,6 +59,9 @@ const startServer = async () => {
 
     // 确保验证码存储表存在（幂等）
     await ensureVerificationTable();
+
+    // 补齐订单快照、上传归属等结构（幂等）
+    await ensureSchema();
 
     // 创建 HTTP 服务器
     const httpServer = createServer(app);

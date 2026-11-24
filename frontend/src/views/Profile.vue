@@ -24,7 +24,7 @@
           :key="item.key"
           type="button"
           :class="['profile-tab', { active: activeMenu === item.key }]"
-          @click="activeMenu = item.key"
+          @click="selectMenu(item.key)"
         >
           <span :class="['menu-icon', `icon-${item.icon}`]"></span>
           <span class="tab-label">{{ item.label }}</span>
@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { resolveAvatar } from '@/utils/avatar'
@@ -71,7 +71,43 @@ import MyOrders from '@/components/profile/MyOrders.vue'
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
-const activeMenu = ref(route.query.menu ? String(route.query.menu) : 'myProducts')
+
+const MENU_KEYS = ['myProducts', 'orders', 'history', 'addresses', 'profile']
+const TAB_TO_MENU = {
+  addresses: 'addresses',
+  address: 'addresses',
+  profile: 'profile',
+  history: 'history',
+  sold: 'orders',
+  bought: 'orders',
+  orders: 'orders',
+  myProducts: 'myProducts'
+}
+
+const resolveMenu = () => {
+  const menu = route.query.menu ? String(route.query.menu) : ''
+  if (MENU_KEYS.includes(menu)) return menu
+  const tab = route.query.tab ? String(route.query.tab) : ''
+  return TAB_TO_MENU[tab] || 'myProducts'
+}
+
+const activeMenu = ref(resolveMenu())
+
+const selectMenu = (key) => {
+  if (!MENU_KEYS.includes(key)) return
+  activeMenu.value = key
+  if (String(route.query.menu || '') !== key) {
+    router.replace({ query: { ...route.query, menu: key } })
+  }
+}
+
+// 支持 /profile?tab=addresses 这类入口在页面已打开时也能切换
+watch(
+  () => [route.query.menu, route.query.tab],
+  () => {
+    activeMenu.value = resolveMenu()
+  }
+)
 
 const handleLogout = async () => {
   const confirmed = await showLogoutConfirm('确定要退出登录吗？')

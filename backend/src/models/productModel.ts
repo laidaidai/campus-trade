@@ -167,6 +167,29 @@ export const updateProductStatus = async (
   return result.affectedRows > 0;
 };
 
+/**
+ * 仅当商品仍为 available 时原子地标记为 sold。
+ * 返回 false 表示已被其他请求抢先下单。
+ */
+export const markProductSold = async (id: number): Promise<boolean> => {
+  const [result] = await pool.query<ResultSetHeader>(
+    `UPDATE products SET status = 'sold' WHERE id = ? AND status = 'available'`,
+    [id]
+  );
+  return result.affectedRows > 0;
+};
+
+/**
+ * 商品是否已有订单。有订单的商品禁止物理删除，避免订单历史被级联删除。
+ */
+export const hasOrdersForProduct = async (id: number): Promise<boolean> => {
+  const [rows] = await pool.query<RowDataPacket[]>(
+    'SELECT 1 FROM orders WHERE product_id = ? LIMIT 1',
+    [id]
+  );
+  return rows.length > 0;
+};
+
 // 更新商品基础信息（标题、价格、描述、类别、成色、状态、图片）
 export const updateProduct = async (
   id: number,

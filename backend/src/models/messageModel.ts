@@ -335,6 +335,24 @@ export const getConversationById = async (conversationId: number): Promise<Conve
 };
 
 /**
+ * 获取会话中最新的一条订单消息。
+ * 订单金额以服务端保存的这条消息为准，不能直接相信客户端传上来的 price。
+ */
+export const getLatestOrderMessage = async (
+  conversationId: number
+): Promise<Message | null> => {
+  const [rows] = await pool.query<Message[]>(
+    `SELECT *
+       FROM messages
+      WHERE conversation_id = ? AND type = 'order'
+      ORDER BY created_at DESC, id DESC
+      LIMIT 1`,
+    [conversationId]
+  );
+  return rows.length > 0 ? rows[0] : null;
+};
+
+/**
  * 删除会话及其所有消息
  */
 export const deleteConversation = async (conversationId: number): Promise<void> => {

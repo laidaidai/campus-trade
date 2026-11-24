@@ -19,6 +19,7 @@ export const useUserStore = defineStore('user', () => {
   const token = ref(localStorage.getItem('token') || '')
   const userInfo = ref(getStoredUserInfo())
   const loading = ref(false)
+  let lastValidationAt = 0
 
   // 检查令牌是否有效
   const isTokenValid = () => {
@@ -130,6 +131,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       const response = await userApi.getProfile()
       setUserInfo(response.user)
+      lastValidationAt = Date.now()
       return { success: true, user: response.user }
     } catch (error) {
       console.error('获取用户信息失败:', error)
@@ -155,17 +157,24 @@ export const useUserStore = defineStore('user', () => {
       return { success: false, error: 'TOKEN_EXPIRED' }
     }
 
-    // 如果有用户信息，直接返回成功
-    if (userInfo.value) {
+    // 有用户信息也定期向服务端确认，避免本地缓存掩盖“账号已删除”
+    if (userInfo.value && Date.now() - lastValidationAt < 5 * 60 * 1000) {
       return { success: true, user: userInfo.value }
     }
 
-    // 尝试获取用户信息
+    // 尝试获取/刷新用户信息
     try {
       const result = await fetchProfile()
+      if (!result.success && result.error === 'NETWORK_ERROR' && userInfo.value) {
+        // 网络暂时不可用时保留本地会话；所有受保护接口仍会由后端校验用户存在
+        return { success: true, user: userInfo.value }
+      }
       return result
     } catch (error) {
       console.error('验证用户失败:', error)
+      if (userInfo.value) {
+        return { success: true, user: userInfo.value }
+      }
       logout()
       return { success: false, error: 'VALIDATION_FAILED' }
     }

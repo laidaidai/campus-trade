@@ -20,7 +20,9 @@ export const isEmailVerificationRequired = (): boolean => {
 export class UserController {
   static async register(req: Request, res: Response): Promise<void> {
     try {
-      const { username, email, password, code } = req.body;
+      const { username: rawUsername, email: rawEmail, password, code } = req.body;
+      const username = typeof rawUsername === 'string' ? rawUsername.trim() : '';
+      const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : '';
 
       // 验证必填字段
       if (!username || !email || !password) {
@@ -41,7 +43,7 @@ export class UserController {
 
       // 验证邮箱格式
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
+      if (!emailRegex.test(email) || email.length > 254) {
         res.status(400).json({ error: '邮箱格式不正确' });
         return;
       }
@@ -89,15 +91,12 @@ export class UserController {
         }
       }
 
-      // 生成默认头像URL (使用UI Avatars API)
-      const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random&color=fff&size=200`;
-
-      // 创建用户
+      // 默认头像交给前端本地生成器（avatar 为空时按用户名生成），不再写死外部图片服务
       const userId = await UserModel.create({
         username,
         email,
         password: hashedPassword,
-        avatar: defaultAvatar
+        avatar: null
       });
 
       // 生成 JWT token
@@ -267,25 +266,85 @@ export class UserController {
   static async updateProfile(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).user?.userId;
-      const { username, email, phone, avatar } = req.body;
+      const { username, email, phone, avatar, code } = req.body;
+      const currentUser = await UserModel.findById(userId);
+
+      if (!currentUser) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+      }
 
       const updates: any = {};
-      if (username) updates.username = username;
-      if (email) updates.email = email;
-      if (phone !== undefined) updates.phone = phone;
-      if (avatar !== undefined) updates.avatar = avatar;
+
+      if (username !== undefined) {
+        const name = String(username).trim();
+        if (name.length < 3 || name.length > 20) {
+          res.status(400).json({ error: '用户名长度必须在3-20个字符之间' });
+          return;
+        }
+        if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(name)) {
+          res.status(400).json({ error: '用户名只能包含字母、数字、下划线和中文' });
+          return;
+        }
+        updates.username = name;
+      }
+
+      if (email !== undefined) {
+        const nextEmail = String(email).trim().toLowerCase();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(nextEmail) || nextEmail.length > 254) {
+          res.status(400).json({ error: '邮箱格式不正确' });
+          return;
+        }
+
+        // 邮箱变更必须重新验证新邮箱，不能借资料更新绕过验证码
+        if (nextEmail !== String(currentUser.email || '').toLowerCase() && isEmailVerificationRequired()) {
+          if (!code) {
+            res.status(400).json({ error: '修改邮箱需要先获取新邮箱验证码' });
+            return;
+          }
+          const valid = await verifyCode(nextEmail, String(code), 'register');
+          if (!valid) {
+            res.status(400).json({ error: '邮箱验证码错误或已过期' });
+            return;
+          }
+        }
+        updates.email = nextEmail;
+      }
+
+      if (phone !== undefined) {
+        const nextPhone = phone === null ? '' : String(phone).trim();
+        if (nextPhone && !/^[0-9+\-\s]{6,20}$/.test(nextPhone)) {
+          res.status(400).json({ error: '手机号格式不正确' });
+          return;
+        }
+        updates.phone = nextPhone || null;
+      }
+
+      if (avatar !== undefined) {
+        if (avatar === null || avatar === '') {
+          updates.avatar = null;
+        } else {
+          const avatarPath = String(avatar).trim();
+          if (!/^\/uploads\/avatars\/[A-Za-z0-9._-]+$/.test(avatarPath)) {
+            res.status(400).json({ error: '头像地址不合法' });
+            return;
+          }
+          updates.avatar = avatarPath;
+        }
+      }
 
       // 检查用户名和邮箱是否已被其他用户使用
-      if (username) {
-        const existingUser = await UserModel.findByUsername(username);
+      if (updates.username) {
+        const existingUser = await UserModel.findByUsername(updates.username);
         if (existingUser && existingUser.id !== userId) {
           res.status(400).json({ error: 'Username already exists' });
           return;
         }
       }
 
-      if (email) {
-        const existingUser = await UserModel.findByEmail(email);
+      if (updates.email) {
+        const existingUser = await UserModel.findByEmail(updates.email);
         if (existingUser && existingUser.id !== userId) {
           res.status(400).json({ error: 'Email already exists' });
           return;
@@ -293,18 +352,22 @@ export class UserController {
       }
 
       const updated = await UserModel.updateProfile(userId, updates);
-      
+
       if (!updated) {
         res.status(400).json({ error: 'No changes made' });
         return;
       }
 
       const user = await UserModel.findById(userId);
-      const { password, ...userWithoutPassword } = user!;
-      
-      res.json({ 
+      if (!user) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+      }
+      const { password, ...userWithoutPassword } = user;
+
+      res.json({
         message: 'Profile updated successfully',
-        user: userWithoutPassword 
+        user: userWithoutPassword
       });
     } catch (error: any) {
       console.error('Update profile error:', error);
@@ -324,9 +387,9 @@ export class UserController {
 
   static async getUserById(req: Request, res: Response): Promise<void> {
     try {
-      const userId = parseInt(req.params.id);
+      const userId = Number(req.params.id);
       
-      if (isNaN(userId)) {
+      if (!Number.isInteger(userId) || userId <= 0) {
         res.status(400).json({ 
           success: false, 
           error: 'Invalid user ID' 

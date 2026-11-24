@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as CategoryModel from '../models/categoryModel';
+import { toPositiveInt } from '../utils/validation';
 
 export const getCategories = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -19,7 +20,14 @@ export const getCategories = async (req: Request, res: Response): Promise<void> 
 
 export const getCategoryById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = toPositiveInt(req.params.id);
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: '无效的类别ID'
+      });
+      return;
+    }
     const category = await CategoryModel.getCategoryById(id);
     
     if (!category) {

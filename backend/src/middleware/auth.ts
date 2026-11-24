@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { UserModel } from '../models/userModel';
 
 // 验证JWT密钥环境变量
 if (!process.env.JWT_SECRET) {
@@ -7,6 +8,11 @@ if (!process.env.JWT_SECRET) {
 }
 
 const JWT_SECRET = process.env.JWT_SECRET;
+
+const userStillExists = async (userId: number): Promise<boolean> => {
+  const user = await UserModel.findById(userId);
+  return Boolean(user);
+};
 
 export interface AuthenticatedRequest extends Request {
   user?: { userId: number };
@@ -31,7 +37,24 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    (req as AuthenticatedRequest).user = { userId: decoded.userId };
-    next();
+    const userId = Number(decoded?.userId);
+    if (!Number.isInteger(userId) || userId <= 0) {
+      res.status(401).json({ error: 'Access token required' });
+      return;
+    }
+
+    void (async () => {
+      try {
+        if (!(await userStillExists(userId))) {
+          res.status(401).json({ error: '账号不存在或已注销，请重新登录' });
+          return;
+        }
+        (req as AuthenticatedRequest).user = { userId };
+        next();
+      } catch (error) {
+        console.error('校验登录用户失败:', error);
+        res.status(500).json({ error: '认证服务暂时不可用' });
+      }
+    })();
   });
 };
