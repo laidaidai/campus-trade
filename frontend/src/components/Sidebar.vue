@@ -601,6 +601,7 @@ onUnmounted(() => {
     border-top: 2px solid var(--edge);
     box-shadow: 0 -4px 0 var(--shadow);
     z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .sidebar.mobile .sidebar-nav {

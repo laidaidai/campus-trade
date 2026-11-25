@@ -258,7 +258,7 @@ export const getConversationMessages = async (
      FROM messages m
      LEFT JOIN users u ON m.sender_id = u.id
      WHERE m.conversation_id = ?
-     ORDER BY m.created_at DESC
+     ORDER BY m.created_at DESC, m.id DESC
      LIMIT ? OFFSET ?`,
     [conversationId, limit, offset]
   );

@@ -81,6 +81,26 @@ a {
   outline-offset: 2px;
 }
 
+/* 移动端底部导航总高度：内容与浮层共用，避免把最后一行压到导航下面 */
+:root {
+  --mobile-nav-space: calc(76px + env(safe-area-inset-bottom, 0px));
+}
+
+/* 占位文字用正文次级色，保证在纸底上仍有足够对比度 */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-3) !important;
+  opacity: 1;
+}
+
+/* 聊天页输入区很满：移动端收起悬浮助手，避免压住输入与发送 */
+@media (max-width: 768px) {
+  body:has(.messages-container.chat-open) .ai-fab,
+  body:has(.messages-container.chat-open) .ai-panel {
+    display: none;
+  }
+}
+
 /* 滚动条：实线墨色，不用渐变 */
 * {
   scrollbar-width: thin;

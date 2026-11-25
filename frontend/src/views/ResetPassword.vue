@@ -3,7 +3,6 @@
     <div class="container">
       <div class="reset-box">
         <div class="reset-header">
-          <span class="eyebrow">RESET</span>
           <h2>找回密码</h2>
         </div>
 

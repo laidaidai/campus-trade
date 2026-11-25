@@ -42,7 +42,7 @@
           <h4 class="item-title" @click="goToDetail(item.product_id)">
             {{ item.title }}
           </h4>
-          <p class="item-price">¥{{ item.price }}</p>
+          <p class="item-price">¥{{ formatPrice(item.price) }}</p>
           <p class="item-time">浏览于 {{ formatTime(item.view_time) }}</p>
         </div>
         <button 
@@ -71,6 +71,7 @@ import { getViewHistory, clearViewHistory, deleteViewHistory } from '@/api/viewH
 import { getImageUrl } from '@/config'
 import toast from '@/utils/toast'
 import { showDeleteConfirm } from '@/utils/dialog'
+import { formatPrice } from '@/utils/price'
 
 const router = useRouter()
 

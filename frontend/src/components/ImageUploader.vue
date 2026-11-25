@@ -349,7 +349,7 @@ const updateModelValue = () => {
 
 .upload-list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
   gap: 10px;
 }
 
@@ -557,7 +557,7 @@ const updateModelValue = () => {
 }
 
 @media (max-width: 768px) {
-  .upload-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .upload-list { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
   .preview-modal { padding: 16px; }
   .btn-close { top: -10px; right: -10px; width: 34px; height: 34px; }
 }

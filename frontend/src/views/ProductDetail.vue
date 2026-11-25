@@ -88,23 +88,6 @@
               </div>
             </div>
 
-            <!-- 商品详细信息 -->
-            <div class="detail-list">
-              <div class="detail-item">
-                <span class="label">分类</span>
-                <span class="value">{{ getCategoryText(product.category) }}</span>
-              </div>
-              <div class="detail-item">
-                <span class="label">成色</span>
-                <span class="value">{{ getConditionText(product.condition) }}</span>
-              </div>
-              <div class="detail-item">
-                <span class="label">状态</span>
-                <span :class="['value', `status-${product.status}`]">
-                  {{ getStatusText(product.status) }}
-                </span>
-              </div>
-            </div>
           </div>
 
           <!-- 右侧:商品信息 -->
@@ -112,7 +95,7 @@
             <h1 class="product-title">{{ product.title }}</h1>
             
             <div class="price-section">
-              <span class="price">¥{{ product.price }}</span>
+              <span class="price">¥{{ formatPrice(product.price) }}</span>
               <span class="condition-tag">{{ getConditionText(product.condition) }}</span>
             </div>
 
@@ -132,6 +115,24 @@
                   <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
                 <span>{{ formatDate(product.created_at) }}</span>
+              </div>
+            </div>
+
+            <!-- 规格：放在价格之后，移动端先看到商品本身而不是参数表 -->
+            <div class="detail-list">
+              <div class="detail-item">
+                <span class="label">分类</span>
+                <span class="value">{{ getCategoryText(product.category) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">成色</span>
+                <span class="value">{{ getConditionText(product.condition) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">状态</span>
+                <span :class="['value', `status-${product.status}`]">
+                  {{ getStatusText(product.status) }}
+                </span>
               </div>
             </div>
 
@@ -200,7 +201,7 @@
     <!-- 移动端：价格与主操作在首屏常驻，不必滚到图片下面 -->
     <div v-if="product" class="mobile-buybar">
       <div class="buybar-summary">
-        <span class="buybar-price">¥{{ product.price }}</span>
+        <span class="buybar-price">¥{{ formatPrice(product.price) }}</span>
         <span class="buybar-title">{{ product.title }}</span>
       </div>
       <div class="buybar-actions">
@@ -298,6 +299,7 @@ import { getOrCreateConversation } from '@/api/message'
 import { addViewHistory } from '@/api/viewHistory'
 import { getImageUrl } from '@/config'
 import { resolveAvatar } from '@/utils/avatar'
+import { formatPrice } from '@/utils/price'
 import toast from '@/utils/toast'
 import { showConfirm } from '@/utils/dialog'
 
@@ -1298,7 +1300,7 @@ onMounted(() => {
 }
 
 @media (max-width: 767px) {
-  .main-content { padding: 12px 12px 108px; }
+  .main-content { padding: 12px 12px calc(168px + env(safe-area-inset-bottom, 0px)); }
   .product-info { padding: 18px; border-radius: 18px; }
   .product-title { font-size: 21px; }
   .price { font-size: 34px; }
@@ -1318,7 +1320,7 @@ onMounted(() => {
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 76px;
+    bottom: var(--mobile-nav-space);
     z-index: 900;
     display: flex;
     align-items: center;

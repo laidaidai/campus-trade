@@ -4,8 +4,15 @@
       <div class="favorites-container">
         <header class="page-head">
           <div>
-            <span class="eyebrow">SAVED</span>
+            <header class="page-head">
+          <div>
             <h1 class="page-title">我的收藏</h1>
+          </div>
+          <div class="head-count">
+            <span class="count-value">{{ favorites.length }}</span>
+            <span class="count-label">件</span>
+          </div>
+        </header>
           </div>
           <div class="head-count">
             <span class="count-value">{{ favorites.length }}</span>
@@ -343,7 +350,7 @@ onMounted(() => {
 }
 
 @media (max-width: 767px) {
-  .main-content { padding: 16px 12px 40px; }
+  .main-content { padding: 16px 12px calc(88px + env(safe-area-inset-bottom, 0px)); }
   .page-head { padding-bottom: 16px; }
   .page-title { font-size: 24px; }
   .count-value { font-size: 22px; }

@@ -146,13 +146,13 @@ html, body, #app {
 /* 移动端：底部导航，内容不压住 tab */
 .main-wrapper.mobile {
   margin-left: 0 !important;
-  margin-bottom: 76px;
+  margin-bottom: var(--mobile-nav-space);
 }
 
 @media (max-width: 1024px) and (orientation: portrait) {
   .main-wrapper {
     margin-left: 0 !important;
-    margin-bottom: 76px;
+    margin-bottom: var(--mobile-nav-space);
   }
   .main-wrapper.full-width {
     margin-bottom: 0;
@@ -169,7 +169,7 @@ html, body, #app {
 @media (max-width: 768px) {
   .main-wrapper {
     margin-left: 0 !important;
-    margin-bottom: 76px;
+    margin-bottom: var(--mobile-nav-space);
   }
   .main-wrapper.full-width {
     margin-bottom: 0;

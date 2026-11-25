@@ -88,7 +88,7 @@
         </div>
         <div class="product-info">
           <h4 class="product-title" @click="goToDetail(product.id)">{{ product.title }}</h4>
-          <p class="product-price">¥{{ product.price }}</p>
+          <p class="product-price">¥{{ formatPrice(product.price) }}</p>
           <div class="product-meta">
             <span class="meta-item">{{ formatDate(product.created_at) }}</span>
 
@@ -113,6 +113,7 @@ import { getMyProducts, updateProductStatus, deleteProduct } from '@/api/product
 import { getImageUrl } from '@/config'
 import toast from '@/utils/toast'
 import { showConfirm, showDeleteConfirm } from '@/utils/dialog'
+import { formatPrice } from '@/utils/price'
 
 const router = useRouter()
 

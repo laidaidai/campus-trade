@@ -37,7 +37,7 @@
         <div class="order-info">
           <h4 class="order-title">{{ order.product_title }}</h4>
           <div class="order-meta">
-            <span class="order-price">¥{{ order.price }}</span>
+            <span class="order-price">¥{{ formatPrice(order.price) }}</span>
             <span class="order-status" :class="`status-${order.status}`">
               {{ getStatusText(order.status) }}
             </span>
@@ -64,6 +64,7 @@ import { getMyOrders, getOrderById } from '@/api/order'
 import { getImageUrl } from '@/config'
 import toast from '@/utils/toast'
 import OrderDetailDialog from '@/components/OrderDetailDialog.vue'
+import { formatPrice } from '@/utils/price'
 
 const props = defineProps({
   defaultTab: {

@@ -22,6 +22,11 @@ export const getImageUrl = (url, options = {}) => {
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url
   }
+
+  // 本地生成头像、blob 预览不应再拼接服务端地址
+  if (url.startsWith('data:') || url.startsWith('blob:')) {
+    return url
+  }
   
   // 检查是否为生产环境
   const isProd = import.meta.env.PROD || window.location.hostname !== 'localhost'

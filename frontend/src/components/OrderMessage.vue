@@ -22,9 +22,9 @@
               v-if="orderData.final_price !== orderData.original_price" 
               class="original-price"
             >
-              ¥{{ orderData.original_price }}
+              ¥{{ formatPrice(orderData.original_price) }}
             </span>
-            <span class="final-price">¥{{ orderData.final_price }}</span>
+            <span class="final-price">¥{{ formatPrice(orderData.final_price) }}</span>
           </div>
         </div>
       </div>
@@ -92,6 +92,7 @@
 <script setup>
 import { computed } from 'vue'
 import { getImageUrl } from '@/config'
+import { formatPrice } from '@/utils/price'
 
 const props = defineProps({
   orderData: {

@@ -3,7 +3,6 @@
     <main class="main-content">
       <div class="publish-form">
         <header class="form-head">
-          <span class="eyebrow">{{ isEdit ? 'EDIT' : 'PUBLISH' }}</span>
           <h1 class="form-title">{{ isEdit ? '编辑商品' : '发布商品' }}</h1>
         </header>
         
@@ -694,7 +693,7 @@ const handleGenerateDescription = async () => {
 
 /* 手机：单列，操作按钮等宽 */
 @media (max-width: 767px) {
-  .main-content { padding: 12px 12px 40px; }
+  .main-content { padding: 12px 12px calc(88px + env(safe-area-inset-bottom, 0px)); }
   .publish-form { padding: 16px; border-radius: 20px; }
   .form-title { font-size: 24px; }
   .form-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }

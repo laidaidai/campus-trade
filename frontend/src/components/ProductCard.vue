@@ -21,8 +21,8 @@
       <h3 class="product-title">{{ product.title }}</h3>
       
       <div class="product-price">
-        <span class="price">¥{{ product.price }}</span>
-        <span v-if="product.originalPrice" class="original-price">¥{{ product.originalPrice }}</span>
+        <span class="price">¥{{ formatPrice(product.price) }}</span>
+        <span v-if="product.originalPrice" class="original-price">¥{{ formatPrice(product.originalPrice) }}</span>
       </div>
 
       <div class="product-meta">
@@ -51,6 +51,7 @@
 import { useRouter } from 'vue-router'
 import { getImageUrl } from '@/config'
 import OptimizedImage from './OptimizedImage.vue'
+import { formatPrice } from '@/utils/price'
 
 const props = defineProps({
   product: {

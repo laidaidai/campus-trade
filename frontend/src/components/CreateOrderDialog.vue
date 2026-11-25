@@ -16,7 +16,7 @@
           />
           <div class="product-info">
             <h4 class="product-title">{{ product.title }}</h4>
-            <p class="product-price">¥{{ product.price }}</p>
+            <p class="product-price">¥{{ formatPrice(product.price) }}</p>
           </div>
         </div>
 
@@ -103,6 +103,7 @@ import { getImageUrl } from '@/config'
 import { getMyAddresses } from '@/api/address'
 import toast from '@/utils/toast'
 import { useRouter } from 'vue-router'
+import { formatPrice } from '@/utils/price'
 
 const router = useRouter()
 

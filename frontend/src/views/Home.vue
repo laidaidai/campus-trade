@@ -3,7 +3,6 @@
     <!-- 页面锚点 -->
     <header class="home-hero">
       <div class="hero-copy">
-        <span class="eyebrow">CAMPUS MARKET</span>
         <h1 class="hero-title">校园好物</h1>
         <p class="hero-desc">把闲置交给需要的人，在校园里完成交易。</p>
       </div>
@@ -25,6 +24,7 @@
             type="text" 
             placeholder="搜索校园二手好物..." 
             class="search-input"
+            aria-label="搜索商品"
             @keyup.enter="handleSearch"
             v-model="searchKeyword"
           />
@@ -33,6 +33,7 @@
             class="clear-btn" 
             @click="clearSearch"
             title="清除搜索"
+            aria-label="清除搜索"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -43,6 +44,7 @@
             class="search-btn" 
             @click="handleSearch"
             title="搜索"
+            aria-label="搜索"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"></circle>
@@ -78,32 +80,54 @@
         </div>
       </div>
 
-      <!-- 商品网格 -->
-      <transition name="fade" mode="out-in">
-        <div class="products-grid" :key="currentCategory">
-          <XHSProductCard 
-            v-for="item in filteredProducts" 
-            :key="item.id"
-            :product="item" 
-          />
+      <!-- 加载中：骨架卡片，避免先闪一下空态 -->
+      <div v-if="loading && products.length === 0" class="products-grid skeleton-grid" aria-hidden="true">
+        <div v-for="i in 8" :key="i" class="skeleton-card">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-copy">
+            <span class="skeleton-line wide"></span>
+            <span class="skeleton-line short"></span>
+          </div>
         </div>
-      </transition>
-
-      <!-- 加载更多 -->
-      <div class="load-more" v-if="hasMore && filteredProducts.length > 0">
-        <button class="load-more-btn" @click="loadMore">
-          加载更多
-        </button>
       </div>
 
-      <!-- 空状态 -->
-      <transition name="fade-empty">
-        <div class="empty-state" v-if="filteredProducts.length === 0" :key="'empty-' + currentCategory">
-          <div class="empty-icon"><Icon name="box" /></div>
-          <p class="empty-title">暂无商品</p>
-          <router-link to="/publish" class="btn btn-primary empty-action">去发布</router-link>
+      <!-- 加载失败：给出原因和重试 -->
+      <div v-else-if="loadError && products.length === 0" class="empty-state">
+        <div class="empty-icon error-icon">!</div>
+        <p class="empty-title">没能加载商品</p>
+        <p class="empty-desc">{{ loadError }}</p>
+        <button class="btn btn-primary" @click="fetchProducts(true)">重试</button>
+      </div>
+
+      <template v-else>
+        <transition name="fade" mode="out-in">
+          <div class="products-grid" :key="currentCategory">
+            <XHSProductCard
+              v-for="item in filteredProducts"
+              :key="item.id"
+              :product="item"
+            />
+          </div>
+        </transition>
+
+        <!-- 加载更多 -->
+        <div class="load-more" v-if="hasMore && filteredProducts.length > 0">
+          <button class="load-more-btn" @click="loadMore">
+            加载更多
+          </button>
         </div>
-      </transition>
+
+        <!-- 空状态 -->
+        <transition name="fade-empty">
+          <div class="empty-state" v-if="filteredProducts.length === 0" :key="'empty-' + currentCategory">
+            <div class="empty-icon"><Icon name="box" /></div>
+            <p class="empty-title">{{ searchKeyword ? '没有找到相关商品' : '暂无商品' }}</p>
+            <p v-if="searchKeyword" class="empty-desc">换个关键词，或者清空搜索看看全部闲置。</p>
+            <button v-if="searchKeyword" type="button" class="btn btn-outline" @click="clearSearch">清空搜索</button>
+            <router-link v-else to="/publish" class="btn btn-primary empty-action">去发布</router-link>
+          </div>
+        </transition>
+      </template>
     </main>
   </div>
 </template>
@@ -147,6 +171,7 @@ const products = ref([])
 const offset = ref(0)
 const limit = 20
 const searchKeyword = ref('')
+const loadError = ref('')
 
 // 获取类别列表
 const fetchCategories = async () => {
@@ -175,6 +200,7 @@ const fetchProducts = async (reset = false) => {
   if (loading.value) return
   
   loading.value = true
+  loadError.value = ''
   try {
     if (reset) {
       offset.value = 0
@@ -239,9 +265,12 @@ const fetchProducts = async (reset = false) => {
       
       hasMore.value = response.pagination?.hasMore || false
       offset.value += limit
+    } else {
+      loadError.value = response.message || '商品列表暂时不可用。'
     }
   } catch (error) {
     console.error('获取商品列表失败:', error)
+    loadError.value = '网络有点慢，请稍后重试。'
   } finally {
     loading.value = false
   }
@@ -745,6 +774,44 @@ onMounted(() => {
   margin: 0 0 8px;
 }
 
+/* 骨架：结构与商品卡一致，加载时不跳动 */
+.skeleton-card {
+  overflow: hidden;
+  background: var(--card);
+  border: 2px solid var(--line-strong);
+  border-radius: 18px;
+}
+
+.skeleton-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--cream-2);
+  border-bottom: 2px solid var(--line);
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+}
+
+.skeleton-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 12px 12px 14px;
+}
+
+.skeleton-line {
+  height: 10px;
+  background: var(--cream-2);
+  border-radius: 6px;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+}
+
+.skeleton-line.wide { width: 86%; }
+.skeleton-line.short { width: 46%; }
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.9; }
+}
+
 /* 入场：一次，按 0.04s 交错 */
 .products-grid > * { animation-delay: 0s; }
 .products-grid > *:nth-child(2) { animation-delay: 0.04s; }
@@ -798,6 +865,20 @@ onMounted(() => {
 }
 
 /* 空态：实线圆 + 唯一主操作 */
+.empty-desc {
+  max-width: 34ch;
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.empty-icon.error-icon {
+  color: var(--danger);
+  border-color: var(--danger);
+  font-size: 30px;
+  font-weight: 900;
+}
+
 .empty-state {
   gap: 14px;
   min-height: 300px;
@@ -834,6 +915,11 @@ onMounted(() => {
 }
 
 /* 1024 以下：三栏 */
+@media (min-width: 768px) {
+  .categories { gap: 6px; }
+  .category-btn { padding: 7px 13px; font-size: 13px; }
+}
+
 @media (max-width: 1023px) {
   .home-page { padding: 20px 24px 64px; }
   .products-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
@@ -845,7 +931,7 @@ onMounted(() => {
 @media (max-width: 767px) {
   .home-page { padding: 16px 12px 24px; }
   .home-hero { padding-bottom: 12px; gap: 12px; }
-  .hero-title { font-size: 26px; }
+  .hero-title { font-size: 30px; }
   .hero-desc { font-size: 12px; line-height: 1.5; }
   .hero-cta { display: none; }
   .categories {

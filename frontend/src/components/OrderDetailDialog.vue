@@ -20,7 +20,7 @@
                 />
                 <div class="product-details">
                   <h5>{{ order.product_title }}</h5>
-                  <p class="price">¥{{ order.price }}</p>
+                  <p class="price">¥{{ formatPrice(order.price) }}</p>
                 </div>
               </div>
             </div>
@@ -72,6 +72,7 @@
 
 <script setup>
 import { getImageUrl } from '@/config'
+import { formatPrice } from '@/utils/price'
 
 const props = defineProps({
   visible: {

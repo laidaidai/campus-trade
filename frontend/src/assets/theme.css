@@ -48,7 +48,7 @@ html[data-theme='tomato'] {
 
   --text-2: #5f4436;
   --text-3: #7b634d;
-  --text-4: #a58e76;
+  --text-4: #846c55;
   --text-warm: #8a5b3c;
   --text-mid: #6f5443;
 
@@ -97,7 +97,7 @@ html[data-theme='cream'] {
 
   --text-2: #6b5947;
   --text-3: #7f6a53;
-  --text-4: #a99680;
+  --text-4: #84705a;
   --text-warm: #8a6236;
   --text-mid: #6f5c49;
 
@@ -146,7 +146,7 @@ html[data-theme='rose'] {
 
   --text-2: #6b4650;
   --text-3: #7d5a63;
-  --text-4: #a7858d;
+  --text-4: #8d6b73;
   --text-warm: #8c4f5e;
   --text-mid: #74525b;
 
@@ -195,7 +195,7 @@ html[data-theme='sky'] {
 
   --text-2: #38556f;
   --text-3: #566f87;
-  --text-4: #8098ad;
+  --text-4: #62788e;
   --text-warm: #3f647f;
   --text-mid: #466379;
 
@@ -244,7 +244,7 @@ html[data-theme='sketch'] {
 
   --text-2: #57534a;
   --text-3: #6d685c;
-  --text-4: #948e7f;
+  --text-4: #79715f;
   --text-warm: #7a6446;
   --text-mid: #6a6255;
 
@@ -293,7 +293,7 @@ html[data-theme='mint'] {
 
   --text-2: #2e5a52;
   --text-3: #4b6f68;
-  --text-4: #7b9a93;
+  --text-4: #5b7a73;
   --text-warm: #3f6b5b;
   --text-mid: #416a61;
 
@@ -344,7 +344,7 @@ html[data-theme='obsidian'] {
 
   --text-2: #d3c29c;
   --text-3: #b3a07a;
-  --text-4: #8d7c5c;
+  --text-4: #a08c66;
   --text-warm: #e0b978;
   --text-mid: #cbb891;
 

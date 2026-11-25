@@ -6,7 +6,6 @@
         <div class="identity">
           <img :src="userAvatar" :alt="userStore.userInfo?.username" class="user-avatar" />
           <div class="identity-copy">
-            <span class="profile-eyebrow">MY CAMPUS</span>
             <h1 class="username">{{ userStore.userInfo?.username || '用户' }}</h1>
             <p class="user-email">{{ userStore.userInfo?.email }}</p>
           </div>
@@ -35,7 +34,6 @@
       <main class="profile-content">
         <div class="section-head">
           <div>
-            <span class="section-eyebrow">{{ currentSection.eyebrow }}</span>
             <h2 class="section-title">{{ currentSection.label }}</h2>
             <p class="section-desc">{{ currentSection.desc }}</p>
           </div>
@@ -120,23 +118,23 @@ const handleLogout = async () => {
 const menuItems = ref([
   {
     key: 'myProducts', label: '我的发布', icon: 'box', count: undefined,
-    eyebrow: 'MANAGE', desc: '管理你发布的闲置，查看在售与已售状态。'
+    desc: '管理你发布的闲置，查看在售与已售状态。'
   },
   {
     key: 'orders', label: '我的订单', icon: 'shopping-bag', count: undefined,
-    eyebrow: 'ORDERS', desc: '集中查看你买到和卖出的订单。'
+    desc: '集中查看你买到和卖出的订单。'
   },
   {
     key: 'history', label: '浏览历史', icon: 'eye', count: undefined,
-    eyebrow: 'RECENT', desc: '最近浏览过的商品，继续之前的选择。'
+    desc: '最近浏览过的商品，继续之前的选择。'
   },
   {
     key: 'addresses', label: '地址管理', icon: 'map-pin', count: undefined,
-    eyebrow: 'ADDRESS', desc: '维护收货地址，下单时直接选用。'
+    desc: '维护收货地址，下单时直接选用。'
   },
   {
     key: 'profile', label: '个人资料', icon: 'settings', count: undefined,
-    eyebrow: 'ACCOUNT', desc: '更新你的账号信息和联系方式。'
+    desc: '更新你的账号信息和联系方式。'
   }
 ])
 
@@ -200,15 +198,6 @@ const userAvatar = computed(() => {
 
 .identity-copy {
   min-width: 0;
-}
-
-.profile-eyebrow {
-  display: block;
-  margin-bottom: 5px;
-  color: var(--on-panel-warm);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
 }
 
 .username {
@@ -331,15 +320,6 @@ const userAvatar = computed(() => {
   justify-content: space-between;
   gap: 16px;
   padding: 0 2px 14px;
-}
-
-.section-eyebrow {
-  display: block;
-  margin-bottom: 3px;
-  color: var(--text-3);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
 }
 
 .section-title {
@@ -516,6 +496,36 @@ const userAvatar = computed(() => {
   .profile-hero { padding: 24px; }
   .user-avatar { width: 72px; height: 72px; }
   .username { font-size: 26px; }
+}
+
+/* 手机：身份块不再和退出按钮抢宽度；标签改成两行网格 */
+@media (max-width: 767px) {
+  .profile-shell { padding: 12px 12px calc(88px + env(safe-area-inset-bottom, 0px)); }
+  .profile-hero { padding: 20px; border-radius: 18px; }
+  .identity { gap: 14px; }
+  .user-avatar { width: 68px; height: 68px; border-width: 2px; }
+  .username { font-size: 24px; }
+  .user-email { font-size: 12px; }
+  .logout-btn { min-height: 40px; padding: 7px 12px; font-size: 12px; }
+  .profile-tabs { margin-top: 12px; padding: 6px; border-radius: 14px; }
+  .profile-tab { min-height: 44px; padding: 8px 12px; font-size: 13px; gap: 6px; }
+}
+
+@media (max-width: 430px) {
+  .profile-hero { padding: 16px; gap: 10px; }
+  .identity { width: 100%; padding-right: 44px; gap: 12px; }
+  .user-avatar { width: 60px; height: 60px; }
+  .identity-copy { min-width: 0; }
+  .username { font-size: 22px; margin-bottom: 4px; }
+  .user-email { font-size: 12px; line-height: 1.45; }
+  .logout-btn { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; min-height: 40px; padding: 0; justify-content: center; border-radius: 12px; }
+  .logout-label { display: none; }
+  .profile-tabs { flex-wrap: wrap; overflow: visible; }
+  .profile-tab { flex: 1 1 calc(33.333% - 4px); padding: 8px 4px; }
+  .profile-tab:nth-child(4),
+  .profile-tab:nth-child(5) { flex-basis: calc(50% - 2px); }
+  .section-head { padding-bottom: 10px; }
+  .section-title { font-size: 20px; }
 }
 
 /* 手机：头部两行、标签横向滚动，内容紧跟 */

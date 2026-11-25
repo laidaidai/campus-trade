@@ -58,7 +58,7 @@
             </div>
             <div class="product-info">
               <h3 class="product-title">{{ product.title }}</h3>
-              <p class="product-price">¥{{ product.price }}</p>
+              <p class="product-price">¥{{ formatPrice(product.price) }}</p>
               <p class="product-time">{{ formatTime(product.created_at) }}</p>
             </div>
           </div>
@@ -76,6 +76,7 @@ import { getProducts } from '@/api/product'
 import { getImageUrl } from '@/config'
 import { resolveAvatar } from '@/utils/avatar'
 import toast from '@/utils/toast'
+import { formatPrice } from '@/utils/price'
 
 const route = useRoute()
 const router = useRouter()

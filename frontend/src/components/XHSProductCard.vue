@@ -39,12 +39,12 @@
       
       <div class="card-footer">
         <div class="price-info">
-          <span class="price">¥{{ product.price }}</span>
-          <span v-if="product.originalPrice" class="original-price">¥{{ product.originalPrice }}</span>
+          <span class="price">¥{{ formatPrice(product.price) }}</span>
+          <span v-if="product.originalPrice" class="original-price">¥{{ formatPrice(product.originalPrice) }}</span>
         </div>
         
         <div class="seller-info">
-          <img :src="getImageUrl(product.sellerAvatar)" :alt="product.sellerName" class="avatar" />
+          <img :src="resolveAvatar(product.sellerAvatar, product.sellerName)" :alt="product.sellerName" class="avatar" />
           <span class="seller-name">{{ product.sellerName }}</span>
         </div>
       </div>
@@ -64,7 +64,8 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getImageUrl } from '@/config'
+import { resolveAvatar } from '@/utils/avatar'
+import { formatPrice } from '@/utils/price'
 import OptimizedImage from './OptimizedImage.vue'
 
 const props = defineProps({

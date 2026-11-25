@@ -1,6 +1,6 @@
 <template>
   <!-- 悬浮球 -->
-  <div class="ai-fab" @click.stop="toggleOpen" :class="{ active: isOpen }" title="AI 助手">
+  <div class="ai-fab" @click.stop="toggleOpen" :class="{ active: isOpen }" title="AI 助手" aria-label="AI 助手">
     <svg v-if="!isOpen" class="fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 1.64 1.64 0 0 1-1.5-1v-1.84c0-.89-.62-1.63-1.5-1.76a1.75 1.75 0 0 0-1.9 1.75v1a9 9 0 0 1-9-9Z" transform="translate(0 1)"/>
       <path d="M9 11.5v.01M12 9.5v.01M15 11.5v.01M12 16.5v.01"/>
@@ -74,7 +74,7 @@
                 <div class="card-body">
                   <div class="card-title">{{ card.title }}</div>
                   <div class="card-meta">
-                    <span class="card-price">¥{{ card.price }}</span>
+                    <span class="card-price">¥{{ formatPrice(card.price) }}</span>
                     <span class="card-cond">{{ card.condition }}</span>
                   </div>
                 </div>
@@ -122,6 +122,7 @@ import { useRouter } from 'vue-router'
 import { getAiStatus, chatStream } from '@/api/ai'
 import { getImageUrl } from '@/config'
 import { useUserStore } from '@/stores/user'
+import { formatPrice } from '@/utils/price'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -748,13 +749,15 @@ const clearHistory = () => {
 
 @media (max-width: 768px) {
   .ai-fab {
-    right: 16px;
-    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    right: 14px;
+    bottom: calc(var(--mobile-nav-space) + 80px);
+    width: 52px;
+    height: 52px;
   }
   .ai-panel {
     right: 12px;
     left: 12px;
-    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(var(--mobile-nav-space) + 80px);
     width: auto;
     height: min(70vh, 560px);
   }
