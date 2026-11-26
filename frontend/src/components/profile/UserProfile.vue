@@ -43,7 +43,7 @@
         </div>
 
         <div class="form-group">
-          <label>邮箱</label>
+          <label>邮箱 <span class="label-note">不可修改</span></label>
           <input 
             v-model="form.email" 
             type="email" 
@@ -309,7 +309,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 12px;
   padding-bottom: 22px;
-  border-bottom: 2px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .form-section:last-of-type {
@@ -320,7 +320,7 @@ onMounted(() => {
 .section-label {
   color: var(--text-3);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.1em;
 }
 
@@ -347,9 +347,9 @@ onMounted(() => {
   height: 96px;
   overflow: hidden;
   background: var(--cream-2);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .avatar-preview img {
@@ -378,7 +378,7 @@ onMounted(() => {
   border-radius: 999px;
   color: var(--on-panel);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -401,13 +401,21 @@ onMounted(() => {
   letter-spacing: 0.02em;
 }
 
+.label-note {
+  margin-left: 5px;
+  color: var(--text-4);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
 .form-group input {
   width: 100%;
   min-height: 46px;
   padding: 11px 14px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
   color: var(--ink);
   font-size: 14px;
   font-family: inherit;
@@ -422,7 +430,7 @@ onMounted(() => {
   outline: none;
   background: var(--card);
   border-color: var(--primary);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .form-group input:disabled {
@@ -446,19 +454,19 @@ onMounted(() => {
   min-height: 46px;
   padding: 10px 28px;
   background: var(--primary);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
   transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-submit:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn-submit:disabled {

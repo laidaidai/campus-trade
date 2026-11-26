@@ -298,24 +298,24 @@ onMounted(() => {
   min-height: 44px;
   padding: 9px 22px;
   background: var(--primary);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
   transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-add-address:hover {
   transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn-add-address .icon {
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1;
 }
 
@@ -350,8 +350,8 @@ onMounted(() => {
   gap: 12px;
   padding: 48px 20px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 24px;
 }
 
 .empty-icon {
@@ -359,9 +359,9 @@ onMounted(() => {
   width: 84px;
   height: 84px;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 /* CSS 定位针 */
@@ -373,7 +373,7 @@ onMounted(() => {
   width: 22px;
   height: 30px;
   border: 2px solid var(--text-2);
-  border-radius: 14px 14px 14px 0;
+  border-radius: 18px 14px 14px 0;
   transform: rotate(-45deg);
 }
 
@@ -413,8 +413,8 @@ onMounted(() => {
   gap: 8px;
   padding: 16px;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
   transition: transform 0.26s var(--fish-ease),
               box-shadow 0.26s var(--fish-ease),
               background-color 0.26s var(--fish-ease);
@@ -422,7 +422,7 @@ onMounted(() => {
 
 .address-card:hover {
   transform: translateY(-2px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .address-card.default {
@@ -440,7 +440,7 @@ onMounted(() => {
 .address-name {
   color: var(--ink);
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .address-phone {
@@ -454,11 +454,11 @@ onMounted(() => {
 .default-badge {
   padding: 3px 10px;
   background: var(--primary);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--on-primary);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .address-detail {
@@ -480,7 +480,7 @@ onMounted(() => {
   min-height: 34px;
   padding: 6px 14px;
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-2);
   font-size: 12px;
@@ -518,9 +518,9 @@ onMounted(() => {
   overflow-y: auto;
   padding: 22px;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 20px;
-  box-shadow: 7px 8px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   animation: dialogIn 0.26s var(--fish-ease) both;
 }
 
@@ -532,10 +532,10 @@ onMounted(() => {
 .dialog-title {
   margin: 0 0 16px;
   padding-bottom: 12px;
-  border-bottom: 2px solid var(--line-2);
+  border-bottom: 1px solid var(--line);
   color: var(--ink);
   font-size: 19px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .address-form {
@@ -570,8 +570,8 @@ onMounted(() => {
   min-height: 44px;
   padding: 10px 12px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
   color: var(--ink);
   font-size: 13px;
   font-family: inherit;
@@ -588,7 +588,7 @@ onMounted(() => {
   outline: none;
   background: var(--card);
   border-color: var(--primary);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .form-group textarea {
@@ -619,7 +619,7 @@ onMounted(() => {
   gap: 10px;
   margin-top: 6px;
   padding-top: 14px;
-  border-top: 2px solid var(--line-2);
+  border-top: 1px solid var(--line);
 }
 
 .btn-cancel,
@@ -629,13 +629,13 @@ onMounted(() => {
   padding: 10px 18px;
   border-radius: 999px;
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .btn-cancel {
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   color: var(--text-2);
 }
 
@@ -646,8 +646,8 @@ onMounted(() => {
 
 .btn-submit {
   background: var(--primary);
-  border: 2px solid var(--edge);
-  box-shadow: 3px 4px 0 var(--shadow);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
 }
 
@@ -655,7 +655,7 @@ onMounted(() => {
   transform: translateY(-1px);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .address-list { grid-template-columns: 1fr; gap: 10px; }
   .btn-add-address { width: 100%; justify-content: center; }
   .dialog-overlay { padding: 0; align-items: flex-end; }
@@ -664,7 +664,7 @@ onMounted(() => {
     max-height: 92vh;
     border-radius: 20px 20px 0 0;
     border-bottom: none;
-    box-shadow: 0 -4px 0 var(--shadow);
+    box-shadow: 0 -10px 28px rgba(63,61,86,.10);
   }
   .form-row { flex-direction: column; }
 }

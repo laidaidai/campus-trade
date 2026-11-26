@@ -120,9 +120,9 @@ watch(() => props.visible, (newVal) => {
   width: 100%;
   max-width: 440px;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 22px;
-  box-shadow: 7px 8px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   overflow: hidden;
   animation: dialogIn 0.26s var(--fish-ease) both;
 }
@@ -138,14 +138,14 @@ watch(() => props.visible, (newVal) => {
   justify-content: space-between;
   gap: 12px;
   padding: 18px 22px;
-  border-bottom: 2px solid var(--line-2);
+  border-bottom: 1px solid var(--line);
 }
 
 .dialog-header h3 {
   margin: 0;
   color: var(--ink);
   font-size: 19px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .close-btn {
@@ -155,7 +155,7 @@ watch(() => props.visible, (newVal) => {
   display: grid;
   place-items: center;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-2);
   font-size: 20px;
@@ -183,21 +183,21 @@ watch(() => props.visible, (newVal) => {
   gap: 4px;
   padding: 14px 16px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
 }
 
 .price-label {
   color: var(--text-3);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.08em;
 }
 
 .price-value {
   color: var(--ink);
   font-size: 26px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
@@ -226,8 +226,8 @@ watch(() => props.visible, (newVal) => {
   gap: 8px;
   padding: 0 14px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
   transition: border-color 0.26s var(--fish-ease),
               box-shadow 0.26s var(--fish-ease),
               background-color 0.26s var(--fish-ease);
@@ -236,13 +236,13 @@ watch(() => props.visible, (newVal) => {
 .price-input-wrapper:focus-within {
   background: var(--card);
   border-color: var(--primary);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .price-symbol {
   color: var(--text-3);
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .price-input {
@@ -255,7 +255,7 @@ watch(() => props.visible, (newVal) => {
   outline: none;
   color: var(--ink);
   font-size: 22px;
-  font-weight: 900;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   font-family: inherit;
 }
@@ -276,7 +276,7 @@ watch(() => props.visible, (newVal) => {
   display: flex;
   gap: 10px;
   padding: 16px 22px;
-  border-top: 2px solid var(--line-2);
+  border-top: 1px solid var(--line);
 }
 
 .btn {
@@ -285,14 +285,14 @@ watch(() => props.visible, (newVal) => {
   padding: 10px 18px;
   border-radius: 999px;
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
   transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-secondary {
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   color: var(--text-2);
 }
 
@@ -303,14 +303,14 @@ watch(() => props.visible, (newVal) => {
 
 .btn-primary {
   background: var(--primary);
-  border: 2px solid var(--edge);
-  box-shadow: 3px 4px 0 var(--shadow);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn-primary:disabled {
@@ -319,16 +319,17 @@ watch(() => props.visible, (newVal) => {
   cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+  .close-btn { width: 44px; height: 44px; }
   .dialog-overlay { padding: 0; align-items: flex-end; }
   .dialog-content {
     max-width: 100%;
     border-radius: 20px 20px 0 0;
     border-bottom: none;
-    box-shadow: 0 -4px 0 var(--shadow);
+    box-shadow: 0 -10px 28px rgba(63,61,86,.10);
   }
   .dialog-header { padding: 16px 18px; }
   .dialog-body { padding: 16px 18px; }
-  .dialog-footer { padding: 14px 18px; }
+  .dialog-footer { flex-direction: column; gap: 9px; padding: 14px 18px calc(14px + env(safe-area-inset-bottom, 0px)); }
 }
 </style>

@@ -1,15 +1,16 @@
 <template>
   <div class="auth-page">
-    <div class="container">
+    <main class="container">
+      <h1 class="sr-only">登录或注册校园交易</h1>
       <header class="auth-brand">
         <div class="brand-mark" aria-hidden="true">校</div>
         <div class="brand-copy">
           <strong>校园交易</strong>
-          <span>校园闲置，就在身边</span>
+          <span>同校面交 · 无服务费</span>
         </div>
       </header>
       <AuthCard />
-    </div>
+    </main>
   </div>
 </template>
 
@@ -19,41 +20,45 @@ import AuthCard from '@/components/AuthCard.vue'
 
 <style scoped>
 .auth-page {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   background: var(--bg);
-  padding: 32px;
+  padding: 34px;
+  overflow: hidden;
 }
 
 .container {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  max-width: 960px;
+  max-width: 880px;
 }
 
 .auth-brand {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   width: 100%;
-  margin: 0 0 14px;
-  padding: 0;
+  margin: 0 0 16px;
+  padding: 0 4px;
 }
 
 .brand-mark {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
   background: var(--primary);
-  border: 2px solid var(--edge);
-  border-radius: 11px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(184, 68, 97, 0.24);
   color: var(--on-primary);
-  font-size: 19px;
-  font-weight: 900;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .brand-copy {
@@ -64,31 +69,34 @@ import AuthCard from '@/components/AuthCard.vue'
 
 .brand-copy strong {
   color: var(--ink);
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: 0.02em;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .brand-copy span {
   color: var(--text-3);
   font-size: 12px;
+  font-weight: 500;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .auth-page {
-    padding: 22px 12px 32px;
+    padding: 24px 12px 34px;
     align-items: flex-start;
   }
-  .auth-brand { width: 100%; margin-bottom: 12px; }
+  .auth-brand { width: 100%; margin-bottom: 12px; padding: 0 8px; }
 }
 
 @media (max-width: 480px) {
   .auth-page {
-    padding: 18px 8px 24px;
+    padding: 18px 10px 26px;
   }
-  .auth-brand { padding: 0 8px; }
   .container {
     max-width: 100%;
   }
+  .auth-brand { padding: 0 6px; }
+  .brand-mark { width: 38px; height: 38px; font-size: 18px; }
 }
 </style>

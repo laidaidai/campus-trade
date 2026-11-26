@@ -1,5 +1,28 @@
 <template>
-  <div class="messages-container" :class="{ 'mobile': isMobile, 'chat-open': isMobile && currentConversation }">
+  <div
+    class="messages-container"
+    :class="{ 'mobile': isMobile, 'chat-open': isMobile && currentConversation, 'desktop-empty': !isMobile && conversations.length === 0 }"
+  >
+    <section v-if="!isMobile && conversations.length === 0" class="inbox-empty">
+      <header class="inbox-empty-head">
+        <h2>消息</h2>
+        <p>和同校同学的买卖对话，都会出现在这里。</p>
+      </header>
+      <div class="inbox-empty-body">
+        <div class="inbox-note">
+          <span class="inbox-tape" aria-hidden="true"></span>
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
+          <p class="inbox-empty-title">还没有消息</p>
+          <span class="empty-caption">找到心仪的商品后，点击“我想要”和卖家聊聊。</span>
+          <button type="button" class="btn btn-primary empty-action" @click="$router.push('/')">去逛逛</button>
+          <span class="inbox-stamp" aria-hidden="true">同校</span>
+        </div>
+      </div>
+    </section>
     <!-- 左侧会话列表 -->
     <div class="conversations-sidebar" :class="{ 'hidden': isMobile && currentConversation }">
       <div class="sidebar-header">
@@ -258,13 +281,10 @@ const selectedOrderDetail = ref(null);
 
 let typingTimeout = null;
 
-// 检测是否为移动端（包括iPad竖屏）
+// 检测是否为手机布局
 const checkMobile = () => {
-  const width = window.innerWidth;
-  const isPortrait = window.matchMedia('(orientation: portrait)').matches;
-  
-  // 768px以下，或者1024px以下且竖屏（iPad竖屏）
-  isMobile.value = width <= 768 || (width <= 1024 && isPortrait);
+  // 手机边界：小于 768px；平板保留双栏
+  isMobile.value = window.innerWidth < 768;
 };
 
 // 移动端返回到会话列表
@@ -996,8 +1016,9 @@ watch(currentConversation, () => {
 .messages-container {
   display: flex;
   gap: 18px;
-  height: 100vh;
-  max-width: 1360px;
+  height: calc(100vh - 76px - env(safe-area-inset-top, 0px));
+  height: calc(100dvh - 76px - env(safe-area-inset-top, 0px));
+  max-width: 1240px;
   margin: 0 auto;
   padding: 20px 24px;
   background: var(--bg);
@@ -1012,9 +1033,9 @@ watch(currentConversation, () => {
   flex-direction: column;
   overflow: hidden;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 20px;
-  box-shadow: 5px 6px 0 var(--shadow);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  box-shadow: 3px 4px 0 rgba(63, 61, 86, 0.05);
 }
 
 .sidebar-header {
@@ -1023,14 +1044,14 @@ watch(currentConversation, () => {
   justify-content: space-between;
   gap: 10px;
   padding: 18px 18px 14px;
-  border-bottom: 2px solid var(--line-2);
+  border-bottom: 1px solid var(--line);
 }
 
 .sidebar-header h2 {
   margin: 0;
   color: var(--ink);
   font-size: 22px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 
@@ -1064,8 +1085,8 @@ watch(currentConversation, () => {
   align-items: center;
   gap: 11px;
   padding: 10px;
-  border: 2px solid transparent;
-  border-radius: 14px;
+  border: 1px solid transparent;
+  border-radius: 18px;
   cursor: pointer;
   user-select: none;
   transition: background-color 0.26s var(--fish-ease),
@@ -1080,7 +1101,7 @@ watch(currentConversation, () => {
 .conversation-item.active {
   background: var(--cream-2);
   border-color: var(--edge);
-  box-shadow: 2px 3px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .conversation-item .avatar {
@@ -1089,7 +1110,7 @@ watch(currentConversation, () => {
   flex-shrink: 0;
   overflow: hidden;
   background: var(--cream-2);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
 }
 
@@ -1171,8 +1192,8 @@ watch(currentConversation, () => {
   height: 22px;
   flex-shrink: 0;
   object-fit: cover;
-  border: 1.5px solid var(--line-strong);
-  border-radius: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
 }
 
 .product-title {
@@ -1192,7 +1213,7 @@ watch(currentConversation, () => {
   display: grid;
   place-items: center;
   background: var(--card);
-  border: 1.5px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-3);
   cursor: pointer;
@@ -1240,9 +1261,9 @@ watch(currentConversation, () => {
   margin-bottom: 2px;
   color: var(--primary-2);
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 50%;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .empty-list-icon svg { width: 28px; height: 28px; }
@@ -1256,6 +1277,108 @@ watch(currentConversation, () => {
 
 .empty-action { margin-top: 4px; }
 
+/* 桌面空收件箱：单一空态，不与左侧重复 */
+.inbox-empty {
+  display: none;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  box-shadow: 4px 6px 0 rgba(63, 61, 86, 0.055);
+}
+
+.inbox-empty-head {
+  padding: 18px 22px 15px;
+  border-bottom: 1px solid var(--line);
+}
+
+.inbox-empty-head h2 {
+  margin: 0 0 3px;
+  color: var(--ink);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.inbox-empty-head p {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.inbox-empty-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+}
+
+/* 空白消息不是一整块空面板，而是一张钉在墙上的留言纸 */
+.inbox-note {
+  position: relative;
+  width: min(100%, 440px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 38px 30px 30px;
+  background: var(--cream-1);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  box-shadow: 4px 5px 0 rgba(63, 61, 86, 0.05);
+  text-align: center;
+  transform: rotate(-0.5deg);
+}
+
+.inbox-tape {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 78px;
+  height: 18px;
+  background: rgba(229, 189, 114, 0.32);
+  border-left: 1px solid rgba(229, 189, 114, 0.48);
+  border-right: 1px solid rgba(229, 189, 114, 0.48);
+  transform: translateX(-50%) rotate(1.4deg);
+}
+
+.inbox-stamp {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  padding: 2px 6px;
+  border: 1px solid rgba(184, 68, 97, 0.24);
+  border-radius: 2px;
+  color: rgba(184, 68, 97, 0.3);
+  font-family: var(--font-serif);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  transform: rotate(-7deg);
+}
+
+.inbox-empty-title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+@media (min-width: 768px) {
+  .messages-container.desktop-empty .conversations-sidebar,
+  .messages-container.desktop-empty .chat-area {
+    display: none;
+  }
+  .messages-container.desktop-empty .inbox-empty {
+    display: flex;
+  }
+}
+
 /* 右：聊天台 */
 .chat-area {
   flex: 1;
@@ -1264,9 +1387,10 @@ watch(currentConversation, () => {
   flex-direction: column;
   overflow: hidden;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 20px;
-  box-shadow: 5px 6px 0 var(--shadow);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  box-shadow: 3px 4px 0 rgba(63, 61, 86, 0.05);
+  box-shadow: var(--shadow-soft);
 }
 
 .empty-chat {
@@ -1282,20 +1406,22 @@ watch(currentConversation, () => {
 }
 
 .empty-icon {
-  width: 88px;
-  height: 88px;
+  width: 56px;
+  height: 56px;
   display: grid;
   place-items: center;
-  background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
-  color: var(--primary-2);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--primary);
+  transform: rotate(-3deg);
 }
 
 .empty-icon svg {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
+  stroke-width: 1.7;
 }
 
 .chat-header {
@@ -1304,7 +1430,7 @@ watch(currentConversation, () => {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 18px;
-  border-bottom: 2px solid var(--line-2);
+  border-bottom: 1px solid var(--line);
   background: var(--card);
 }
 
@@ -1321,7 +1447,7 @@ watch(currentConversation, () => {
   flex-shrink: 0;
   object-fit: cover;
   background: var(--cream-2);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
 }
 
@@ -1332,7 +1458,7 @@ watch(currentConversation, () => {
 .chat-header .info .name {
   color: var(--ink);
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 700;
   margin-bottom: 2px;
 }
 
@@ -1355,9 +1481,9 @@ watch(currentConversation, () => {
   min-height: 38px;
   padding: 7px 16px;
   background: var(--cream-1);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 2px 3px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--ink);
   font-size: 13px;
   font-weight: 800;
@@ -1380,7 +1506,7 @@ watch(currentConversation, () => {
   display: grid;
   place-items: center;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--ink);
   cursor: pointer;
@@ -1430,7 +1556,7 @@ watch(currentConversation, () => {
   flex-shrink: 0;
   overflow: hidden;
   background: var(--cream-2);
-  border: 1.5px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
 }
 
@@ -1455,7 +1581,7 @@ watch(currentConversation, () => {
 .message-bubble {
   padding: 10px 14px;
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 4px 16px 16px 16px;
   color: var(--ink);
   font-size: 15px;
@@ -1468,8 +1594,8 @@ watch(currentConversation, () => {
 .message-item.is-mine .message-bubble {
   background: var(--primary);
   border-color: var(--edge);
-  border-radius: 16px 4px 16px 16px;
-  box-shadow: 2px 3px 0 var(--shadow);
+  border-radius: 18px 4px 16px 16px;
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
 }
 
@@ -1501,7 +1627,7 @@ watch(currentConversation, () => {
   align-self: flex-start;
   padding: 6px 14px;
   background: var(--cream-2);
-  border: 1.5px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-3);
   font-size: 12px;
@@ -1513,7 +1639,7 @@ watch(currentConversation, () => {
   flex-direction: column;
   gap: 10px;
   padding: 12px 16px 14px;
-  border-top: 2px solid var(--line-2);
+  border-top: 1px solid var(--line);
   background: var(--card);
 }
 
@@ -1525,9 +1651,9 @@ watch(currentConversation, () => {
   min-height: 40px;
   padding: 8px 18px;
   background: var(--cream-1);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 2px 3px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--ink);
   font-size: 13px;
   font-weight: 800;
@@ -1556,8 +1682,8 @@ watch(currentConversation, () => {
   max-height: 132px;
   padding: 12px 14px;
   background: var(--card);
-  border: 2px solid var(--line-strong);
-  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
   color: var(--ink);
   font-size: 14px;
   line-height: 1.5;
@@ -1568,7 +1694,7 @@ watch(currentConversation, () => {
 .input-wrapper textarea:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .input-wrapper textarea::placeholder {
@@ -1580,9 +1706,9 @@ watch(currentConversation, () => {
   min-width: 88px;
   height: 48px;
   background: var(--primary);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 14px;
   font-weight: 800;
@@ -1592,12 +1718,12 @@ watch(currentConversation, () => {
 
 .btn-send:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn-send:active:not(:disabled) {
   transform: translateY(2px);
-  box-shadow: 1px 2px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn-send:disabled {
@@ -1607,26 +1733,26 @@ watch(currentConversation, () => {
 }
 
 /* 平板横屏：列表收窄 */
-@media (min-width: 769px) and (max-width: 1100px) {
+@media (min-width: 768px) and (max-width: 1100px) {
   .conversations-sidebar { width: 264px; }
   .messages-container { gap: 14px; padding: 16px; }
 }
 
-/* 手机 / iPad 竖屏：单栏切换 */
-@media (max-width: 1024px) and (orientation: portrait),
-       (max-width: 768px) {
+/* 手机：单栏切换；平板起保留会话列表 + 聊天双栏 */
+@media (max-width: 767px) {
   .messages-container.mobile {
     flex-direction: column;
     gap: 12px;
-    height: calc(100vh - 76px);
+    height: calc(100vh - 62px - env(safe-area-inset-top, 0px) - var(--mobile-nav-space));
+    height: calc(100dvh - 62px - env(safe-area-inset-top, 0px) - var(--mobile-nav-space));
     padding: 10px;
   }
 
   .conversations-sidebar {
     width: 100%;
     flex: 1;
-    border-radius: 18px;
-    box-shadow: 4px 5px 0 var(--shadow);
+    border-radius: 24px;
+    box-shadow: var(--shadow-soft);
   }
 
   .conversations-sidebar.hidden {
@@ -1635,8 +1761,8 @@ watch(currentConversation, () => {
 
   .chat-area {
     display: none;
-    border-radius: 18px;
-    box-shadow: 4px 5px 0 var(--shadow);
+    border-radius: 24px;
+    box-shadow: var(--shadow-soft);
   }
 
   .chat-area.show {
@@ -1664,6 +1790,9 @@ watch(currentConversation, () => {
   .input-wrapper textarea {
     min-height: 44px;
   }
+
+  .btn-link,
+  .create-order-btn { min-height: 44px; }
 
   .btn-send {
     min-width: 72px;

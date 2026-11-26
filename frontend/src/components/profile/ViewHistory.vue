@@ -184,7 +184,7 @@ onMounted(() => {
   justify-content: space-between;
   gap: 12px;
   padding-bottom: 12px;
-  border-bottom: 2px solid var(--line-2);
+  border-bottom: 1px solid var(--line);
 }
 
 .history-count {
@@ -198,7 +198,7 @@ onMounted(() => {
   min-height: 36px;
   padding: 7px 16px;
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-2);
   font-size: 12px;
@@ -243,8 +243,8 @@ onMounted(() => {
   gap: 14px;
   padding: 48px 20px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 24px;
 }
 
 .empty-icon {
@@ -252,9 +252,9 @@ onMounted(() => {
   width: 84px;
   height: 84px;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 /* CSS 眼睛 */
@@ -291,12 +291,12 @@ onMounted(() => {
   min-height: 42px;
   padding: 9px 24px;
   background: var(--primary);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -315,8 +315,8 @@ onMounted(() => {
   position: relative;
   overflow: hidden;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
   transition: transform 0.26s var(--fish-ease),
               box-shadow 0.26s var(--fish-ease),
               background-color 0.26s var(--fish-ease);
@@ -325,7 +325,7 @@ onMounted(() => {
 .history-item:hover {
   transform: translateY(-2px);
   background: var(--cream-1);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .item-image {
@@ -333,7 +333,7 @@ onMounted(() => {
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--cream-2);
-  border-bottom: 2px solid var(--edge);
+  border-bottom: 1px solid var(--line);
   cursor: pointer;
 }
 
@@ -349,11 +349,11 @@ onMounted(() => {
   left: 8px;
   padding: 2px 9px;
   background: var(--card);
-  border: 2px solid var(--danger);
-  border-radius: 8px;
+  border: 1px solid var(--danger);
+  border-radius: 12px;
   color: var(--danger);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   transform: rotate(-6deg);
 }
 
@@ -379,7 +379,7 @@ onMounted(() => {
   margin: 0 0 4px;
   color: var(--primary-2);
   font-size: 17px;
-  font-weight: 900;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
@@ -400,7 +400,7 @@ onMounted(() => {
   display: grid;
   place-items: center;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--text-2);
   font-size: 16px;
@@ -428,7 +428,7 @@ onMounted(() => {
   min-height: 42px;
   padding: 9px 28px;
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-2);
   font-size: 13px;
@@ -445,7 +445,7 @@ onMounted(() => {
   .history-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .history-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .item-title { font-size: 12px; }
   .item-price { font-size: 15px; }

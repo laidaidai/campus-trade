@@ -15,6 +15,7 @@
         <!-- 登录表单 -->
         <div class="form-panel login-panel">
           <h2>欢迎回来</h2>
+          <p class="form-subtitle">登录后，继续发现校园里的好物。</p>
           
           <!-- 错误提示 -->
           <div v-if="errorMessage && isLogin" class="message error-message">
@@ -30,6 +31,10 @@
               <input 
                 v-model="loginForm.loginId" 
                 type="text" 
+                autocomplete="username"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-label="邮箱或用户名"
                 placeholder="邮箱或用户名" 
                 :disabled="loading"
                 required 
@@ -39,6 +44,8 @@
               <input 
                 v-model="loginForm.password" 
                 type="password" 
+                autocomplete="current-password"
+                aria-label="密码"
                 placeholder="密码" 
                 :disabled="loading"
                 required 
@@ -61,6 +68,7 @@
         <!-- 注册表单 -->
         <div class="form-panel register-panel">
           <h2>创建账号</h2>
+          <p class="form-subtitle">一分钟加入，把闲置交给下一位同学。</p>
           
           <!-- 错误提示 -->
           <div v-if="errorMessage && !isLogin" class="message error-message">
@@ -76,6 +84,10 @@
               <input 
                 v-model="regForm.username" 
                 type="text" 
+                autocomplete="nickname"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-label="用户名"
                 placeholder="用户名" 
                 :disabled="loading"
                 required 
@@ -85,6 +97,10 @@
               <input 
                 v-model="regForm.email" 
                 type="email" 
+                autocomplete="email"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-label="邮箱"
                 placeholder="邮箱" 
                 :disabled="loading"
                 required 
@@ -94,6 +110,8 @@
               <input 
                 v-model="regForm.password" 
                 type="password" 
+                autocomplete="new-password"
+                aria-label="密码，至少六位"
                 placeholder="密码 (至少6位)" 
                 :disabled="loading"
                 required 
@@ -135,6 +153,10 @@
               <input 
                 v-model="resetForm.email" 
                 type="email" 
+                autocomplete="email"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-label="注册邮箱"
                 placeholder="请输入注册时的邮箱" 
                 :disabled="loading"
                 required 
@@ -154,6 +176,7 @@
               <input 
                 v-model="resetForm.newPassword" 
                 type="password" 
+                aria-label="新密码，至少六位"
                 placeholder="请输入新密码 (至少6位)" 
                 :disabled="loading"
                 required 
@@ -163,6 +186,7 @@
               <input 
                 v-model="resetForm.confirmPassword" 
                 type="password" 
+                aria-label="再次输入新密码"
                 placeholder="请再次输入新密码" 
                 :disabled="loading"
                 required 
@@ -184,14 +208,18 @@
           <div class="overlay-panel overlay-left">
             <div class="overlay-content">
               <h2>已有账号？</h2>
-              <button class="ghost-btn" @click="showLogin">登录</button>
+              <p>登录后继续收藏、聊天和发布闲置。</p>
+              <button class="ghost-btn" @click="showLogin">去登录</button>
             </div>
+            <span class="overlay-stamp">同校面交 · 当面验货</span>
           </div>
           <div class="overlay-panel overlay-right">
             <div class="overlay-content">
               <h2>第一次来？</h2>
-              <button class="ghost-btn" @click="showRegister">注册</button>
+              <p>注册后可以发布闲置、联系卖家。</p>
+              <button class="ghost-btn" @click="showRegister">创建账号</button>
             </div>
+            <span class="overlay-stamp">同校面交 · 当面验货</span>
           </div>
         </div>
       </div>
@@ -243,7 +271,7 @@ const overlayStyle = { '--auth-login-image': "url('/images/login.png')" }
 <style scoped>
 .auth-container {
   width: 100%;
-  max-width: 960px;
+  max-width: 880px;
   margin: 0 auto;
 }
 
@@ -251,13 +279,14 @@ const overlayStyle = { '--auth-login-image': "url('/images/login.png')" }
 .auth-container .auth-box {
   position: relative;
   width: 100%;
-  min-height: 560px;
+  min-height: 480px;
   overflow: hidden;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 24px;
-  box-shadow: 7px 8px 0 var(--shadow);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  box-shadow: 6px 7px 0 rgba(63, 61, 86, 0.055);
 }
+
 
 .forms-wrapper {
   position: absolute;
@@ -286,13 +315,21 @@ const overlayStyle = { '--auth-login-image': "url('/images/login.png')" }
 h2 {
   margin: 0 0 26px;
   color: var(--ink);
-  font-size: 30px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  font-family: var(--font-serif);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
 }
 
 .subtitle { display: none; }
+
+.form-subtitle {
+  margin: -14px 0 20px;
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.6;
+}
 
 form { width: 100%; }
 
@@ -303,8 +340,8 @@ input {
   min-height: 46px;
   padding: 11px 14px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
   color: var(--ink);
   font-size: 15px;
   font-family: inherit;
@@ -319,11 +356,11 @@ input:focus {
   outline: none;
   background: var(--card);
   border-color: var(--primary);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: 0 0 0 4px rgba(184, 68, 97, 0.12);
 }
 
 input:disabled {
-  background: var(--cream-2);
+  background: rgba(244, 251, 248, 0.7);
   color: var(--text-3);
   cursor: not-allowed;
 }
@@ -334,25 +371,26 @@ input:disabled {
   margin-top: 8px;
   padding: 12px;
   background: var(--primary);
-  border: 2px solid var(--edge);
-  border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  border: 1px solid var(--primary-2);
+  border-radius: 6px;
+  box-shadow: 3px 3px 0 rgba(168, 58, 87, 0.18);
+  box-shadow: none;
   color: var(--on-primary);
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.02em;
   cursor: pointer;
   transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .submit-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 rgba(168, 58, 87, 0.22);
 }
 
 .submit-btn:active:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow: 1px 2px 0 var(--shadow);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgba(168, 58, 87, 0.18);
 }
 
 .submit-btn:disabled {
@@ -365,8 +403,8 @@ input:disabled {
 .message {
   margin-bottom: 16px;
   padding: 10px 14px;
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
   font-size: 13px;
   font-weight: 700;
   animation: messageIn 0.26s var(--fish-ease) both;
@@ -437,11 +475,11 @@ input:disabled {
   height: 100%;
   overflow: hidden;
   z-index: 100;
-  border-left: 2px solid var(--edge);
+  border-left: 1px solid var(--line);
   transition: left 0.5s var(--fish-ease);
 }
 
-.auth-box.register-mode .overlay-container { left: 0; border-left: none; border-right: 2px solid var(--edge); }
+.auth-box.register-mode .overlay-container { left: 0; border-left: none; border-right: 1px solid var(--line); }
 
 .overlay {
   position: relative;
@@ -450,21 +488,8 @@ input:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--panel);
+  background: var(--cream-1);
   overflow: hidden;
-}
-
-.overlay::before {
-  content: '校';
-  position: absolute;
-  right: -26px;
-  bottom: -64px;
-  color: var(--primary);
-  font-size: 230px;
-  font-weight: 900;
-  line-height: 1;
-  opacity: 0.18;
-  pointer-events: none;
 }
 
 .overlay-panel {
@@ -498,18 +523,40 @@ input:disabled {
   margin: 0;
   color: var(--on-panel);
   font-size: 30px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
-.overlay-content p { display: none; }
+.overlay-content p {
+  max-width: 30ch;
+  margin-top: -8px;
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.overlay-stamp {
+  position: absolute;
+  right: 28px;
+  bottom: 24px;
+  padding: 7px 11px;
+  border: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
+  border-radius: 2px;
+  color: color-mix(in srgb, var(--primary) 72%, transparent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  transform: rotate(-5deg);
+  pointer-events: none;
+}
 
 .ghost-btn {
   min-height: 46px;
   padding: 10px 34px;
-  background: transparent;
-  border: 2px solid var(--on-panel);
-  border-radius: 999px;
-  color: var(--on-panel);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(63, 61, 86, 0.16);
+  border-radius: 14px;
+  color: var(--ink);
   font-size: 14px;
   font-weight: 800;
   cursor: pointer;
@@ -520,9 +567,9 @@ input:disabled {
 
 .ghost-btn:hover {
   background: var(--primary);
-  border-color: var(--edge);
+  border-color: var(--primary);
   color: var(--on-primary);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: 0 8px 20px rgba(184, 68, 97, 0.24);
 }
 
 .ghost-btn:active { transform: translateY(2px); }
@@ -548,19 +595,19 @@ input:disabled {
 }
 
 /* 手机：单栏，覆盖面板隐藏 */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .auth-container { max-width: 100%; }
 
-  .auth-box {
-    min-height: 620px;
-    border-radius: 20px;
+  .auth-container .auth-box {
+    min-height: 470px;
+    border-radius: 28px;
   }
 
   .overlay-container { display: none; }
 
   .form-panel {
     width: 100%;
-    padding: 0 28px;
+    padding: 26px 28px;
   }
 
   .login-panel { left: 0; opacity: 1; }
@@ -576,12 +623,12 @@ input:disabled {
 }
 
 @media (max-width: 480px) {
-  .auth-box {
-    min-height: 560px;
-    border-radius: 16px;
-    box-shadow: 5px 6px 0 var(--shadow);
+  .auth-container .auth-box {
+    min-height: 430px;
+    border-radius: 24px;
+    box-shadow: var(--shadow-soft);
   }
-  .form-panel { padding: 0 20px; }
+  .form-panel { padding: 22px 20px; }
   h2 { font-size: 22px; }
   input { min-height: 44px; padding: 10px 12px; font-size: 14px; }
   .input-group { margin-bottom: 12px; }

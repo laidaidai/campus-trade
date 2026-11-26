@@ -25,6 +25,7 @@
             </svg>
           </div>
           <h3 class="modal-title">{{ title }}</h3>
+          <button type="button" class="modal-close" @click="handleCancel" aria-label="关闭">×</button>
         </div>
         
         <div class="modal-body">
@@ -148,9 +149,9 @@ defineExpose({
   max-width: 440px;
   padding: 24px;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 22px;
-  box-shadow: 7px 8px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   animation: modalIn 0.26s var(--fish-ease) both;
 }
 
@@ -172,7 +173,7 @@ defineExpose({
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   background: var(--cream-1);
 }
@@ -206,11 +207,35 @@ defineExpose({
   color: var(--success);
 }
 
+.modal-close {
+  margin-left: auto;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--text-3);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  background: var(--cream-1);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.modal-close:active { background: var(--cream-2); }
+
 .modal-title {
   margin: 0;
   color: var(--ink);
   font-size: 21px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.25;
 }
 
@@ -246,7 +271,7 @@ defineExpose({
 
 .btn-cancel {
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   color: var(--text-2);
 }
 
@@ -260,20 +285,20 @@ defineExpose({
 }
 
 .btn-confirm {
-  border: 2px solid var(--edge);
-  box-shadow: 3px 4px 0 var(--shadow);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
   background: var(--primary);
   color: var(--on-primary);
 }
 
 .btn-confirm:hover {
   transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn-confirm:active {
   transform: translateY(2px);
-  box-shadow: 1px 2px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn-confirm.btn-danger {
@@ -303,16 +328,33 @@ defineExpose({
   opacity: 0;
 }
 
-@media (max-width: 768px) {
-  .modal-container {
-    max-width: 100%;
-    padding: 20px;
-    border-radius: 18px;
+@media (max-width: 767px) {
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
   }
+  .modal-container {
+    width: 100%;
+    max-width: 100%;
+    max-height: 85vh;
+    max-height: 85dvh;
+    overflow-y: auto;
+    padding: 22px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+    border-radius: 24px 24px 0 0;
+    animation-name: sheetIn;
+  }
+  @keyframes sheetIn {
+    from { opacity: 0; transform: translateY(100%); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .modal-close { width: 44px; height: 44px; font-size: 24px; }
   .modal-icon { width: 48px; height: 48px; }
   .modal-icon svg { width: 22px; height: 22px; }
   .modal-title { font-size: 19px; }
-  .modal-footer { flex-direction: column-reverse; }
+  .modal-footer { flex-direction: column; gap: 9px; }
   .btn { width: 100%; }
 }
 </style>

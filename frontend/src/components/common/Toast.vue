@@ -94,10 +94,10 @@ defineExpose({ show, close })
   max-width: min(520px, calc(100vw - 32px));
   padding: 12px 16px;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-left-width: 6px;
-  border-radius: 14px;
-  box-shadow: 4px 5px 0 var(--shadow);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
 }
 
 .toast-content {
@@ -150,7 +150,7 @@ defineExpose({ show, close })
   transform: translateX(-50%) translateY(-14px) scale(0.97);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .toast-container {
     top: 16px;
     left: 12px;

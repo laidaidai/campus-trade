@@ -6,7 +6,8 @@ export function formatPrice(value) {
   const number = Number(value)
   if (!Number.isFinite(number)) return String(value)
 
-  return Number.isInteger(number)
-    ? String(number)
-    : number.toFixed(2).replace(/0+$/, '').replace(/\.$/, '')
+  return new Intl.NumberFormat('zh-CN', {
+    maximumFractionDigits: 2,
+    useGrouping: true
+  }).format(number)
 }

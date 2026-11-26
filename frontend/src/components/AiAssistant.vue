@@ -1,40 +1,32 @@
 <template>
-  <!-- 悬浮球 -->
-  <div class="ai-fab" @click.stop="toggleOpen" :class="{ active: isOpen }" title="AI 助手" aria-label="AI 助手">
-    <svg v-if="!isOpen" class="fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 1.64 1.64 0 0 1-1.5-1v-1.84c0-.89-.62-1.63-1.5-1.76a1.75 1.75 0 0 0-1.9 1.75v1a9 9 0 0 1-9-9Z" transform="translate(0 1)"/>
-      <path d="M9 11.5v.01M12 9.5v.01M15 11.5v.01M12 16.5v.01"/>
-    </svg>
-    <svg v-else class="fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-      <path d="M18 6 6 18M6 6l12 12"/>
-    </svg>
-  </div>
-
   <!-- 聊天面板 -->
   <div v-if="isOpen" class="ai-panel" @click.stop>
     <!-- 头部 -->
     <div class="ai-panel-header">
       <div class="header-left">
-        <div class="avatar-sm">AI</div>
+        <div class="avatar-sm">易</div>
         <div>
           <div class="header-title">小易</div>
           <div class="header-sub" :class="{ online: aiEnabled }">
-            {{ aiEnabled ? '校园 AI 助手' : '未启用' }}
+            {{ aiEnabled ? '帮你找闲置、查订单' : '暂未启用' }}
           </div>
         </div>
       </div>
-      <button class="clear-btn" title="清空对话" @click="clearHistory" :disabled="messages.length === 0">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
-        </svg>
-      </button>
+      <div class="panel-actions">
+        <button class="clear-btn" title="清空对话" aria-label="清空对话" @click="clearHistory" :disabled="messages.length === 0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+          </svg>
+        </button>
+        <button class="panel-close" title="关闭助手" aria-label="关闭助手" @click="isOpen = false">×</button>
+      </div>
     </div>
 
     <!-- 消息区 -->
     <div ref="scrollRef" class="ai-panel-body">
       <!-- 未启用 -->
       <div v-if="!aiEnabled" class="empty-state">
-        <p class="empty-title">AI 助手未启用</p>
+        <p class="empty-title">助手暂未启用</p>
       </div>
 
       <!-- 未登录 -->
@@ -117,15 +109,17 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { getAiStatus, chatStream } from '@/api/ai'
 import { getImageUrl } from '@/config'
 import { useUserStore } from '@/stores/user'
 import { formatPrice } from '@/utils/price'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
+watch(() => route.path, () => { isOpen.value = false })
 
 const isOpen = ref(false)
 const aiEnabled = ref(false)
@@ -159,7 +153,13 @@ const toolStatusText = {
   get_categories: '正在加载分类…',
 }
 
+const openAssistant = () => {
+  isOpen.value = true
+  nextTick(autoResize)
+}
+
 onMounted(async () => {
+  window.addEventListener('open-ai-assistant', openAssistant)
   try {
     const res = await getAiStatus()
     aiEnabled.value = res.data?.enabled ?? false
@@ -168,10 +168,9 @@ onMounted(async () => {
   }
 })
 
-const toggleOpen = () => {
-  isOpen.value = !isOpen.value
-  if (isOpen.value) nextTick(autoResize)
-}
+onBeforeUnmount(() => {
+  window.removeEventListener('open-ai-assistant', openAssistant)
+})
 
 const autoResize = () => {
   const el = document.querySelector('.ai-input')
@@ -289,54 +288,21 @@ const clearHistory = () => {
 
 <style scoped>
 /* 悬浮球：主色圆 + 墨线硬影 */
-.ai-fab {
-  position: fixed;
-  right: 28px;
-  bottom: 28px;
-  z-index: 9998;
-  width: 56px;
-  height: 56px;
-  display: grid;
-  place-items: center;
-  background: var(--primary);
-  border: 2px solid var(--edge);
-  border-radius: 999px;
-  box-shadow: 4px 5px 0 var(--shadow);
-  color: var(--on-primary);
-  cursor: pointer;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
-}
-
-.ai-fab:hover {
-  transform: translateY(-2px);
-  box-shadow: 5px 6px 0 var(--shadow);
-}
-
-.ai-fab.active {
-  background: var(--panel);
-  color: var(--on-panel);
-}
-
-.fab-icon {
-  width: 26px;
-  height: 26px;
-}
-
 /* 面板：纸卡 */
 .ai-panel {
   position: fixed;
+  top: calc(76px + env(safe-area-inset-top, 0px) + 16px);
   right: 28px;
-  bottom: 96px;
   z-index: 9998;
   display: flex;
   flex-direction: column;
   width: 380px;
-  height: min(560px, calc(100vh - 140px));
+  height: min(560px, calc(100vh - 124px - env(safe-area-inset-top, 0px)));
   overflow: hidden;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 20px;
-  box-shadow: 7px 8px 0 var(--shadow);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 16px 40px rgba(63, 61, 86, 0.13);
   animation: panelIn 0.26s var(--fish-ease) both;
 }
 
@@ -351,7 +317,7 @@ const clearHistory = () => {
   justify-content: space-between;
   gap: 10px;
   padding: 14px 16px;
-  border-bottom: 2px solid var(--line-2);
+  border-bottom: 1px solid var(--line);
 }
 
 .header-left {
@@ -368,18 +334,18 @@ const clearHistory = () => {
   display: grid;
   place-items: center;
   background: var(--panel);
-  border: 2px solid var(--edge);
-  border-radius: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
   color: var(--on-panel);
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.04em;
 }
 
 .header-title {
   color: var(--ink);
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.2;
 }
 
@@ -405,6 +371,28 @@ const clearHistory = () => {
   border-radius: 999px;
 }
 
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.panel-close {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text-3);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.panel-close:hover { background: var(--cream-1); color: var(--ink); }
+
 .clear-btn {
   width: 34px;
   height: 34px;
@@ -412,7 +400,7 @@ const clearHistory = () => {
   display: grid;
   place-items: center;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-3);
   cursor: pointer;
@@ -465,12 +453,12 @@ const clearHistory = () => {
   min-height: 38px;
   padding: 8px 22px;
   background: var(--primary);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 2px 3px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -496,7 +484,7 @@ const clearHistory = () => {
   min-height: 34px;
   padding: 6px 12px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-2);
   font-size: 12px;
@@ -529,11 +517,11 @@ const clearHistory = () => {
   display: grid;
   place-items: center;
   background: var(--panel);
-  border: 2px solid var(--edge);
-  border-radius: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
   color: var(--on-panel);
   font-size: 10px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .msg-bubble-wrap {
@@ -551,8 +539,8 @@ const clearHistory = () => {
 .msg-bubble {
   padding: 9px 13px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
   color: var(--text-2);
   font-size: 13px;
   line-height: 1.65;
@@ -584,22 +572,22 @@ const clearHistory = () => {
 .product-card {
   overflow: hidden;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
   cursor: pointer;
   transition: transform 0.2s var(--fish-ease), box-shadow 0.2s var(--fish-ease);
 }
 
 .product-card:hover {
   transform: translateY(-2px);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .card-img-wrap {
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--cream-2);
-  border-bottom: 2px solid var(--edge);
+  border-bottom: 1px solid var(--line);
 }
 
 .card-img-wrap img {
@@ -641,7 +629,7 @@ const clearHistory = () => {
 .card-price {
   color: var(--primary-2);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -663,7 +651,7 @@ const clearHistory = () => {
 .spinner {
   width: 14px;
   height: 14px;
-  border: 2px solid var(--line-2);
+  border: 1px solid var(--line);
   border-top-color: var(--primary);
   border-radius: 999px;
   animation: spin 0.8s linear infinite;
@@ -678,7 +666,7 @@ const clearHistory = () => {
   align-items: flex-end;
   gap: 8px;
   padding: 12px 14px 8px;
-  border-top: 2px solid var(--line-2);
+  border-top: 1px solid var(--line);
 }
 
 .ai-input {
@@ -687,8 +675,8 @@ const clearHistory = () => {
   max-height: 110px;
   padding: 10px 12px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
   color: var(--ink);
   font-size: 13px;
   font-family: inherit;
@@ -701,7 +689,7 @@ const clearHistory = () => {
   outline: none;
   background: var(--card);
   border-color: var(--primary);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .ai-input:disabled {
@@ -716,9 +704,9 @@ const clearHistory = () => {
   display: grid;
   place-items: center;
   background: var(--primary);
-  border: 2px solid var(--edge);
-  border-radius: 12px;
-  box-shadow: 2px 3px 0 var(--shadow);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   cursor: pointer;
 }
@@ -747,19 +735,18 @@ const clearHistory = () => {
   line-height: 1.4;
 }
 
-@media (max-width: 768px) {
-  .ai-fab {
-    right: 14px;
-    bottom: calc(var(--mobile-nav-space) + 80px);
-    width: 52px;
-    height: 52px;
-  }
+@media (max-height: 520px) and (orientation: landscape) {
+  .ai-panel { display: none; }
+}
+
+@media (max-width: 767px) {
   .ai-panel {
+    top: calc(62px + env(safe-area-inset-top, 0px) + 8px);
     right: 12px;
     left: 12px;
-    bottom: calc(var(--mobile-nav-space) + 80px);
     width: auto;
-    height: min(70vh, 560px);
+    height: calc(100dvh - 62px - env(safe-area-inset-top, 0px) - var(--mobile-nav-space) - 16px);
   }
+  .panel-close { width: 44px; height: 44px; }
 }
 </style>

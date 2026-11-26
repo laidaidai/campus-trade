@@ -163,8 +163,8 @@ const viewOrderDetail = () => {
   max-width: 340px;
   padding: 12px;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
   box-shadow: 3px 4px 0 var(--shadow-soft);
 }
 
@@ -179,23 +179,23 @@ const viewOrderDetail = () => {
   gap: 8px;
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 2px solid var(--line-2);
+  border-bottom: 1px solid var(--line);
 }
 
 .order-title {
   color: var(--ink);
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.06em;
 }
 
 .order-status-badge {
   flex-shrink: 0;
   padding: 3px 10px;
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -234,8 +234,8 @@ const viewOrderDetail = () => {
   height: 56px;
   flex-shrink: 0;
   object-fit: cover;
-  border: 2px solid var(--edge);
-  border-radius: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
   background: var(--cream-2);
 }
 
@@ -277,7 +277,7 @@ const viewOrderDetail = () => {
 .final-price {
   color: var(--primary-2);
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
@@ -286,15 +286,15 @@ const viewOrderDetail = () => {
 .remark-info {
   padding: 9px 10px;
   background: var(--cream-2);
-  border: 2px solid var(--line);
-  border-radius: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
 }
 
 .info-label {
   margin-bottom: 3px;
   color: var(--text-3);
   font-size: 10px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.06em;
 }
 
@@ -311,7 +311,7 @@ const viewOrderDetail = () => {
   gap: 8px;
   margin-top: 12px;
   padding-top: 10px;
-  border-top: 2px solid var(--line-2);
+  border-top: 1px solid var(--line);
 }
 
 .btn {
@@ -321,14 +321,14 @@ const viewOrderDetail = () => {
   padding: 7px 14px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
   transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-secondary {
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   color: var(--text-2);
 }
 
@@ -339,14 +339,14 @@ const viewOrderDetail = () => {
 
 .btn-primary {
   background: var(--primary);
-  border: 2px solid var(--edge);
-  box-shadow: 2px 3px 0 var(--shadow);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn-outline {
@@ -368,7 +368,7 @@ const viewOrderDetail = () => {
   font-weight: 700;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .order-message {
     max-width: 100%;
     padding: 10px;

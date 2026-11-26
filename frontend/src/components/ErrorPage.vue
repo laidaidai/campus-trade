@@ -126,9 +126,9 @@ const handleGoHome = () => {
   display: grid;
   place-items: center;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 5px 6px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--text-2);
 }
 
@@ -141,7 +141,7 @@ const handleGoHome = () => {
   margin: 6px 0 0;
   color: var(--ink);
   font-size: 30px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
@@ -166,14 +166,14 @@ const handleGoHome = () => {
   padding: 10px 28px;
   border-radius: 999px;
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
   transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-retry {
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   color: var(--text-2);
 }
 
@@ -184,19 +184,19 @@ const handleGoHome = () => {
 
 .btn-home {
   background: var(--primary);
-  border: 2px solid var(--edge);
-  box-shadow: 3px 4px 0 var(--shadow);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
 }
 
 .btn-home:hover {
   transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn-home:active {
   transform: translateY(2px);
-  box-shadow: 1px 2px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 @media (max-width: 767px) {

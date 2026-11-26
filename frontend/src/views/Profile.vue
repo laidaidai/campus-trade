@@ -1,35 +1,42 @@
 <template>
   <div class="page">
     <div class="profile-shell">
-      <!-- 身份头部：完整宽度，不再占用内容列 -->
-      <header class="profile-hero">
-        <div class="identity">
-          <img :src="userAvatar" :alt="userStore.userInfo?.username" class="user-avatar" />
-          <div class="identity-copy">
-            <h1 class="username">{{ userStore.userInfo?.username || '用户' }}</h1>
-            <p class="user-email">{{ userStore.userInfo?.email }}</p>
+      <aside class="profile-sidebar">
+        <!-- 身份卡 -->
+        <header class="profile-hero">
+          <div class="identity">
+            <img :src="userAvatar" :alt="userStore.userInfo?.username" class="user-avatar" />
+            <div class="identity-copy">
+              <h1 class="username">{{ userStore.userInfo?.username || '用户' }}</h1>
+              <p class="user-email">{{ userStore.userInfo?.email }}</p>
+            </div>
           </div>
-        </div>
-        <button type="button" class="logout-btn" @click="handleLogout">
-          <span class="menu-icon icon-logout"></span>
-          <span class="logout-label">退出登录</span>
-        </button>
-      </header>
+          <button type="button" class="logout-btn" @click="handleLogout">
+            <span class="menu-icon icon-logout"></span>
+            <span class="logout-label">退出登录</span>
+          </button>
+        </header>
 
-      <!-- 功能用横向标签，移动端不再被多行菜单占满首屏 -->
-      <nav class="profile-tabs" aria-label="个人中心功能">
-        <button
-          v-for="item in navItems"
-          :key="item.key"
-          type="button"
-          :class="['profile-tab', { active: activeMenu === item.key }]"
-          @click="selectMenu(item.key)"
-        >
-          <span :class="['menu-icon', `icon-${item.icon}`]"></span>
-          <span class="tab-label">{{ item.label }}</span>
-          <span v-if="item.count !== undefined" class="tab-count">{{ item.count }}</span>
-        </button>
-      </nav>
+        <!-- 个人中心导航 -->
+        <nav class="profile-tabs" aria-label="个人中心功能">
+          <button
+            v-for="item in navItems"
+            :key="item.key"
+            type="button"
+            :class="['profile-tab', { active: activeMenu === item.key }]"
+            @click="selectMenu(item.key)"
+          >
+            <span :class="['menu-icon', `icon-${item.icon}`]"></span>
+            <span class="tab-label">{{ item.label }}</span>
+            <span v-if="item.count !== undefined" class="tab-count">{{ item.count }}</span>
+          </button>
+        </nav>
+
+        <div class="profile-tip">
+          <span class="tip-heart">♡</span>
+          <p>同校面交，先验货再确认，交易更安心。</p>
+        </div>
+      </aside>
 
       <main class="profile-content">
         <div class="section-head">
@@ -151,7 +158,7 @@ const userAvatar = computed(() => {
 </script>
 
 <style scoped>
-/* 个人中心：一个完整宽度的身份头部 + 横向功能标签 + 内容台 */
+/* Friendly 个人空间：左侧身份与导航，右侧内容工作台 */
 .page {
   min-height: 100vh;
   background: var(--bg);
@@ -159,41 +166,66 @@ const userAvatar = computed(() => {
 
 .profile-shell {
   width: 100%;
-  max-width: 1120px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 24px 32px 64px;
-  box-sizing: border-box;
+  padding: 32px 36px 80px;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 26px;
+  align-items: start;
+}
+
+.profile-sidebar {
+  position: sticky;
+  top: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
 }
 
 .profile-hero {
   position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 28px 30px;
-  background: var(--panel);
-  border: 2px solid var(--edge);
-  border-radius: 22px;
-  box-shadow: 5px 6px 0 var(--shadow);
-  overflow: hidden;
+  flex-direction: column;
+  gap: 14px;
+  padding: 30px 20px 18px;
+  background: var(--cream-1);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  box-shadow: 3px 4px 0 rgba(63, 61, 86, 0.055);
+}
+
+.profile-hero::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 74px;
+  height: 18px;
+  background: rgba(229, 189, 114, 0.31);
+  border-left: 1px solid rgba(229, 189, 114, 0.47);
+  border-right: 1px solid rgba(229, 189, 114, 0.47);
+  transform: translateX(-50%) rotate(-1.4deg);
 }
 
 .identity {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 13px;
   min-width: 0;
+  padding-right: 0;
 }
 
 .user-avatar {
-  width: 84px;
-  height: 84px;
+  width: 68px;
+  height: 68px;
   flex-shrink: 0;
   object-fit: cover;
-  background: var(--panel-deep);
-  border: 3px solid var(--primary);
+  background: var(--card);
+  border: 2px solid var(--card);
   border-radius: 999px;
+  box-shadow: 0 0 0 4px rgba(184, 68, 97, 0.14);
 }
 
 .identity-copy {
@@ -201,81 +233,90 @@ const userAvatar = computed(() => {
 }
 
 .username {
-  margin: 0 0 5px;
-  color: var(--on-panel);
-  font-size: 30px;
-  font-weight: 900;
-  line-height: 1.12;
-  letter-spacing: -0.02em;
+  margin: 0 0 3px;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
   word-break: break-word;
 }
 
 .user-email {
   margin: 0;
-  color: var(--on-panel-warm);
-  font-size: 13px;
-  word-break: break-all;
+  color: var(--text-3);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .logout-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  flex-shrink: 0;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
   min-height: 44px;
-  padding: 8px 15px;
-  background: transparent;
-  border: 1.5px solid var(--on-panel-warm);
-  border-radius: 999px;
-  color: var(--on-panel);
-  font-size: 13px;
-  font-weight: 700;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--text-3);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.26s var(--fish-ease), border-color 0.26s var(--fish-ease);
+  transition: background-color 0.24s var(--fish-ease), color 0.24s var(--fish-ease);
 }
 
 .logout-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--on-panel);
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 
-/* 横向标签：固定高度，内容不再被菜单推走 */
+.logout-label {
+  display: inline;
+}
+
+/* 导航：左侧整列，标签不再横向挤压 */
+/* 导航像一叠索引卡：每条一行，虚线分隔 */
 .profile-tabs {
   display: flex;
-  gap: 4px;
-  margin-top: 16px;
-  padding: 8px;
+  flex-direction: column;
+  gap: 0;
+  padding: 4px 0;
   background: var(--card);
-  border: 2px solid var(--line-strong);
-  border-radius: 16px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.profile-tabs::-webkit-scrollbar {
-  display: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  box-shadow: 3px 4px 0 rgba(63, 61, 86, 0.05);
+  overflow: hidden;
 }
 
 .profile-tab {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex: 0 0 auto;
-  min-height: 46px;
-  padding: 9px 18px;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 9px 15px;
   background: transparent;
-  border: 2px solid transparent;
-  border-radius: 11px;
+  border: 0;
+  border-bottom: 1px dashed var(--line);
+  border-left: 3px solid transparent;
+  border-radius: 0;
   color: var(--text-2);
-  font-size: 14px;
-  font-weight: 800;
-  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
   cursor: pointer;
-  transition: background-color 0.26s var(--fish-ease),
-              border-color 0.26s var(--fish-ease),
-              color 0.26s var(--fish-ease);
+  transition: background-color 0.2s var(--fish-ease), color 0.2s var(--fish-ease);
 }
+
+.profile-tabs .profile-tab:last-child { border-bottom: 0; }
 
 .profile-tab:hover {
   background: var(--cream-1);
@@ -283,14 +324,20 @@ const userAvatar = computed(() => {
 }
 
 .profile-tab.active {
-  background: var(--primary);
-  border-color: var(--edge);
-  color: var(--on-primary);
-  box-shadow: 2px 3px 0 var(--shadow);
+  background: var(--butter-soft);
+  border-left-color: var(--primary);
+  color: var(--primary-2);
+  box-shadow: none;
+}
+
+.profile-tab.active .tab-count {
+  background: rgba(255, 253, 249, 0.8);
+  border-color: rgba(184, 68, 97, 0.2);
 }
 
 .tab-label {
-  line-height: 1;
+  flex: 1;
+  line-height: 1.2;
 }
 
 .tab-count {
@@ -299,19 +346,64 @@ const userAvatar = computed(() => {
   padding: 0 6px;
   display: grid;
   place-items: center;
-  background: var(--cream-2);
-  border: 1.5px solid var(--line-strong);
+  background: var(--cream-1);
+  border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--text-2);
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
-/* 内容标题：让功能与说明成组，不与导航混在一起 */
+/* 一条贴在手边的薄荷便签 */
+.profile-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 13px 15px;
+  background: var(--secondary-3);
+  border: 1px solid rgba(108, 197, 160, 0.32);
+  border-radius: 3px;
+  box-shadow: 2px 3px 0 rgba(44, 115, 87, 0.06);
+  color: var(--secondary-2);
+  transform: rotate(-0.8deg);
+}
+
+.tip-heart {
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.profile-tip p {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.65;
+}
+
+/* 右侧内容：一块安静的工作台 */
 .profile-content {
-  margin-top: 20px;
+  position: relative;
   min-width: 0;
+  min-height: 620px;
+  padding: 32px 30px 30px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  box-shadow: 4px 6px 0 rgba(63, 61, 86, 0.055);
+}
+
+.profile-content::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 46px;
+  width: 78px;
+  height: 18px;
+  background: rgba(229, 189, 114, 0.28);
+  border-left: 1px solid rgba(229, 189, 114, 0.44);
+  border-right: 1px solid rgba(229, 189, 114, 0.44);
+  transform: rotate(-2deg);
 }
 
 .section-head {
@@ -319,29 +411,37 @@ const userAvatar = computed(() => {
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  padding: 0 2px 14px;
+  padding: 0 2px 22px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+
+.section-eyebrow {
+  margin: 0 0 5px;
+  color: var(--primary-2);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
 }
 
 .section-title {
-  margin: 0 0 3px;
+  margin: 0 0 4px;
   color: var(--ink);
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: -0.01em;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .section-desc {
   margin: 0;
   color: var(--text-3);
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .content-section {
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 0;
   min-height: 0;
 }
 
@@ -387,7 +487,7 @@ const userAvatar = computed(() => {
   height: 6px;
   border: 2px solid currentColor;
   border-bottom: none;
-  border-radius: 6px 6px 0 0;
+  border-radius: 10px 6px 0 0;
   top: 4px;
   left: 50%;
   transform: translateX(-50%);
@@ -490,90 +590,86 @@ const userAvatar = computed(() => {
   transform: translateY(-50%);
 }
 
-/* 平板 */
-@media (max-width: 1023px) {
-  .profile-shell { padding: 18px 24px 48px; }
-  .profile-hero { padding: 24px; }
-  .user-avatar { width: 72px; height: 72px; }
-  .username { font-size: 26px; }
+
+/* 1024 以下：侧栏收窄 */
+@media (max-width: 1024px) {
+  .profile-shell {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 20px;
+    padding: 24px 24px 64px;
+  }
+  .profile-content {
+    padding: 24px 22px 26px;
+    border-radius: 28px;
+  }
+  .section-title { font-size: 23px; }
 }
 
-/* 手机：身份块不再和退出按钮抢宽度；标签改成两行网格 */
+/* 900 以下：恢复单列，导航横滑 */
 @media (max-width: 767px) {
-  .profile-shell { padding: 12px 12px calc(88px + env(safe-area-inset-bottom, 0px)); }
-  .profile-hero { padding: 20px; border-radius: 18px; }
-  .identity { gap: 14px; }
-  .user-avatar { width: 68px; height: 68px; border-width: 2px; }
-  .username { font-size: 24px; }
-  .user-email { font-size: 12px; }
-  .logout-btn { min-height: 40px; padding: 7px 12px; font-size: 12px; }
-  .profile-tabs { margin-top: 12px; padding: 6px; border-radius: 14px; }
-  .profile-tab { min-height: 44px; padding: 8px 12px; font-size: 13px; gap: 6px; }
-}
+  .profile-content::before {
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+  }
 
-@media (max-width: 430px) {
-  .profile-hero { padding: 16px; gap: 10px; }
-  .identity { width: 100%; padding-right: 44px; gap: 12px; }
-  .user-avatar { width: 60px; height: 60px; }
-  .identity-copy { min-width: 0; }
-  .username { font-size: 22px; margin-bottom: 4px; }
-  .user-email { font-size: 12px; line-height: 1.45; }
-  .logout-btn { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; min-height: 40px; padding: 0; justify-content: center; border-radius: 12px; }
-  .logout-label { display: none; }
-  .profile-tabs { flex-wrap: wrap; overflow: visible; }
-  .profile-tab { flex: 1 1 calc(33.333% - 4px); padding: 8px 4px; }
-  .profile-tab:nth-child(4),
-  .profile-tab:nth-child(5) { flex-basis: calc(50% - 2px); }
-  .section-head { padding-bottom: 10px; }
-  .section-title { font-size: 20px; }
-}
-
-/* 手机：头部两行、标签横向滚动，内容紧跟 */
-@media (max-width: 767px) {
-  .profile-shell { padding: 12px 12px 96px; }
-  .profile-hero {
-    padding: 18px 16px;
-    border-radius: 18px;
-    align-items: flex-start;
+  .profile-shell {
+    display: block;
+    padding: 16px 14px 108px;
+  }
+  .profile-sidebar {
+    position: static;
     gap: 12px;
   }
-  .identity { gap: 13px; }
+  .profile-hero {
+    padding: 18px;
+    border-radius: 24px;
+  }
+  .identity { padding-right: 34px; }
   .user-avatar { width: 60px; height: 60px; }
-  .username { font-size: 21px; }
-  .user-email { font-size: 12px; }
-  .logout-btn { min-height: 38px; padding: 6px 10px; font-size: 12px; }
-  .logout-btn .menu-icon { width: 16px; height: 16px; }
+  .username { font-size: 20px; }
   .profile-tabs {
-    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
     padding: 6px;
-    border-radius: 14px;
+    border-radius: 20px;
+    overflow: visible;
   }
   .profile-tab {
-    min-height: 42px;
-    padding: 8px 13px;
+    width: 100%;
+    min-height: 44px;
+    justify-content: flex-start;
+    gap: 7px;
+    padding: 8px 9px;
+    white-space: nowrap;
     font-size: 12px;
-    gap: 6px;
   }
-  .profile-tab .menu-icon { width: 17px; height: 17px; }
-  .profile-content { margin-top: 16px; }
-  .section-head { padding-bottom: 10px; }
-  .section-title { font-size: 18px; }
+  .profile-tip { display: none; }
+  .profile-content {
+    min-height: 0;
+    margin-top: 14px;
+    padding: 22px 18px 24px;
+    border-radius: 26px;
+  }
+  .section-head {
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+  .section-title { font-size: 21px; }
   .section-desc { font-size: 12px; }
-  .content-section { padding: 0; border-radius: 0; min-height: 0; }
+  .logout-btn { position: absolute; top: 10px; right: 10px; width: 44px; min-height: 44px; height: 44px; padding: 0; border-radius: 999px; }
+  .logout-label { display: none; }
+  .identity { padding-right: 34px; }
 }
 
 @media (max-width: 480px) {
+  .profile-shell { padding: 12px 12px 104px; }
   .profile-hero { padding: 16px 14px; }
-  .identity { gap: 11px; }
+  .identity { gap: 10px; }
   .user-avatar { width: 52px; height: 52px; }
-  .username { font-size: 19px; }
-  .logout-btn {
-    width: 40px;
-    min-width: 40px;
-    min-height: 40px;
-    padding: 0;
-    justify-content: center;
-  }
-  .logout-label { display: none; }
+  .username { font-size: 18px; }
+  .user-email { font-size: 10px; }
+  .profile-content { padding: 18px 14px 20px; }
+  .profile-tab { gap: 5px; padding: 8px 7px; font-size: 11px; }
 }
 </style>

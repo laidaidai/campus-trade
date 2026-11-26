@@ -75,9 +75,9 @@ defineExpose({
   padding: 12px 14px 12px 18px;
   background: var(--panel);
   color: var(--on-panel);
-  border: 2px solid var(--edge);
-  border-radius: 16px;
-  box-shadow: 5px 6px 0 var(--shadow);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
 }
 
 .message {
@@ -92,24 +92,24 @@ defineExpose({
   min-height: 36px;
   padding: 6px 16px;
   background: var(--primary);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 2px 3px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
   transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .undo-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .undo-btn:active {
   transform: translateY(2px);
-  box-shadow: 1px 2px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .slide-up-enter-active,
@@ -123,7 +123,7 @@ defineExpose({
   transform: translateX(-50%) translateY(16px);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .undo-toast {
     bottom: calc(84px + env(safe-area-inset-bottom, 0px));
     left: 12px;

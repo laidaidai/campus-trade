@@ -233,7 +233,7 @@ onMounted(() => {
   width: 100%;
   overflow: hidden;
   background: var(--cream-2);
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .optimized-image {
@@ -322,7 +322,7 @@ onMounted(() => {
   min-height: 28px;
   padding: 4px 12px;
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-2);
   font-size: 11px;
@@ -343,7 +343,7 @@ onMounted(() => {
   bottom: 0;
   height: 4px;
   background: var(--cream-1);
-  border-top: 2px solid var(--edge);
+  border-top: 1px solid var(--line);
 }
 
 .progress-bar {

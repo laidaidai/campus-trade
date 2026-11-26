@@ -4,6 +4,12 @@
       <input
         v-model="localCode"
         type="text"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        autocapitalize="off"
+        spellcheck="false"
+        pattern="[0-9]*"
+        :aria-label="ariaLabel"
         :placeholder="placeholder"
         :disabled="disabled"
         :maxlength="6"
@@ -29,6 +35,7 @@ const props = defineProps({
   modelValue: { type: String, default: '' },
   email: { type: String, required: true },
   type: { type: String, default: 'register' }, // 'register' | 'reset-password'
+  ariaLabel: { type: String, default: '邮箱验证码' },
   placeholder: { type: String, default: '请输入验证码' },
   disabled: { type: Boolean, default: false }
 })
@@ -98,8 +105,8 @@ watch(() => props.modelValue, (newVal) => {
   min-height: 46px;
   padding: 11px 14px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
   color: var(--ink);
   font-size: 15px;
   font-weight: 700;
@@ -121,7 +128,7 @@ watch(() => props.modelValue, (newVal) => {
   outline: none;
   background: var(--card);
   border-color: var(--primary);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .code-input:disabled {
@@ -136,12 +143,12 @@ watch(() => props.modelValue, (newVal) => {
   min-height: 46px;
   padding: 9px 16px;
   background: var(--primary);
-  border: 2px solid var(--edge);
-  border-radius: 12px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
   transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
@@ -149,12 +156,12 @@ watch(() => props.modelValue, (newVal) => {
 
 .send-code-btn:hover:not(.disabled) {
   transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .send-code-btn:active:not(.disabled) {
   transform: translateY(2px);
-  box-shadow: 1px 2px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .send-code-btn.disabled {

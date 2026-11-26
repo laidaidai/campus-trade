@@ -135,9 +135,9 @@ const formatTime = (time) => {
   max-height: calc(100vh - 48px);
   overflow: hidden;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 22px;
-  box-shadow: 7px 8px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   animation: dialogIn 0.26s var(--fish-ease) both;
 }
 
@@ -152,14 +152,14 @@ const formatTime = (time) => {
   justify-content: space-between;
   gap: 12px;
   padding: 18px 22px;
-  border-bottom: 2px solid var(--line-2);
+  border-bottom: 1px solid var(--line);
 }
 
 .dialog-header h3 {
   margin: 0;
   color: var(--ink);
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .close-btn {
@@ -169,7 +169,7 @@ const formatTime = (time) => {
   display: grid;
   place-items: center;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-2);
   font-size: 20px;
@@ -191,7 +191,7 @@ const formatTime = (time) => {
 
 .section {
   padding: 16px 0;
-  border-bottom: 2px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .section:last-child {
@@ -203,7 +203,7 @@ const formatTime = (time) => {
   margin: 0 0 10px;
   color: var(--text-3);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.1em;
 }
 
@@ -212,8 +212,8 @@ const formatTime = (time) => {
   gap: 12px;
   padding: 12px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
 }
 
 .product-image {
@@ -221,8 +221,8 @@ const formatTime = (time) => {
   height: 64px;
   flex-shrink: 0;
   object-fit: cover;
-  border: 2px solid var(--edge);
-  border-radius: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
 }
 
 .product-details {
@@ -251,7 +251,7 @@ const formatTime = (time) => {
   margin: 0;
   color: var(--primary-2);
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
@@ -286,8 +286,8 @@ const formatTime = (time) => {
   margin: 0;
   padding: 12px 14px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
   color: var(--text-2);
   font-size: 13px;
   line-height: 1.7;
@@ -301,10 +301,10 @@ const formatTime = (time) => {
   align-items: center;
   min-height: 30px;
   padding: 4px 14px;
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.02em;
 }
 
@@ -335,7 +335,7 @@ const formatTime = (time) => {
 
 .dialog-footer {
   padding: 14px 22px;
-  border-top: 2px solid var(--line-2);
+  border-top: 1px solid var(--line);
 }
 
 .btn {
@@ -344,13 +344,13 @@ const formatTime = (time) => {
   padding: 10px 18px;
   border-radius: 999px;
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .btn-secondary {
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   color: var(--text-2);
 }
 
@@ -359,17 +359,18 @@ const formatTime = (time) => {
   color: var(--ink);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+  .close-btn { width: 44px; height: 44px; }
   .dialog-overlay { padding: 0; align-items: flex-end; }
   .dialog-content {
     max-width: 100%;
     max-height: 92vh;
     border-radius: 20px 20px 0 0;
     border-bottom: none;
-    box-shadow: 0 -4px 0 var(--shadow);
+    box-shadow: 0 -10px 28px rgba(63,61,86,.10);
   }
   .dialog-header { padding: 16px 18px; }
   .dialog-body { padding: 4px 18px 14px; }
-  .dialog-footer { padding: 12px 18px; }
+  .dialog-footer { padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px)); }
 }
 </style>

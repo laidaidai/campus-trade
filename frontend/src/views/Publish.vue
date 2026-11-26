@@ -1,143 +1,149 @@
 <template>
   <div class="page">
     <main class="main-content">
-      <div class="publish-form">
-        <header class="form-head">
-          <h1 class="form-title">{{ isEdit ? '编辑商品' : '发布商品' }}</h1>
-        </header>
-        
-        <form @submit.prevent="handleSubmit">
-          <div class="form-layout">
-            <!-- 左侧：图片上传 -->
-            <div class="form-left">
-              <div class="form-section">
-                <label class="form-label">商品图片</label>
-                <ImageUploader 
-                  v-model="form.images" 
-                  :max-count="9"
-                  :multiple="true"
-                  @change="handleImagesChange"
+      <header class="publish-hero">
+        <div>
+          <h1 class="hero-title">{{ isEdit ? '编辑这件好物' : '发布一件好物' }}</h1>
+          <p class="hero-desc">拍几张清楚的照片，写下它的小故事，让下一位同学更容易遇见。</p>
+        </div>
+      </header>
+
+      <form class="publish-grid" @submit.prevent="handleSubmit">
+        <!-- 左：照片与拍摄提示 -->
+        <aside class="photo-panel">
+          <div class="panel-head">
+            <h2>商品照片</h2>
+            <p>第一张会作为封面展示，最多 9 张。</p>
+          </div>
+          <ImageUploader
+            v-model="form.images"
+            :max-count="9"
+            :multiple="true"
+            @change="handleImagesChange"
+          />
+          <ul class="photo-tips">
+            <li>自然光下拍，背景干净，颜色更真实。</li>
+            <li>拍正面、细节和瑕疵，大家会更放心。</li>
+            <li>不要放联系方式或与商品无关的内容。</li>
+          </ul>
+        </aside>
+
+        <!-- 右：商品信息 -->
+        <section class="form-panel">
+          <div class="panel-head form-panel-head">
+            <h2>商品信息</h2>
+            <p>简单填一填，让需要它的人一眼看懂。</p>
+          </div>
+
+          <div class="form-section">
+            <label class="form-label" for="product-title">商品标题</label>
+            <input
+              id="product-title"
+              v-model="form.title"
+              type="text"
+              class="form-input"
+              placeholder="例如：九成新《传播学概论》教材"
+              maxlength="50"
+              required
+            />
+            <div class="char-count">{{ form.title.length }}/50</div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-label-row">
+              <label class="form-label" for="product-desc">商品描述</label>
+              <button
+                v-if="aiEnabled"
+                type="button"
+                class="ai-desc-btn"
+                :disabled="generatingDesc"
+                @click="handleGenerateDescription"
+              >
+                <span v-if="generatingDesc" class="spinner"></span>
+                <span v-else>AI 帮我写</span>
+              </button>
+            </div>
+            <textarea
+              id="product-desc"
+              v-model="form.description"
+              class="form-textarea"
+              placeholder="写写它的使用情况、成色、为什么想转手……"
+              rows="5"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-section">
+              <label class="form-label" for="product-price">价格</label>
+              <div class="input-with-unit">
+                <input
+                  id="product-price"
+                  v-model.number="form.price"
+                  type="number"
+                  inputmode="decimal"
+                  class="form-input"
+                  placeholder="0.00"
+                  min="0"
+                  max="99999999"
+                  step="0.01"
+                  required
                 />
+                <span class="unit">元</span>
               </div>
             </div>
 
-            <!-- 右侧：表单信息 -->
-            <div class="form-right">
-              <!-- 商品标题 -->
-              <div class="form-section">
-                <label class="form-label">商品标题</label>
-                <input
-                  v-model="form.title"
-                  type="text"
-                  class="form-input"
-                  placeholder="请输入商品标题（最多50字）"
-                  maxlength="50"
-                  required
-                />
-                <div class="char-count">{{ form.title.length }}/50</div>
-              </div>
-
-              <!-- 商品描述 -->
-              <div class="form-section">
-                <div class="form-label-row">
-                  <label class="form-label">商品描述</label>
-                  <button
-                    v-if="aiEnabled"
-                    type="button"
-                    class="ai-desc-btn"
-                    :disabled="generatingDesc"
-                    @click="handleGenerateDescription"
-                  >
-                    <span v-if="generatingDesc" class="spinner"></span>
-                    <span v-else>AI 写文案</span>
-                  </button>
-                </div>
-                <textarea
-                  v-model="form.description"
-                  class="form-textarea"
-                  placeholder="请详细描述商品的外观、功能、使用情况等"
-                  rows="5"
-                  required
-                ></textarea>
-              </div>
-
-              <!-- 价格和成色 -->
-              <div class="form-row">
-                <div class="form-section">
-                  <label class="form-label">价格</label>
-                  <div class="input-with-unit">
-                    <input
-                      v-model.number="form.price"
-                      type="number"
-                      class="form-input"
-                      placeholder="0.00"
-                      min="0"
-                      max="99999999"
-                      step="0.01"
-                      required
-                    />
-                    <span class="unit">元</span>
-                  </div>
-                </div>
-
-                <div class="form-section">
-                  <label class="form-label">成色</label>
-                  <select v-model="form.condition" class="form-select" required>
-                    <option value="">请选择</option>
-                    <option value="new">全新</option>
-                    <option value="like-new">99新</option>
-                    <option value="good">较好</option>
-                    <option value="fair">一般</option>
-                    <option value="poor">较差</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- 商品分类 -->
-              <div class="form-section">
-                <label class="form-label">商品分类</label>
-                <div class="category-grid">
-                  <label
-                    v-for="cat in categories"
-                    :key="cat.id"
-                    :class="['category-item', { active: form.category === cat.dbName }]"
-                  >
-                    <input
-                      type="radio"
-                      :value="cat.dbName"
-                      v-model="form.category"
-                      style="display: none"
-                      required
-                    />
-                    <span class="category-icon"><Icon :name="cat.id" /></span>
-                    <span class="category-name">{{ cat.name }}</span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- 编辑模式：状态选择 -->
-              <div v-if="isEdit" class="form-section">
-                <label class="form-label">商品状态</label>
-                <select v-model="form.status" class="form-select">
-                  <option value="available">在售</option>
-                  <option value="sold">已售</option>
-                  <option value="reserved">预定</option>
-                </select>
-              </div>
+            <div class="form-section">
+              <label class="form-label" for="product-condition">成色</label>
+              <select id="product-condition" v-model="form.condition" class="form-select" required>
+                <option value="">请选择</option>
+                <option value="new">全新</option>
+                <option value="like-new">99 新</option>
+                <option value="good">较好</option>
+                <option value="fair">一般</option>
+                <option value="poor">较差</option>
+              </select>
             </div>
           </div>
 
-          <!-- 提交按钮 -->
+          <div class="form-section">
+            <label class="form-label">商品分类</label>
+            <div class="category-grid">
+              <label
+                v-for="cat in categories"
+                :key="cat.id"
+                :class="['category-item', { active: form.category === cat.dbName }]"
+              >
+                <input
+                  type="radio"
+                  :value="cat.dbName"
+                  v-model="form.category"
+                  style="display: none"
+                  required
+                />
+                <span class="category-icon"><Icon :name="cat.id" /></span>
+                <span class="category-name">{{ cat.name }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div v-if="isEdit" class="form-section">
+            <label class="form-label" for="product-status">商品状态</label>
+            <select id="product-status" v-model="form.status" class="form-select">
+              <option value="available">在售</option>
+              <option value="sold">已售</option>
+              <option value="reserved">预定</option>
+            </select>
+          </div>
+
           <div class="form-actions">
-            <button type="button" class="btn-cancel" @click="handleCancel">
-              取消
-            </button>
+            <button type="button" class="btn-cancel" @click="handleCancel">取消</button>
             <button type="submit" class="btn-submit" :disabled="submitting">
               {{ submitting ? (isEdit ? '保存中...' : '发布中...') : (isEdit ? '保存修改' : '立即发布') }}
             </button>
           </div>
-        </form>
-      </div>
+        </section>
+      </form>
     </main>
   </div>
 </template>
@@ -364,6 +370,7 @@ const handleGenerateDescription = async () => {
 </script>
 
 <style scoped>
+/* 发布工作台：照片在左，信息在右，像一张轻松的商品卡片 */
 .page {
   min-height: 100vh;
   background: var(--bg);
@@ -371,74 +378,162 @@ const handleGenerateDescription = async () => {
 
 .main-content {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 28px 32px 72px;
+  padding: 30px 36px 80px;
 }
 
-/* 表单卡：纸卡墨线，唯一的硬影 */
-.publish-form {
-  padding: 30px;
-  background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 24px;
-  box-shadow: 5px 6px 0 var(--shadow);
-}
-
-.form-head {
+.publish-hero {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
   margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid var(--line-2);
+  padding: 4px 2px;
 }
 
-.form-title {
-  margin: 0;
+.hero-eyebrow {
+  margin: 0 0 7px;
+  color: var(--primary-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.hero-title {
+  margin: 0 0 8px;
   color: var(--ink);
-  font-size: 32px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.015em;
 }
 
-.form-subtitle {
-  display: none;
+.hero-desc {
+  max-width: 520px;
+  margin: 0;
+  color: var(--text-3);
+  font-size: 14px;
+  line-height: 1.7;
 }
 
-/* 两栏：图 0.9 / 字段 1.1 */
-.form-layout {
+.publish-grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: 32px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  gap: 24px;
+  align-items: start;
 }
 
-.form-left,
-.form-right {
+.photo-panel {
+  position: sticky;
+  top: 100px;
+  min-width: 0;
+  padding: 24px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  box-shadow: 4px 6px 0 rgba(63, 61, 86, 0.055);
+}
+
+.form-panel {
+  min-width: 0;
+  padding: 28px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  box-shadow: 4px 6px 0 rgba(63, 61, 86, 0.055);
+}
+
+.panel-head {
+  margin-bottom: 18px;
+}
+
+.form-panel-head {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+
+.panel-head h2 {
+  margin: 0 0 5px;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.panel-head p {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.photo-panel :deep(.upload-list:has(> .upload-trigger:only-child) .upload-trigger) {
+  grid-column: 1 / -1;
+  aspect-ratio: auto;
+  min-height: 250px;
+  background: var(--cream-1);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+}
+
+.photo-panel :deep(.upload-list:has(> .upload-trigger:only-child) .upload-content) {
+  gap: 8px;
+}
+
+.photo-panel :deep(.upload-list:has(> .upload-trigger:only-child) .upload-text) {
+  font-size: 13px;
+}
+
+.photo-panel :deep(.upload-list:has(> .upload-trigger:only-child) .upload-text svg) {
+  width: 34px;
+  height: 34px;
+  color: var(--primary);
+}
+
+.photo-tips {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  min-width: 0;
+  gap: 6px;
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
 }
 
-.form-right {
-  gap: 16px;
+.photo-tips li {
+  position: relative;
+  padding-left: 14px;
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.photo-tips li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+  opacity: 0.3;
 }
 
 .form-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
+  position: relative;
+  margin-bottom: 20px;
 }
 
-.form-label,
-.form-label-row {
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.03em;
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
 
 .form-label-row {
@@ -448,259 +543,230 @@ const handleGenerateDescription = async () => {
   gap: 10px;
 }
 
-.form-label-row .ai-desc-btn {
-  margin: 0;
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .form-input,
-.form-select,
-.form-textarea {
+.form-textarea,
+.form-select {
   width: 100%;
-  min-height: 44px;
-  padding: 10px 14px;
-  background: var(--card);
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  padding: 13px 15px;
+  background: var(--cream-1);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
   color: var(--ink);
+  font-family: var(--font-body);
   font-size: 14px;
-  font-family: inherit;
-  transition: border-color 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
-}
-
-.form-input::placeholder,
-.form-textarea::placeholder {
-  color: var(--text-4);
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
+  line-height: 1.6;
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 3px 4px 0 var(--shadow);
+  transition: border-color 0.22s var(--fish-ease), background-color 0.22s var(--fish-ease), box-shadow 0.22s var(--fish-ease);
 }
+
+.form-input,
+.form-select { min-height: 50px; }
 
 .form-textarea {
   min-height: 132px;
-  line-height: 1.7;
   resize: vertical;
 }
 
-.form-select {
-  appearance: none;
-  padding-right: 38px;
-  background-image: none;
-  cursor: pointer;
-  position: relative;
+.form-input::placeholder,
+.form-textarea::placeholder { color: var(--text-4); }
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  background: var(--card);
+  border-color: var(--primary-3);
+  box-shadow: 0 0 0 3px rgba(184, 68, 97, 0.12);
 }
 
-.char-count {
-  align-self: flex-end;
-  margin-top: -2px;
-  color: var(--text-4);
-  font-size: 11px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
+.input-with-unit { position: relative; }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.input-with-unit {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-with-unit .form-input {
-  padding-right: 40px;
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-}
-
-.unit {
+.input-with-unit .unit {
   position: absolute;
-  right: 14px;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--text-3);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   pointer-events: none;
 }
 
-/* 分类：纸片方块，选中实心描边 */
+.input-with-unit .form-input { padding-right: 38px; }
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239d96a8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  padding-right: 36px;
+}
+
+.char-count {
+  position: absolute;
+  right: 2px;
+  bottom: -17px;
+  color: var(--text-4);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+
+.ai-desc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding: 5px 10px;
+  background: var(--primary-3);
+  border: 0;
+  border-radius: 999px;
+  color: var(--primary-2);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ai-desc-btn:disabled { opacity: 0.6; cursor: wait; }
+
+.spinner {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--primary-3);
+  border-top-color: var(--primary-2);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
 .category-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .category-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 6px;
-  min-height: 46px;
-  padding: 8px;
-  background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  min-height: 40px;
+  padding: 7px 12px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
   color: var(--text-2);
-  font-size: 13px;
-  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s var(--fish-ease),
-              border-color 0.2s var(--fish-ease),
-              color 0.2s var(--fish-ease);
+  transition: background-color 0.22s var(--fish-ease), color 0.22s var(--fish-ease), border-color 0.22s var(--fish-ease);
 }
 
-.category-item:hover {
-  background: var(--cream-2);
-  border-color: var(--edge);
-}
+.category-item:hover { background: var(--cream-2); color: var(--ink); }
 
 .category-item.active {
   background: var(--primary-3);
   border-color: var(--primary-2);
-  color: var(--ink);
-  box-shadow: 2px 3px 0 var(--shadow);
+  color: var(--primary-2);
 }
 
 .category-icon {
-  display: inline-flex;
-  color: currentColor;
-}
-
-.category-icon :deep(svg) {
+  display: grid;
+  place-items: center;
   width: 18px;
   height: 18px;
 }
 
+.category-icon :deep(svg) { width: 17px; height: 17px; }
+
 .category-name {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* AI 按钮：次级胶囊 */
-.ai-desc-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 32px;
-  padding: 5px 12px;
-  background: var(--cream-2);
-  border: 1.5px solid var(--line-strong);
-  border-radius: 999px;
-  color: var(--text-2);
   font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: background-color 0.2s var(--fish-ease);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.ai-desc-btn:hover {
-  background: var(--cream-3);
-}
-
-.ai-desc-btn:disabled {
-  opacity: 0.55;
-  cursor: wait;
-}
-
-.spinner {
-  width: 12px;
-  height: 12px;
-  border: 2px solid var(--line-strong);
-  border-top-color: var(--primary-2);
-  border-radius: 999px;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* 底部操作：取消次级 + 一个主按钮 */
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
   margin-top: 26px;
-  padding-top: 18px;
-  border-top: 2px solid var(--line-2);
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.btn-cancel,
+.btn-submit {
+  min-height: 46px;
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.22s var(--fish-ease), background-color 0.22s var(--fish-ease);
 }
 
 .btn-cancel {
-  min-height: 46px;
-  padding: 10px 24px;
   background: var(--card);
-  border: 2px solid var(--line-strong);
-  border-radius: 999px;
+  border: 1px solid var(--line-strong);
   color: var(--text-2);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.2s var(--fish-ease);
 }
 
-.btn-cancel:hover {
-  background: var(--cream-2);
-  color: var(--ink);
-}
+.btn-cancel:hover { background: var(--cream-1); }
 
 .btn-submit {
-  min-width: 168px;
-  min-height: 46px;
-  padding: 10px 28px;
+  min-width: 140px;
   background: var(--primary);
-  border: 2px solid var(--edge);
-  border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  border: 1px solid var(--primary-2);
+  box-shadow: 3px 3px 0 rgba(168, 58, 87, 0.18);
   color: var(--on-primary);
-  font-size: 14px;
-  font-weight: 900;
-  cursor: pointer;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
-.btn-submit:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+.btn-submit:hover:not(:disabled) { transform: translateY(-1px); background: var(--primary-2); }
+.btn-submit:active:not(:disabled) { transform: translateY(1px); }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (max-width: 1024px) {
+  .main-content { padding: 24px 24px 64px; }
+  .publish-grid { grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); gap: 18px; }
+  .photo-panel { padding: 20px; border-radius: 5px; }
+  .form-panel { padding: 22px; border-radius: 5px; }
+  .hero-title { font-size: 32px; }
 }
 
-.btn-submit:active:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow: 1px 2px 0 var(--shadow);
-}
-
-.btn-submit:disabled {
-  opacity: 0.55;
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
-/* 平板 */
-@media (max-width: 1023px) {
-  .main-content { padding: 20px 24px 64px; }
-  .publish-form { padding: 24px; }
-  .form-layout { gap: 24px; }
-  .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-/* 手机：单列，操作按钮等宽 */
 @media (max-width: 767px) {
-  .main-content { padding: 12px 12px calc(88px + env(safe-area-inset-bottom, 0px)); }
-  .publish-form { padding: 16px; border-radius: 20px; }
-  .form-title { font-size: 24px; }
-  .form-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-  .form-row { grid-template-columns: 1fr; }
-  .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .form-actions { flex-direction: column-reverse; }
+  .main-content { padding: 16px 14px 108px; }
+  .publish-hero { align-items: flex-start; margin-bottom: 16px; }
+  .hero-title { font-size: 28px; }
+  .hero-desc { font-size: 13px; }
+  .publish-grid { display: flex; flex-direction: column; gap: 14px; }
+  .photo-panel,
+  .form-panel { position: static; width: 100%; padding: 18px; border-radius: 5px; }
+  .form-panel-head { margin-bottom: 18px; padding-bottom: 14px; }
+  .panel-head h2 { font-size: 19px; }
+  .form-actions { position: sticky; bottom: calc(var(--mobile-nav-space) + 4px); padding: 14px 0 2px; background: linear-gradient(to top, var(--card) 82%, transparent); }
+  .btn-cancel { flex: 1; }
+  .btn-submit { flex: 1.4; min-width: 0; }
+}
+
+@media (max-width: 560px) {
+  .main-content { padding: 12px 12px 108px; }
+  .hero-title { font-size: 26px; }
+  .hero-eyebrow { font-size: 9px; }
+  .photo-panel,
+  .form-panel { padding: 16px; border-radius: 5px; }
+  .photo-panel :deep(.upload-list:has(> .upload-trigger:only-child) .upload-trigger) { min-height: 180px; border-radius: 5px; }
+  .form-row { grid-template-columns: 1fr 1fr; gap: 10px; }
   .btn-cancel,
-  .btn-submit { width: 100%; }
+  .btn-submit { min-height: 44px; padding: 9px 16px; }
+}
+
+@media (max-width: 380px) {
+  .form-row { grid-template-columns: 1fr; }
 }
 </style>

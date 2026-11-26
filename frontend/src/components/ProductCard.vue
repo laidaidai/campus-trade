@@ -118,7 +118,7 @@ function goToDetail() {
   left: 50%;
   transform: translate(-50%, -50%) rotate(-25deg);
   font-size: 40px;
-  font-weight: 900;
+  font-weight: 700;
   font-style: italic;
   color: rgba(255, 0, 0, 0.6);
   text-shadow: 
@@ -280,7 +280,7 @@ function goToDetail() {
 }
 
 /* 响应式 */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .product-info {
     padding: 10px;
   }

@@ -317,7 +317,7 @@ onUnmounted(() => {
   min-height: 38px;
   padding: 7px 18px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-3);
   font-size: 13px;
@@ -337,14 +337,14 @@ onUnmounted(() => {
 .tab-item.active {
   background: var(--primary);
   border-color: var(--edge);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
 }
 
 .tab-count {
   color: var(--text-4);
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -381,8 +381,8 @@ onUnmounted(() => {
   gap: 14px;
   padding: 48px 20px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 24px;
 }
 
 .empty-icon {
@@ -390,9 +390,9 @@ onUnmounted(() => {
   width: 84px;
   height: 84px;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 /* CSS 纸箱 */
@@ -430,12 +430,12 @@ onUnmounted(() => {
   min-height: 42px;
   padding: 9px 24px;
   background: var(--primary);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -451,15 +451,15 @@ onUnmounted(() => {
 .product-item {
   overflow: hidden;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
   transition: transform 0.26s var(--fish-ease),
               box-shadow 0.26s var(--fish-ease);
 }
 
 .product-item:hover {
   transform: translateY(-2px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .product-image {
@@ -467,7 +467,7 @@ onUnmounted(() => {
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--cream-2);
-  border-bottom: 2px solid var(--edge);
+  border-bottom: 1px solid var(--line);
   cursor: pointer;
 }
 
@@ -486,11 +486,11 @@ onUnmounted(() => {
   left: 10px;
   padding: 3px 10px;
   background: var(--card);
-  border: 3px solid var(--danger);
-  border-radius: 10px;
+  border: 1px solid var(--danger);
+  border-radius: 14px;
   color: var(--danger);
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.04em;
   transform: rotate(-10deg);
 }
@@ -507,9 +507,9 @@ onUnmounted(() => {
   justify-content: center;
   gap: 3px;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 2px 3px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   cursor: pointer;
 }
 
@@ -534,9 +534,9 @@ onUnmounted(() => {
   min-width: 132px;
   padding: 6px;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 12px;
-  box-shadow: 4px 5px 0 var(--shadow);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
   animation: menuIn 0.2s var(--fish-ease) both;
 }
 
@@ -554,7 +554,7 @@ onUnmounted(() => {
   padding: 6px 10px;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   color: var(--text-2);
   font-size: 12px;
   font-weight: 800;
@@ -595,7 +595,7 @@ onUnmounted(() => {
   margin: 0 0 6px;
   color: var(--primary-2);
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
@@ -617,7 +617,7 @@ onUnmounted(() => {
   min-height: 42px;
   padding: 9px 28px;
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-2);
   font-size: 13px;

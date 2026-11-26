@@ -19,7 +19,21 @@
       <div v-if="loading" class="loading">加载中...</div>
       
       <div v-else-if="displayOrders.length === 0" class="empty">
-        <p>{{ activeTab === 'bought' ? '还没有购买记录' : '还没有卖出记录' }}</p>
+        <div class="receipt-meta"><span>CAMPUS TRADE</span><span>NO. 0000</span></div>
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+        </div>
+        <div class="empty-copy">
+          <p class="empty-title">{{ activeTab === 'bought' ? '还没有购买记录' : '还没有卖出记录' }}</p>
+          <span class="empty-desc">{{ activeTab === 'bought' ? '买到的商品会集中显示在这里。' : '卖出后，订单会记录在这里。' }}</span>
+        </div>
+        <div class="receipt-divider" aria-hidden="true"></div>
+        <button type="button" class="btn btn-primary empty-action" @click="router.push('/')">去逛逛</button>
+        <p class="receipt-foot">同校面交 · 当面验货</p>
       </div>
 
       <div 
@@ -60,11 +74,14 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { getMyOrders, getOrderById } from '@/api/order'
 import { getImageUrl } from '@/config'
 import toast from '@/utils/toast'
 import OrderDetailDialog from '@/components/OrderDetailDialog.vue'
 import { formatPrice } from '@/utils/price'
+
+const router = useRouter()
 
 const props = defineProps({
   defaultTab: {
@@ -157,7 +174,7 @@ onMounted(() => {
   min-height: 40px;
   padding: 8px 22px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-3);
   font-size: 13px;
@@ -177,7 +194,7 @@ onMounted(() => {
 .tab-btn.active {
   background: var(--primary);
   border-color: var(--edge);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
 }
 
@@ -194,17 +211,83 @@ onMounted(() => {
   text-align: center;
 }
 
+/* 空订单：一张小票，不像通用空态卡 */
 .empty {
-  padding: 44px 16px;
-  background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  width: min(100%, 390px);
+  min-height: 0;
+  margin: 26px auto 8px;
+  padding: 18px 30px 22px;
+  background: var(--card);
+  border: 1px dashed var(--line-strong);
+  border-radius: 2px;
+  box-shadow: 4px 5px 0 rgba(63, 61, 86, 0.05);
   color: var(--text-3);
-  font-size: 13px;
   text-align: center;
+  transform: rotate(0.35deg);
 }
 
-.empty p { margin: 0; }
+.receipt-meta {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--line-strong);
+  color: var(--text-4);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-top: 10px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: var(--primary-2);
+  transform: rotate(-3deg);
+}
+
+.empty-icon svg { width: 30px; height: 30px; stroke-width: 1.6; }
+
+.empty-copy { display: flex; flex-direction: column; gap: 3px; }
+
+.empty-title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.empty-desc {
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.receipt-divider {
+  width: 100%;
+  margin: 8px 0 2px;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.empty-action { margin-top: 4px; min-height: 40px; padding: 8px 22px; }
+
+.receipt-foot {
+  margin: 2px 0 0;
+  color: var(--text-4);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
 
 /* 订单行：纸卡 */
 .order-card {
@@ -213,8 +296,8 @@ onMounted(() => {
   gap: 14px;
   padding: 12px;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
   cursor: pointer;
   transition: transform 0.26s var(--fish-ease),
               box-shadow 0.26s var(--fish-ease),
@@ -224,7 +307,7 @@ onMounted(() => {
 .order-card:hover {
   transform: translateY(-2px);
   background: var(--cream-1);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .order-image {
@@ -233,8 +316,8 @@ onMounted(() => {
   flex-shrink: 0;
   object-fit: cover;
   background: var(--cream-2);
-  border: 2px solid var(--edge);
-  border-radius: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
 }
 
 .order-info {
@@ -265,17 +348,17 @@ onMounted(() => {
 .order-price {
   color: var(--primary-2);
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
 
 .order-status {
   padding: 2px 9px;
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   white-space: nowrap;
 }
 

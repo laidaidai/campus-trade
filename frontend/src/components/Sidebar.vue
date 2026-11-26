@@ -61,27 +61,8 @@
       </router-link>
     </nav>
 
-    <!-- 底部：主题 + 用户（桌面端） -->
+    <!-- 底部：用户（桌面端） -->
     <div v-if="!isMobile" class="sidebar-foot">
-      <div class="theme-block">
-        <span class="theme-label">主题</span>
-        <div class="theme-dots" role="group" aria-label="主题选择">
-          <button
-            v-for="t in THEMES"
-            :key="t.id"
-            type="button"
-            class="theme-dot"
-            :class="{ active: currentTheme === t.id }"
-            :style="{ background: t.bg, borderColor: t.ink }"
-            :title="t.name"
-            :aria-label="t.name"
-            @click="pickTheme(t.id)"
-          >
-            <span class="dot-core" :style="{ background: t.primary }"></span>
-          </button>
-        </div>
-      </div>
-
       <div class="sidebar-user">
         <div v-if="userStore.isLoggedIn" class="user-info">
           <div class="avatar-frame">
@@ -112,7 +93,6 @@ import { useUserStore } from '@/stores/user'
 import socketService from '@/utils/socket'
 import { getUnreadCount } from '@/api/message'
 import { resolveAvatar } from '@/utils/avatar'
-import { THEMES, applyTheme, getSavedTheme } from '@/utils/theme'
 
 const props = defineProps({
   isMobile: {
@@ -126,11 +106,6 @@ const userStore = useUserStore()
 
 const unreadCount = ref(0)
 const isNavigating = ref(false)
-const currentTheme = ref(getSavedTheme())
-
-const pickTheme = (id) => {
-  currentTheme.value = applyTheme(id)
-}
 
 // 计算用户头像URL
 const userAvatar = computed(() => {
@@ -204,17 +179,20 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Friendly 侧栏：奶油白、粉色主操作、柔和悬停 */
 .sidebar {
   position: fixed;
   left: 0;
   top: 0;
-  width: 232px;
+  width: 244px;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--card);
-  border-right: 2px solid var(--edge);
-  box-shadow: 4px 0 0 var(--shadow);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid var(--line);
+  box-shadow: 8px 0 32px rgba(63, 61, 86, 0.05);
   z-index: 1000;
 }
 
@@ -223,75 +201,75 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 22px 20px 20px;
-  border-bottom: 2px solid var(--line-2);
+  padding: 26px 22px 20px;
 }
 
 .logo-mark {
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
   background: var(--primary);
   color: var(--on-primary);
-  border: 2px solid var(--edge);
-  border-radius: 12px;
-  box-shadow: 3px 4px 0 var(--shadow);
-  font-size: 21px;
-  font-weight: 900;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(184, 68, 97, 0.28);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
   line-height: 1;
 }
 
 .logo-copy {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
 }
 
 .logo-text {
   color: var(--ink);
-  font-size: 18px;
-  font-weight: 900;
-  letter-spacing: 0.02em;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .logo-sub {
-  color: var(--text-3);
-  font-size: 10px;
+  color: var(--text-4);
+  font-family: var(--font-mono);
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
 }
 
-/* 主操作：桌面端唯一的实心发布入口 */
+/* 主操作 */
 .sidebar-cta {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   min-height: 48px;
-  margin: 16px 14px 2px;
-  padding: 10px 14px;
+  margin: 4px 18px 8px;
+  padding: 11px 16px;
   background: var(--primary);
-  border: 2px solid var(--edge);
-  border-radius: 12px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  border-radius: var(--radius-full);
+  box-shadow: 0 8px 20px rgba(184, 68, 97, 0.24);
   color: var(--on-primary);
   font-size: 14px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
+  font-weight: 700;
+  transition: transform 0.24s var(--fish-ease), box-shadow 0.24s var(--fish-ease),
+    background-color 0.24s var(--fish-ease);
 }
 
 .sidebar-cta:hover {
   transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  background: var(--primary-2);
+  box-shadow: 0 12px 26px rgba(184, 68, 97, 0.3);
 }
 
 .sidebar-cta:active {
-  transform: translateY(2px);
-  box-shadow: 1px 2px 0 var(--shadow);
+  transform: translateY(1px);
 }
 
 .sidebar-cta svg {
@@ -300,14 +278,14 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-/* 导航菜单 */
+/* 导航 */
 .sidebar-nav {
   flex: 1;
-  padding: 14px;
+  padding: 12px 14px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .nav-item {
@@ -317,19 +295,18 @@ onUnmounted(() => {
   gap: 12px;
   min-height: 46px;
   padding: 10px 14px;
-  border: 2px solid transparent;
-  border-radius: 12px;
+  border: 1px solid transparent;
+  border-radius: 16px;
   color: var(--text-2);
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.26s var(--fish-ease),
-              border-color 0.26s var(--fish-ease),
-              color 0.26s var(--fish-ease);
+  transition: background-color 0.24s var(--fish-ease),
+    color 0.24s var(--fish-ease);
 }
 
 .nav-item:hover {
-  background: var(--cream-2);
+  background: var(--cream-1);
   color: var(--ink);
 }
 
@@ -338,10 +315,20 @@ onUnmounted(() => {
 }
 
 .nav-item.router-link-active {
-  background: var(--cream-2);
-  border-color: var(--edge);
-  color: var(--ink);
-  box-shadow: 2px 3px 0 var(--shadow);
+  background: var(--cream-1);
+  color: var(--primary-2);
+}
+
+.nav-item.router-link-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 4px;
+  height: 18px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: var(--primary);
 }
 
 .nav-item.router-link-active .nav-icon {
@@ -350,12 +337,12 @@ onUnmounted(() => {
 
 .nav-item.navigating {
   pointer-events: none;
-  opacity: 0.75;
+  opacity: 0.7;
 }
 
 .nav-icon {
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
   flex-shrink: 0;
   color: var(--ink);
 }
@@ -367,67 +354,18 @@ onUnmounted(() => {
 .nav-badge {
   min-width: 22px;
   height: 22px;
-  padding: 0 6px;
+  padding: 0 7px;
   background: var(--primary);
-  border: 1.5px solid var(--edge);
-  color: var(--ink);
+  border: none;
+  color: var(--on-primary);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 /* 底部 */
 .sidebar-foot {
   padding: 14px 16px 18px;
-  border-top: 2px solid var(--line-2);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.theme-block {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.theme-label {
-  color: var(--text-3);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
-.theme-dots {
-  display: flex;
-  gap: 6px;
-}
-
-.theme-dot {
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border: 2px solid var(--edge);
-  border-radius: 999px;
-  cursor: pointer;
-  transition: transform 0.2s var(--fish-ease), box-shadow 0.2s var(--fish-ease);
-}
-
-.theme-dot:hover {
-  transform: translateY(-2px);
-}
-
-.theme-dot.active {
-  box-shadow: 2px 3px 0 var(--shadow);
-  transform: scale(1.08);
-}
-
-.dot-core {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
+  border-top: 1px solid var(--line);
 }
 
 .sidebar-user {
@@ -438,6 +376,9 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 10px;
+  background: var(--cream-1);
+  border-radius: var(--radius-md);
 }
 
 .avatar-frame {
@@ -448,8 +389,8 @@ onUnmounted(() => {
   place-items: center;
   overflow: hidden;
   background: var(--cream-2);
-  border: 2px solid var(--edge);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 3px rgba(184, 68, 97, 0.16);
 }
 
 .user-avatar {
@@ -466,20 +407,20 @@ onUnmounted(() => {
 .user-name {
   color: var(--ink);
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .btn-logout {
-  margin-top: 2px;
+  margin-top: 1px;
   padding: 0;
   background: none;
   border: none;
   color: var(--text-3);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -493,16 +434,15 @@ onUnmounted(() => {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  min-height: 44px;
-  padding: 10px 12px;
+  min-height: 46px;
+  padding: 10px 14px;
   background: var(--primary);
-  border: 2px solid var(--edge);
-  border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  border-radius: var(--radius-full);
+  box-shadow: 0 8px 20px rgba(184, 68, 97, 0.24);
   color: var(--on-primary);
   font-size: 14px;
-  font-weight: 800;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
+  font-weight: 700;
+  transition: transform 0.24s var(--fish-ease), background-color 0.24s var(--fish-ease);
 }
 
 .btn-login svg {
@@ -512,18 +452,17 @@ onUnmounted(() => {
 
 .btn-login:hover {
   transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  background: var(--primary-2);
 }
 
 .btn-login:active {
-  transform: translateY(2px);
-  box-shadow: 1px 2px 0 var(--shadow);
+  transform: translateY(1px);
 }
 
 /* iPad 横屏：只留图标 */
 @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
   .sidebar {
-    width: 76px;
+    width: 80px;
   }
 
   .logo-copy {
@@ -532,17 +471,16 @@ onUnmounted(() => {
 
   .sidebar-logo {
     justify-content: center;
-    padding: 20px 0;
+    padding: 22px 0 18px;
   }
 
   .logo-mark {
-    width: 40px;
-    height: 40px;
-    font-size: 19px;
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
   }
 
   .nav-text,
-  .theme-block,
   .user-details,
   .sidebar-cta span {
     display: none;
@@ -551,13 +489,14 @@ onUnmounted(() => {
   .sidebar-cta {
     width: 52px;
     height: 52px;
-    margin: 14px auto 2px;
+    margin: 10px auto 6px;
     padding: 0;
     flex-shrink: 0;
+    border-radius: 18px;
   }
 
   .sidebar-nav {
-    padding: 12px 8px;
+    padding: 10px 12px;
     align-items: center;
   }
 
@@ -568,6 +507,10 @@ onUnmounted(() => {
     justify-content: center;
   }
 
+  .nav-item.router-link-active::before {
+    left: -1px;
+  }
+
   .nav-badge {
     position: absolute;
     top: 4px;
@@ -575,18 +518,34 @@ onUnmounted(() => {
   }
 
   .sidebar-foot {
-    align-items: center;
+    display: flex;
+    justify-content: center;
     padding: 12px 8px;
   }
 
   .user-info {
     justify-content: center;
+    padding: 6px;
+    background: transparent;
+  }
+
+  .btn-login {
+    width: 52px;
+    min-height: 52px;
+    padding: 0;
+    border-radius: 18px;
+    font-size: 0;
+    gap: 0;
+  }
+
+  .btn-login svg {
+    width: 20px;
+    height: 20px;
   }
 }
 
-/* 手机 / iPad 竖屏：底部 tab */
-@media (max-width: 1024px) and (orientation: portrait),
-       (max-width: 768px) {
+/* 手机：底部 tab */
+@media (max-width: 767px) {
   .sidebar.mobile {
     position: fixed;
     left: 0;
@@ -596,10 +555,11 @@ onUnmounted(() => {
     width: 100%;
     height: auto;
     flex-direction: row;
-    background: var(--card);
-    border-right: none;
-    border-top: 2px solid var(--edge);
-    box-shadow: 0 -4px 0 var(--shadow);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -10px 30px rgba(63, 61, 86, 0.08);
     z-index: 1000;
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
@@ -607,7 +567,7 @@ onUnmounted(() => {
   .sidebar.mobile .sidebar-nav {
     flex-direction: row;
     width: 100%;
-    padding: 0;
+    padding: 6px 8px 0;
     gap: 0;
     overflow: visible;
   }
@@ -615,13 +575,13 @@ onUnmounted(() => {
   .sidebar.mobile .nav-item {
     flex: 1;
     flex-direction: column;
-    gap: 3px;
-    min-height: 64px;
+    gap: 2px;
+    min-height: 66px;
     padding: 8px 4px 6px;
     border: none;
     border-radius: 0;
     font-size: 11px;
-    color: var(--text-2);
+    color: var(--text-3);
   }
 
   .sidebar.mobile .nav-item:hover,
@@ -631,21 +591,20 @@ onUnmounted(() => {
 
   .sidebar.mobile .nav-item.router-link-active {
     background: transparent;
-    color: var(--ink);
-    box-shadow: none;
-    border: none;
+    color: var(--primary-2);
   }
 
-  .sidebar.mobile .nav-item.router-link-active::after {
+  .sidebar.mobile .nav-item.router-link-active::before {
     content: '';
     position: absolute;
     left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    width: 28px;
+    top: 2px;
+    bottom: auto;
+    width: 22px;
     height: 3px;
+    transform: translateX(-50%);
     background: var(--primary);
-    border-radius: 2px;
+    border-radius: 999px;
   }
 
   .sidebar.mobile .nav-item.router-link-active .nav-icon {
@@ -653,19 +612,20 @@ onUnmounted(() => {
   }
 
   .sidebar.mobile .nav-icon {
-    width: 22px;
-    height: 22px;
+    width: 23px;
+    height: 23px;
   }
 
   .sidebar.mobile .nav-text {
     display: block;
     font-size: 11px;
+    font-weight: 600;
   }
 
   .sidebar.mobile .nav-badge {
     position: absolute;
-    top: 4px;
-    right: calc(50% - 20px);
+    top: 3px;
+    right: calc(50% - 21px);
     min-width: 16px;
     height: 16px;
     padding: 0 4px;

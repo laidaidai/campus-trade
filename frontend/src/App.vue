@@ -1,16 +1,20 @@
 <template>
   <div class="app-container">
-    <!-- 左侧导航栏(桌面端) -->
-    <Sidebar v-if="!isAuthPage" :is-mobile="isMobile" />
-    
+    <a href="#main-content" class="skip-link">跳到主要内容</a>
+    <!-- 顶部导航（桌面与移动共用） -->
+    <TopHeader v-if="!isAuthPage" />
+
     <!-- 主内容区 -->
-    <div :class="['main-wrapper', { 'full-width': isAuthPage, 'mobile': isMobile }]">
+    <div id="main-content" :class="['main-wrapper', { 'full-width': isAuthPage, 'mobile': isMobile }]">
       <router-view v-slot="{ Component, route }">
         <transition :name="transitionName" mode="out-in">
           <component :is="Component" :key="route.path" />
         </transition>
       </router-view>
     </div>
+
+    <!-- 移动端底部主导航 -->
+    <Sidebar v-if="isMobile && !isAuthPage" :is-mobile="true" />
   </div>
 
   <!-- AI 悬浮助手 -->
@@ -22,9 +26,9 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
+import TopHeader from '@/components/TopHeader.vue'
 import AiAssistant from '@/components/AiAssistant.vue'
 import { startTokenMonitor, checkAndClearExpiredToken } from '@/utils/token'
-import { initTheme } from '@/utils/theme'
 
 const router = useRouter()
 const route = useRoute()
@@ -32,21 +36,17 @@ const transitionName = ref('slide-left')
 const isMobile = ref(false)
 
 // 判断是否是认证页面(不显示侧边栏)
-const isAuthPage = computed(() => route.path === '/auth')
+const isAuthPage = computed(() => route.path === '/auth' || route.path === '/reset-password')
 
-// 检测是否为移动端（包括iPad竖屏）
+// 检测是否为手机布局
 const checkMobile = () => {
-  const width = window.innerWidth
-  const isPortrait = window.matchMedia('(orientation: portrait)').matches
-  
-  // 768px以下，或者1024px以下且竖屏（iPad竖屏）
-  isMobile.value = width <= 768 || (width <= 1024 && isPortrait)
+  // 手机边界：小于 768px；768px 起按平板/桌面自适应
+  isMobile.value = window.innerWidth < 768
 }
 
 let tokenMonitor = null
 
 onMounted(() => {
-  initTheme()
   checkMobile()
   window.addEventListener('resize', checkMobile)
   
@@ -93,23 +93,43 @@ window.addEventListener('popstate', () => {
 </script>
 
 <style>
-/* global app styles */
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 12px;
+  z-index: 9999;
+  padding: 10px 16px;
+  background: var(--ink);
+  border-radius: 999px;
+  color: var(--card);
+  font-size: 12px;
+  font-weight: 700;
+  transform: translateY(-160%);
+  transition: transform 0.18s var(--fish-ease);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline-color: var(--card);
+}
+
+/* 全局应用壳：顶部导航 + 居中内容列 */
 html, body, #app {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
-/* 页面切换：纸张掀起，不弹跳 */
+/* 页面切换：轻盈上浮，不弹跳 */
 .fade-enter-active {
-  transition: opacity 0.26s var(--fish-ease), transform 0.26s var(--fish-ease);
+  transition: opacity 0.24s var(--fish-ease), transform 0.24s var(--fish-ease);
 }
 .fade-leave-active {
-  transition: opacity 0.18s var(--fish-ease), transform 0.18s var(--fish-ease);
+  transition: opacity 0.16s var(--fish-ease), transform 0.16s var(--fish-ease);
 }
 .fade-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(8px);
 }
 .fade-enter-to,
 .fade-leave-from {
@@ -118,61 +138,40 @@ html, body, #app {
 }
 .fade-leave-to {
   opacity: 0;
-  transform: translateY(-6px);
+  transform: translateY(-4px);
 }
 
-/* 网页壳：纸底铺满，内容列居中 */
 .app-container {
-  display: flex;
   min-height: 100vh;
   background: var(--bg);
 }
 
 .main-wrapper {
-  flex: 1;
-  min-width: 0;
-  margin-left: 232px;
+  width: 100%;
   min-height: 100vh;
+  padding-top: calc(76px + env(safe-area-inset-top, 0px));
   position: relative;
   overflow-x: hidden;
   background: var(--bg);
-  transition: margin-left 0.26s var(--fish-ease);
 }
 
 .main-wrapper.full-width {
-  margin-left: 0;
+  padding-top: 0;
 }
 
-/* 移动端：底部导航，内容不压住 tab */
 .main-wrapper.mobile {
-  margin-left: 0 !important;
-  margin-bottom: var(--mobile-nav-space);
+  padding-top: calc(62px + env(safe-area-inset-top, 0px));
+  padding-bottom: var(--mobile-nav-space);
 }
 
-@media (max-width: 1024px) and (orientation: portrait) {
+@media (max-width: 767px) {
   .main-wrapper {
-    margin-left: 0 !important;
-    margin-bottom: var(--mobile-nav-space);
+    padding-top: calc(62px + env(safe-area-inset-top, 0px));
+    padding-bottom: var(--mobile-nav-space);
   }
   .main-wrapper.full-width {
-    margin-bottom: 0;
-  }
-}
-
-/* iPad 横屏：窄侧栏只留图标 */
-@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
-  .main-wrapper:not(.full-width) {
-    margin-left: 76px;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-wrapper {
-    margin-left: 0 !important;
-    margin-bottom: var(--mobile-nav-space);
-  }
-  .main-wrapper.full-width {
-    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
 </style>

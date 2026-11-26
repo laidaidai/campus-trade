@@ -1,14 +1,15 @@
 <template>
   <div class="page">
     <div class="user-homepage">
+      <button class="back-link" type="button" @click="goBack">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        返回
+      </button>
+
       <!-- 用户信息卡片 -->
       <div v-if="userInfo" class="user-card">
-        <!-- 返回按钮 -->
-        <button class="back-btn" @click="goBack">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-        </button>
         
         <img :src="getUserAvatar" :alt="userInfo.username" class="user-avatar" />
         <div class="user-info">
@@ -39,6 +40,7 @@
             </svg>
           </div>
           <p class="empty-title">暂无发布</p>
+          <p class="empty-desc">TA 还没有发布商品。</p>
         </div>
 
         <!-- 商品网格 -->
@@ -110,7 +112,7 @@ const fetchUserProducts = async () => {
   try {
     const params = {
       user_id: userId.value,
-      status: '', // 空字符串表示获取所有状态的商品
+      status: 'all', // 获取所有状态的商品
       limit: 100,
       offset: 0
     }
@@ -180,7 +182,7 @@ onMounted(() => {
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 24px 32px 72px;
+  padding: 28px 36px 80px;
 }
 
 /* 卖家身份：深色 Hero */
@@ -190,42 +192,44 @@ onMounted(() => {
   align-items: center;
   gap: 18px;
   padding: 26px 24px;
-  background: var(--panel);
-  color: var(--on-panel);
-  border: 2px solid var(--edge);
-  border-radius: 24px;
-  box-shadow: 5px 6px 0 var(--shadow);
-}
-
-.back-btn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 999px;
-  box-shadow: 2px 3px 0 var(--shadow);
+  background: var(--cream-1);
   color: var(--ink);
-  cursor: pointer;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
 }
 
-.back-btn svg {
-  width: 18px;
-  height: 18px;
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 40px;
+  margin: 0 0 10px -6px;
+  padding: 6px 8px;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  color: var(--text-3);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s var(--fish-ease);
 }
+
+.back-link:hover { color: var(--ink); }
+
+.back-link svg { width: 16px; height: 16px; }
 
 .user-avatar {
   width: 88px;
   height: 88px;
   flex-shrink: 0;
   object-fit: cover;
-  background: var(--panel-deep);
-  border: 3px solid var(--primary);
+  background: var(--card);
+  border: 3px solid var(--card);
   border-radius: 999px;
+  box-shadow: 0 0 0 4px rgba(184, 68, 97, 0.15);
 }
 
 .user-info {
@@ -236,11 +240,12 @@ onMounted(() => {
 
 .username {
   margin: 0 0 6px;
-  color: var(--on-panel);
-  font-size: 28px;
-  font-weight: 900;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 29px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
   word-break: break-word;
 }
 
@@ -249,7 +254,7 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 10px;
   margin: 0;
-  color: var(--on-panel-warm);
+  color: var(--text-3);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -264,16 +269,18 @@ onMounted(() => {
   gap: 8px;
   margin: 0 0 16px;
   padding-bottom: 12px;
-  border-bottom: 2px solid var(--line-2);
+  border-bottom: 1px solid var(--line);
   color: var(--ink);
-  font-size: 19px;
-  font-weight: 900;
+  font-family: var(--font-serif);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .title-count {
   color: var(--primary-2);
   font-size: 22px;
-  font-weight: 900;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -281,14 +288,14 @@ onMounted(() => {
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
+  gap: 22px;
 }
 
 .product-item {
   overflow: hidden;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 18px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
   cursor: pointer;
   transition: transform 0.34s var(--fish-ease),
               box-shadow 0.34s var(--fish-ease),
@@ -297,8 +304,8 @@ onMounted(() => {
 
 .product-item:hover {
   transform: translateY(-3px);
-  box-shadow: 5px 6px 0 var(--shadow);
-  background: var(--cream-1);
+  box-shadow: var(--shadow-md);
+  background: var(--card);
 }
 
 .product-image {
@@ -306,7 +313,7 @@ onMounted(() => {
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--cream-2);
-  border-bottom: 2px solid var(--edge);
+  border-bottom: 1px solid var(--line);
 }
 
 .product-image img {
@@ -317,26 +324,21 @@ onMounted(() => {
 
 .sold-watermark {
   position: absolute;
-  inset: 0;
+  top: 10px;
+  right: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--cream-1);
-  opacity: 0.94;
-}
-
-.sold-watermark::before {
-  content: '已售出';
-  padding: 5px 14px;
+  padding: 4px 10px;
   color: var(--danger);
-  background: var(--card);
-  border: 3px solid var(--danger);
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  transform: rotate(-10deg);
+  background: rgba(255, 252, 253, 0.94);
+  border: 1px solid rgba(184, 68, 97, 0.35);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 .product-info {
@@ -364,7 +366,7 @@ onMounted(() => {
   margin: 0;
   color: var(--primary-2);
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
@@ -402,35 +404,43 @@ onMounted(() => {
 }
 
 .empty-state {
-  gap: 14px;
-  min-height: 280px;
-  padding: 48px 20px;
+  gap: 10px;
+  min-height: 240px;
+  padding: 40px 20px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 20px;
 }
 
 .empty-icon {
-  width: 88px;
-  height: 88px;
+  width: 64px;
+  height: 64px;
   display: grid;
   place-items: center;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--text-2);
 }
 
 .empty-icon svg {
-  width: 36px;
-  height: 36px;
+  width: 26px;
+  height: 26px;
 }
 
 .empty-title {
+  margin: 0;
   color: var(--ink);
   font-size: 16px;
   font-weight: 800;
+}
+
+.empty-desc {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 /* 平板 */
@@ -447,8 +457,8 @@ onMounted(() => {
   .user-card { padding: 18px 16px; gap: 14px; border-radius: 20px; }
   .user-avatar { width: 64px; height: 64px; }
   .username { font-size: 21px; }
-  .user-info { padding-right: 40px; }
-  .back-btn { top: 10px; right: 10px; width: 36px; height: 36px; }
+  .user-info { padding-right: 0; }
+  .back-link { min-height: 44px; margin-bottom: 6px; }
   .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .product-info { padding: 10px; gap: 5px; }
   .product-title { font-size: 13px; min-height: 38px; }

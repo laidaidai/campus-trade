@@ -359,8 +359,8 @@ const updateModelValue = () => {
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--cream-2);
-  border: 2px solid var(--edge);
-  border-radius: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
 }
 
 .upload-item img {
@@ -395,7 +395,7 @@ const updateModelValue = () => {
   display: grid;
   place-items: center;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--text-2);
   cursor: pointer;
@@ -430,7 +430,7 @@ const updateModelValue = () => {
   bottom: 0;
   height: 6px;
   background: var(--cream-1);
-  border-top: 2px solid var(--edge);
+  border-top: 1px solid var(--line);
 }
 
 .progress-bar {
@@ -445,8 +445,8 @@ const updateModelValue = () => {
   display: grid;
   place-items: center;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
   cursor: pointer;
   transition: background-color 0.26s var(--fish-ease),
               border-color 0.26s var(--fish-ease);
@@ -511,9 +511,9 @@ const updateModelValue = () => {
   max-height: 88vh;
   padding: 6px;
   background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 16px;
-  box-shadow: 6px 7px 0 var(--shadow);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
 }
 
 .preview-content img {
@@ -521,7 +521,7 @@ const updateModelValue = () => {
   max-width: 100%;
   max-height: calc(88vh - 12px);
   object-fit: contain;
-  border-radius: 10px;
+  border-radius: 14px;
 }
 
 .btn-close {
@@ -533,12 +533,12 @@ const updateModelValue = () => {
   display: grid;
   place-items: center;
   background: var(--primary);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 2px 3px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -556,7 +556,7 @@ const updateModelValue = () => {
   opacity: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .upload-list { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
   .preview-modal { padding: 16px; }
   .btn-close { top: -10px; right: -10px; width: 34px; height: 34px; }

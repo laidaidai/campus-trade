@@ -3,23 +3,16 @@
     <main class="main-content">
       <div class="favorites-container">
         <header class="page-head">
-          <div>
-            <header class="page-head">
-          <div>
+          <div class="page-heading">
             <h1 class="page-title">我的收藏</h1>
+            <p class="page-desc">把心动先放在这里，等准备好了再聊。</p>
           </div>
           <div class="head-count">
             <span class="count-value">{{ favorites.length }}</span>
-            <span class="count-label">件</span>
+            <span class="count-label">件好物</span>
           </div>
         </header>
-          </div>
-          <div class="head-count">
-            <span class="count-value">{{ favorites.length }}</span>
-            <span class="count-label">件</span>
-          </div>
-        </header>
-        
+
         <!-- 加载中 -->
         <div v-if="loading" class="loading">
           <div class="spinner"></div>
@@ -28,12 +21,16 @@
 
         <!-- 空状态 -->
         <div v-else-if="!loading && favorites.length === 0" class="empty-state">
+          <span class="empty-tape" aria-hidden="true"></span>
           <div class="empty-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
           </div>
-          <h3 class="empty-title">还没有收藏</h3>
+          <div class="empty-copy">
+            <h3 class="empty-title">还没有收藏</h3>
+            <p class="empty-desc">看到喜欢的商品，点一下收藏就会出现在这里。</p>
+          </div>
           <button class="btn btn-primary" @click="$router.push('/')">去逛逛</button>
         </div>
 
@@ -232,7 +229,7 @@ onMounted(() => {
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 24px 32px 72px;
+  padding: 28px 36px 80px;
 }
 
 .favorites-container {
@@ -248,25 +245,43 @@ onMounted(() => {
   padding: 4px 2px 22px;
 }
 
+.page-eyebrow {
+  margin: 0 0 4px;
+  color: var(--primary-2);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
 .page-title {
-  margin: 4px 0 0;
+  margin: 0 0 5px;
   color: var(--ink);
+  font-family: var(--font-serif);
   font-size: 32px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  line-height: 1.2;
+}
+
+.page-desc {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 .head-count {
   display: flex;
   align-items: baseline;
-  gap: 5px;
+  gap: 4px;
+  padding-bottom: 2px;
 }
 
 .count-value {
-  color: var(--primary-2);
-  font-size: 28px;
-  font-weight: 900;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -274,7 +289,7 @@ onMounted(() => {
 .count-label {
   color: var(--text-3);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* 加载：实线转环 */
@@ -303,36 +318,88 @@ onMounted(() => {
 
 /* 空态：实线圆 + 唯一主操作 */
 .empty-state {
-  gap: 16px;
-  min-height: 320px;
+  position: relative;
+  align-items: center;
+  width: min(100%, 460px);
+  margin: 30px auto 8px;
+  gap: 10px;
+  min-height: 0;
   max-height: none;
-  padding: 56px 24px;
-  background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 24px;
+  padding: 44px 40px 34px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  box-shadow: 4px 5px 0 rgba(63, 61, 86, 0.055);
+  transform: rotate(-0.7deg);
+  text-align: center;
+}
+
+.empty-state::after {
+  content: '同校';
+  position: absolute;
+  right: 22px;
+  bottom: 16px;
+  padding: 2px 7px 3px;
+  border: 1.5px solid rgba(184, 68, 97, 0.28);
+  border-radius: 3px;
+  color: rgba(184, 68, 97, 0.34);
+  font-family: var(--font-serif);
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  transform: rotate(-7deg);
+}
+
+/* 顶部胶带：像贴在墙上的便签，不像系统空态 */
+.empty-tape {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 86px;
+  height: 21px;
+  background: rgba(229, 189, 114, 0.34);
+  border-left: 1px solid rgba(229, 189, 114, 0.5);
+  border-right: 1px solid rgba(229, 189, 114, 0.5);
+  transform: translateX(-50%) rotate(1.6deg);
 }
 
 .empty-icon {
-  width: 96px;
-  height: 96px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
-  background: var(--card);
-  border: 2px solid var(--edge);
-  border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
-  color: var(--primary-2);
+  margin-bottom: 2px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--primary);
+  transform: rotate(-4deg);
 }
 
 .empty-icon svg {
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
+  stroke-width: 1.7;
+}
+
+.empty-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .empty-title {
   color: var(--ink);
-  font-size: 18px;
-  font-weight: 800;
+  font-family: var(--font-serif);
+  font-size: 21px;
+  font-weight: 600;
+}
+
+.empty-desc {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 /* 收藏网格：与首页同一套纸卡 */
@@ -353,10 +420,9 @@ onMounted(() => {
   .main-content { padding: 16px 12px calc(88px + env(safe-area-inset-bottom, 0px)); }
   .page-head { padding-bottom: 16px; }
   .page-title { font-size: 24px; }
-  .count-value { font-size: 22px; }
+  .count-value { font-size: 18px; }
+  .empty-state { width: 100%; margin-top: 18px; padding: 34px 22px 26px; }
   .favorites-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .empty-icon { width: 80px; height: 80px; }
-  .empty-icon svg { width: 34px; height: 34px; }
 }
 </style>
 
@@ -371,13 +437,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   padding: 10px 20px;
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--card);
   color: var(--ink);
   font-size: 14px;
   font-weight: 700;
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   z-index: 9999;
   opacity: 0;
   transition: transform 0.26s var(--fish-ease), opacity 0.26s var(--fish-ease);

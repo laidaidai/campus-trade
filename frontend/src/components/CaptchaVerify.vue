@@ -142,11 +142,11 @@ const initSlider = async () => {
   block.height = canvasHeight
 
   // 先绘制一个占位背景
-  ctx.fillStyle = '#fbe9d6'
+  ctx.fillStyle = '#fadce3'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   
   // 添加加载提示
-  ctx.fillStyle = '#8a6a58'
+  ctx.fillStyle = '#9b6572'
   ctx.font = '14px sans-serif'
   ctx.textAlign = 'center'
   ctx.fillText('加载中...', canvas.width / 2, canvas.height / 2)
@@ -196,7 +196,7 @@ const initSlider = async () => {
     // 绘制缺口边框，使其更明显
     ctx.save()
     drawPuzzlePath(ctx, puzzleX.value, puzzleY, puzzleSize, r)
-    ctx.strokeStyle = '#2a1712'
+    ctx.strokeStyle = '#3f3d56'
     ctx.lineWidth = 2
     ctx.stroke()
     ctx.restore()
@@ -223,7 +223,7 @@ const initSlider = async () => {
     // 添加拼图块边框
     blockCtx.save()
     drawPuzzlePath(blockCtx, 0, puzzleY, puzzleSize, r)
-    blockCtx.strokeStyle = '#fffdf8'
+    blockCtx.strokeStyle = '#ffffff'
     blockCtx.lineWidth = 3
     blockCtx.stroke()
     blockCtx.restore()
@@ -242,11 +242,11 @@ const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   const width = canvasWidth
   const height = canvasHeight
   // 纸底背景
-  ctx.fillStyle = '#fbe9d6'
+  ctx.fillStyle = '#fadce3'
   ctx.fillRect(0, 0, width, height)
   
   // 添加一些装饰图案
-  ctx.fillStyle = 'rgba(232,83,47,0.12)'
+  ctx.fillStyle = 'rgba(184,68,97,0.16)'
   for (let i = 0; i < 20; i++) {
     ctx.beginPath()
     ctx.arc(
@@ -275,7 +275,7 @@ const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   // 绘制缺口边框，使其更明显
   ctx.save()
   drawPuzzlePath(ctx, puzzleX.value, puzzleY, puzzleSize, r)
-  ctx.strokeStyle = '#2a1712'
+  ctx.strokeStyle = '#3f3d56'
   ctx.lineWidth = 2
   ctx.stroke()
   ctx.restore()
@@ -286,10 +286,10 @@ const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   tempCanvas.width = width
   tempCanvas.height = height
   const tempCtx = tempCanvas.getContext('2d')
-  tempCtx.fillStyle = '#fbe9d6'
+  tempCtx.fillStyle = '#fadce3'
   tempCtx.fillRect(0, 0, width, height)
   
-  tempCtx.fillStyle = 'rgba(232,83,47,0.12)'
+  tempCtx.fillStyle = 'rgba(184,68,97,0.16)'
   for (let i = 0; i < 20; i++) {
     tempCtx.beginPath()
     tempCtx.arc(
@@ -324,7 +324,7 @@ const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   // 添加拼图块边框
   blockCtx.save()
   drawPuzzlePath(blockCtx, 0, puzzleY, puzzleSize, r)
-  blockCtx.strokeStyle = '#fffdf8'
+  blockCtx.strokeStyle = '#ffffff'
   blockCtx.lineWidth = 3
   blockCtx.stroke()
   blockCtx.restore()
@@ -583,9 +583,9 @@ onUnmounted(() => {
   max-height: calc(100vh - 48px);
   overflow-y: auto;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 20px;
-  box-shadow: 7px 8px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   animation: slideUp 0.26s var(--fish-ease) both;
 }
 
@@ -600,14 +600,14 @@ onUnmounted(() => {
   justify-content: space-between;
   gap: 12px;
   padding: 16px 20px;
-  border-bottom: 2px solid var(--line-2);
+  border-bottom: 1px solid var(--line);
 }
 
 .captcha-header h3 {
   margin: 0;
   color: var(--ink);
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .close-btn {
@@ -617,7 +617,7 @@ onUnmounted(() => {
   display: grid;
   place-items: center;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-2);
   font-size: 22px;
@@ -650,8 +650,8 @@ onUnmounted(() => {
   justify-content: center;
   overflow: hidden;
   background: var(--cream-2);
-  border: 2px solid var(--edge);
-  border-radius: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
 }
 
 .background-canvas {
@@ -675,8 +675,8 @@ onUnmounted(() => {
   margin-bottom: 10px;
   padding: 8px 12px;
   background: var(--cream-1);
-  border: 2px solid var(--line);
-  border-radius: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
   color: var(--text-3);
   font-size: 12px;
   font-weight: 700;
@@ -693,7 +693,7 @@ onUnmounted(() => {
   line-height: 44px;
   text-align: center;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   user-select: none;
   overflow: visible;
@@ -739,9 +739,9 @@ onUnmounted(() => {
   display: grid;
   place-items: center;
   background: var(--primary);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 2px 3px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   cursor: grab;
   z-index: 10;
 }
@@ -752,7 +752,7 @@ onUnmounted(() => {
   color: var(--on-primary);
   font-size: 18px;
   font-style: normal;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 /* 拼图块 */
@@ -764,8 +764,8 @@ onUnmounted(() => {
 .puzzle-piece {
   position: absolute;
   cursor: grab;
-  border: 2px solid transparent;
-  border-radius: 6px;
+  border: 1px solid transparent;
+  border-radius: 10px;
   overflow: hidden;
 }
 
@@ -795,7 +795,7 @@ onUnmounted(() => {
 .captcha-footer {
   margin-top: 14px;
   padding-top: 12px;
-  border-top: 2px solid var(--line-2);
+  border-top: 1px solid var(--line);
   display: flex;
   justify-content: flex-end;
 }
@@ -807,7 +807,7 @@ onUnmounted(() => {
   min-height: 38px;
   padding: 7px 18px;
   background: var(--card);
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   color: var(--text-2);
   font-size: 12px;

@@ -159,7 +159,7 @@ function onSearch() {
   width: 36px;
   height: 36px;
   border: none;
-  border-radius: 10px;
+  border-radius: 14px;
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
   color: #fff;
   cursor: pointer;
@@ -205,7 +205,7 @@ function onSearch() {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border-radius: 10px;
+  border-radius: 14px;
   text-decoration: none;
   color: rgba(0, 0, 0, 0.6);
   font-size: 14px;
@@ -254,7 +254,7 @@ function onSearch() {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .navbar-container {
     padding: 8px 16px;
     gap: 12px;

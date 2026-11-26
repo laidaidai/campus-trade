@@ -210,9 +210,9 @@ const handleSubmit = async () => {
 .reset-box {
   padding: 34px;
   background: var(--card);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 24px;
-  box-shadow: 7px 8px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .reset-header {
@@ -221,14 +221,14 @@ const handleSubmit = async () => {
   gap: 4px;
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 2px solid var(--line-2);
+  border-bottom: 1px solid var(--line);
 }
 
 .reset-header h2 {
   margin: 0;
   color: var(--ink);
   font-size: 28px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.15;
 }
@@ -238,8 +238,8 @@ const handleSubmit = async () => {
 .message {
   margin-bottom: 16px;
   padding: 10px 14px;
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
   font-size: 13px;
   font-weight: 700;
   animation: messageIn 0.26s var(--fish-ease) both;
@@ -286,8 +286,8 @@ const handleSubmit = async () => {
   min-height: 46px;
   padding: 11px 14px;
   background: var(--cream-1);
-  border: 2px solid var(--line-strong);
-  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
   color: var(--ink);
   font-size: 15px;
   transition: border-color 0.26s var(--fish-ease),
@@ -301,7 +301,7 @@ const handleSubmit = async () => {
   outline: none;
   background: var(--card);
   border-color: var(--primary);
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .input-group input:disabled {
@@ -316,24 +316,24 @@ const handleSubmit = async () => {
   margin-top: 4px;
   padding: 12px;
   background: var(--primary);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  box-shadow: 3px 4px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
   transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 4px 5px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .submit-btn:active:not(:disabled) {
   transform: translateY(2px);
-  box-shadow: 1px 2px 0 var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .submit-btn:disabled {
@@ -359,7 +359,7 @@ const handleSubmit = async () => {
   border-bottom: 2px solid var(--primary-2);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .reset-password-page { padding: 16px 12px 32px; align-items: flex-start; }
   .reset-box { padding: 24px 18px; border-radius: 20px; }
   .reset-header h2 { font-size: 24px; }
@@ -367,7 +367,7 @@ const handleSubmit = async () => {
 
 @media (max-width: 480px) {
   .reset-password-page { padding: 12px 8px 24px; }
-  .reset-box { padding: 20px 16px; box-shadow: 5px 6px 0 var(--shadow); }
+  .reset-box { padding: 20px 16px; box-shadow: var(--shadow-soft); }
   .input-group input { min-height: 44px; padding: 10px 12px; font-size: 14px; }
   .submit-btn { min-height: 44px; font-size: 14px; }
 }
