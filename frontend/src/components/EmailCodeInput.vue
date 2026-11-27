@@ -106,7 +106,7 @@ watch(() => props.modelValue, (newVal) => {
   padding: 11px 14px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 16px;
+  border-radius: 4px;
   color: var(--ink);
   font-size: 15px;
   font-weight: 700;
@@ -144,7 +144,7 @@ watch(() => props.modelValue, (newVal) => {
   padding: 9px 16px;
   background: var(--primary);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
   box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 12px;

@@ -76,7 +76,7 @@ defineExpose({
   background: var(--panel);
   color: var(--on-panel);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 4px;
   box-shadow: var(--shadow-soft);
 }
 
@@ -92,8 +92,8 @@ defineExpose({
   min-height: 36px;
   padding: 6px 16px;
   background: var(--primary);
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  border: 1px solid var(--primary);
+  border-radius: 3px;
   box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 13px;

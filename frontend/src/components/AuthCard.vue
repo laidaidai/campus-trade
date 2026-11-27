@@ -271,11 +271,11 @@ const overlayStyle = { '--auth-login-image': "url('/images/login.png')" }
 <style scoped>
 .auth-container {
   width: 100%;
-  max-width: 880px;
+  max-width: 960px;
   margin: 0 auto;
 }
 
-/* 纸卡：墨线 + 硬影，唯一的舞台 */
+/* 纸卡：墨线 + 柔lift，唯一的舞台 */
 .auth-container .auth-box {
   position: relative;
   width: 100%;
@@ -283,8 +283,8 @@ const overlayStyle = { '--auth-login-image': "url('/images/login.png')" }
   overflow: hidden;
   background: var(--card);
   border: 1px solid var(--line-strong);
-  border-radius: 5px;
-  box-shadow: 6px 7px 0 rgba(63, 61, 86, 0.055);
+  border-radius: 4px;
+  box-shadow: var(--shadow-md);
 }
 
 
@@ -318,8 +318,8 @@ h2 {
   font-family: var(--font-serif);
   font-size: 34px;
   font-weight: 600;
-  letter-spacing: 0.01em;
-  line-height: 1.25;
+  letter-spacing: 0;
+  line-height: 1.22;
 }
 
 .subtitle { display: none; }
@@ -338,10 +338,10 @@ form { width: 100%; }
 input {
   width: 100%;
   min-height: 46px;
-  padding: 11px 14px;
-  background: var(--cream-1);
-  border: 1px solid var(--line-strong);
-  border-radius: 5px;
+  padding: 11px 13px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 3px;
   color: var(--ink);
   font-size: 15px;
   font-family: inherit;
@@ -356,41 +356,38 @@ input:focus {
   outline: none;
   background: var(--card);
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(184, 68, 97, 0.12);
+  box-shadow: 0 0 0 3px var(--primary-3);
 }
 
 input:disabled {
-  background: rgba(244, 251, 248, 0.7);
+  background: var(--cream-2);
   color: var(--text-3);
   cursor: not-allowed;
 }
 
 .submit-btn {
   width: 100%;
-  min-height: 48px;
+  min-height: 46px;
   margin-top: 8px;
-  padding: 12px;
+  padding: 11px;
   background: var(--primary);
-  border: 1px solid var(--primary-2);
-  border-radius: 6px;
-  box-shadow: 3px 3px 0 rgba(168, 58, 87, 0.18);
-  box-shadow: none;
+  border: 1px solid var(--primary);
+  border-radius: 3px;
   color: var(--on-primary);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
+  transition: background-color 0.18s var(--fish-ease);
 }
 
 .submit-btn:hover:not(:disabled) {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 rgba(168, 58, 87, 0.22);
+  background: var(--primary-2);
+  border-color: var(--primary-2);
 }
 
 .submit-btn:active:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 rgba(168, 58, 87, 0.18);
+  transform: translateY(1px);
 }
 
 .submit-btn:disabled {
@@ -404,7 +401,7 @@ input:disabled {
   margin-bottom: 16px;
   padding: 10px 14px;
   border: 1px solid var(--line-strong);
-  border-radius: 16px;
+  border-radius: 4px;
   font-size: 13px;
   font-weight: 700;
   animation: messageIn 0.26s var(--fish-ease) both;
@@ -522,8 +519,10 @@ input:disabled {
 .overlay-content h2 {
   margin: 0;
   color: var(--on-panel);
-  font-size: 30px;
-  font-weight: 700;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 .overlay-content p {
@@ -536,29 +535,28 @@ input:disabled {
 
 .overlay-stamp {
   position: absolute;
-  right: 28px;
-  bottom: 24px;
-  padding: 7px 11px;
-  border: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
-  border-radius: 2px;
-  color: color-mix(in srgb, var(--primary) 72%, transparent);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  line-height: 1;
-  letter-spacing: 0.1em;
-  transform: rotate(-5deg);
+  left: 40px;
+  right: 40px;
+  bottom: 28px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-strong);
+  color: var(--text-3);
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
   pointer-events: none;
 }
 
 .ghost-btn {
-  min-height: 46px;
-  padding: 10px 34px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(63, 61, 86, 0.16);
-  border-radius: 14px;
+  min-height: 42px;
+  padding: 9px 26px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
   color: var(--ink);
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.26s var(--fish-ease),
               border-color 0.26s var(--fish-ease),
@@ -569,7 +567,6 @@ input:disabled {
   background: var(--primary);
   border-color: var(--primary);
   color: var(--on-primary);
-  box-shadow: 0 8px 20px rgba(184, 68, 97, 0.24);
 }
 
 .ghost-btn:active { transform: translateY(2px); }
@@ -625,7 +622,7 @@ input:disabled {
 @media (max-width: 480px) {
   .auth-container .auth-box {
     min-height: 430px;
-    border-radius: 24px;
+    border-radius: 8px;
     box-shadow: var(--shadow-soft);
   }
   .form-panel { padding: 22px 20px; }

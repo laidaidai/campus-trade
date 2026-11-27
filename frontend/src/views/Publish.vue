@@ -4,7 +4,7 @@
       <header class="publish-hero">
         <div>
           <h1 class="hero-title">{{ isEdit ? '编辑这件好物' : '发布一件好物' }}</h1>
-          <p class="hero-desc">拍几张清楚的照片，写下它的小故事，让下一位同学更容易遇见。</p>
+          <p class="hero-desc">拍几张清楚的照片，写清楚成色和瑕疵，同校同学更容易判断。</p>
         </div>
       </header>
 
@@ -32,7 +32,6 @@
         <section class="form-panel">
           <div class="panel-head form-panel-head">
             <h2>商品信息</h2>
-            <p>简单填一填，让需要它的人一眼看懂。</p>
           </div>
 
           <div class="form-section">
@@ -67,7 +66,7 @@
               id="product-desc"
               v-model="form.description"
               class="form-textarea"
-              placeholder="写写它的使用情况、成色、为什么想转手……"
+              placeholder="写清使用情况、成色和瑕疵。"
               rows="5"
               required
             ></textarea>
@@ -372,15 +371,14 @@ const handleGenerateDescription = async () => {
 <style scoped>
 /* 发布工作台：照片在左，信息在右，像一张轻松的商品卡片 */
 .page {
-  min-height: 100vh;
   background: var(--bg);
 }
 
 .main-content {
   width: 100%;
-  max-width: 1180px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 30px 36px 80px;
+  padding: 28px 32px 80px;
 }
 
 .publish-hero {
@@ -390,15 +388,6 @@ const handleGenerateDescription = async () => {
   gap: 24px;
   margin-bottom: 24px;
   padding: 4px 2px;
-}
-
-.hero-eyebrow {
-  margin: 0 0 7px;
-  color: var(--primary-2);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
 }
 
 .hero-title {
@@ -421,29 +410,37 @@ const handleGenerateDescription = async () => {
 
 .publish-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
-  gap: 24px;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 0;
   align-items: start;
+  background: linear-gradient(
+    to right,
+    var(--cream-1) 0 calc(360px - 1px),
+    var(--line) calc(360px - 1px) 360px,
+    var(--card) 360px 100%
+  );
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
 }
 
 .photo-panel {
   position: sticky;
-  top: 100px;
+  top: calc(98px + env(safe-area-inset-top, 0px));
   min-width: 0;
-  padding: 24px;
-  background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: 5px;
-  box-shadow: 4px 6px 0 rgba(63, 61, 86, 0.055);
+  padding: 26px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .form-panel {
   min-width: 0;
-  padding: 28px;
+  padding: 28px 30px;
   background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: 5px;
-  box-shadow: 4px 6px 0 rgba(63, 61, 86, 0.055);
+  border: 0;
+  border-radius: 0 5px 5px 0;
+  box-shadow: none;
 }
 
 .panel-head {
@@ -456,13 +453,17 @@ const handleGenerateDescription = async () => {
   margin-bottom: 22px;
 }
 
+.form-panel-head h2 {
+  margin-bottom: 0;
+}
+
 .panel-head h2 {
   margin: 0 0 5px;
   color: var(--ink);
   font-family: var(--font-serif);
   font-size: 21px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .panel-head p {
@@ -584,7 +585,7 @@ const handleGenerateDescription = async () => {
 .form-select:focus {
   background: var(--card);
   border-color: var(--primary-3);
-  box-shadow: 0 0 0 3px rgba(184, 68, 97, 0.12);
+  box-shadow: 0 0 0 3px rgba(197, 106, 60, 0.10);
 }
 
 .input-with-unit { position: relative; }
@@ -616,7 +617,7 @@ const handleGenerateDescription = async () => {
   bottom: -17px;
   color: var(--text-4);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .ai-desc-btn {
@@ -624,13 +625,13 @@ const handleGenerateDescription = async () => {
   align-items: center;
   gap: 6px;
   margin-bottom: 8px;
-  padding: 5px 10px;
+  padding: 6px 10px;
   background: var(--primary-3);
-  border: 0;
-  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--line));
+  border-radius: 3px;
   color: var(--primary-2);
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -703,12 +704,12 @@ const handleGenerateDescription = async () => {
 .btn-submit {
   min-height: 46px;
   padding: 10px 24px;
-  border-radius: 4px;
+  border-radius: 3px;
   font-family: var(--font-body);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.22s var(--fish-ease), background-color 0.22s var(--fish-ease);
+  transition: background-color 0.22s var(--fish-ease);
 }
 
 .btn-cancel {
@@ -722,20 +723,29 @@ const handleGenerateDescription = async () => {
 .btn-submit {
   min-width: 140px;
   background: var(--primary);
-  border: 1px solid var(--primary-2);
-  box-shadow: 3px 3px 0 rgba(168, 58, 87, 0.18);
+  border: 1px solid var(--primary);
+  box-shadow: none;
   color: var(--on-primary);
 }
 
-.btn-submit:hover:not(:disabled) { transform: translateY(-1px); background: var(--primary-2); }
-.btn-submit:active:not(:disabled) { transform: translateY(1px); }
-.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-submit:hover:not(:disabled) { background: var(--primary-2); }
+.btn-submit:active:not(:disabled) { transform: none; }
+.btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
 
 @media (max-width: 1024px) {
   .main-content { padding: 24px 24px 64px; }
-  .publish-grid { grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); gap: 18px; }
-  .photo-panel { padding: 20px; border-radius: 5px; }
-  .form-panel { padding: 22px; border-radius: 5px; }
+  .publish-grid {
+    grid-template-columns: 330px minmax(0, 1fr);
+    gap: 0;
+    background: linear-gradient(
+      to right,
+      var(--cream-1) 0 calc(330px - 1px),
+      var(--line) calc(330px - 1px) 330px,
+      var(--card) 330px 100%
+    );
+  }
+  .photo-panel { padding: 20px; }
+  .form-panel { padding: 22px; border-radius: 0 5px 5px 0; }
   .hero-title { font-size: 32px; }
 }
 
@@ -744,9 +754,15 @@ const handleGenerateDescription = async () => {
   .publish-hero { align-items: flex-start; margin-bottom: 16px; }
   .hero-title { font-size: 28px; }
   .hero-desc { font-size: 13px; }
-  .publish-grid { display: flex; flex-direction: column; gap: 14px; }
+  .publish-grid { display: flex; flex-direction: column; gap: 0; background: var(--card); }
   .photo-panel,
-  .form-panel { position: static; width: 100%; padding: 18px; border-radius: 5px; }
+  .form-panel { position: static; width: 100%; padding: 18px; }
+  .photo-panel {
+    background: var(--cream-1);
+    border-bottom: 1px solid var(--line);
+    border-radius: 5px 5px 0 0;
+  }
+  .form-panel { border-radius: 0 0 5px 5px; }
   .form-panel-head { margin-bottom: 18px; padding-bottom: 14px; }
   .panel-head h2 { font-size: 19px; }
   .form-actions { position: sticky; bottom: calc(var(--mobile-nav-space) + 4px); padding: 14px 0 2px; background: linear-gradient(to top, var(--card) 82%, transparent); }
@@ -755,11 +771,10 @@ const handleGenerateDescription = async () => {
 }
 
 @media (max-width: 560px) {
-  .main-content { padding: 12px 12px 108px; }
+  .main-content { padding: 12px 14px 108px; }
   .hero-title { font-size: 26px; }
-  .hero-eyebrow { font-size: 9px; }
   .photo-panel,
-  .form-panel { padding: 16px; border-radius: 5px; }
+  .form-panel { padding: 16px; }
   .photo-panel :deep(.upload-list:has(> .upload-trigger:only-child) .upload-trigger) { min-height: 180px; border-radius: 5px; }
   .form-row { grid-template-columns: 1fr 1fr; gap: 10px; }
   .btn-cancel,

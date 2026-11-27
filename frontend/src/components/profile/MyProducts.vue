@@ -21,10 +21,19 @@
 
     <!-- 空状态 -->
     <div v-else-if="products.length === 0" class="empty-state">
-      <div class="empty-icon icon-box-large"></div>
-      <p>{{ emptyText }}</p>
-      <button class="btn-publish" @click="$router.push('/publish')">
-        去发布商品
+      <div class="empty-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M4 8h16v12H4z"></path>
+          <path d="M4 8l2-4h12l2 4"></path>
+          <path d="M9 12h6"></path>
+        </svg>
+      </div>
+      <div class="empty-copy">
+        <p class="empty-title">{{ emptyText }}</p>
+        <span class="empty-desc">发布后可以在这里管理在售和已售商品。</span>
+      </div>
+      <button class="btn btn-primary" @click="$router.push('/publish')">
+        去发布
       </button>
     </div>
 
@@ -306,39 +315,37 @@ onUnmounted(() => {
 /* 状态筛选 */
 .filter-tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  gap: 22px;
+  border-bottom: 1px solid var(--line);
 }
 
 .tab-item {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 38px;
-  padding: 7px 18px;
-  background: var(--cream-1);
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  min-height: 44px;
+  padding: 8px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
   color: var(--text-3);
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.26s var(--fish-ease),
-              border-color 0.26s var(--fish-ease),
-              color 0.26s var(--fish-ease),
-              box-shadow 0.26s var(--fish-ease);
+  transition: border-color 0.2s var(--fish-ease), color 0.2s var(--fish-ease);
 }
 
 .tab-item:hover {
   color: var(--ink);
-  border-color: var(--edge);
 }
 
 .tab-item.active {
-  background: var(--primary);
-  border-color: var(--edge);
-  box-shadow: var(--shadow-soft);
-  color: var(--on-primary);
+  background: transparent;
+  border-bottom-color: var(--primary);
+  box-shadow: none;
+  color: var(--primary-2);
+  font-weight: 600;
 }
 
 .tab-count {
@@ -348,7 +355,7 @@ onUnmounted(() => {
   font-variant-numeric: tabular-nums;
 }
 
-.tab-item.active .tab-count { color: var(--on-primary); }
+.tab-item.active .tab-count { color: var(--primary-2); }
 
 /* 加载 / 空态 */
 .loading-state {
@@ -378,68 +385,42 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 48px 20px;
-  background: var(--cream-1);
-  border: 1px solid var(--line-strong);
-  border-radius: 24px;
+  gap: 10px;
+  padding: 62px 16px 54px;
+  background: transparent;
+  border: 0;
+  text-align: center;
 }
 
 .empty-icon {
-  position: relative;
-  width: 84px;
-  height: 84px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: var(--primary-2);
 }
 
-/* CSS 纸箱 */
-.icon-box-large::before {
-  content: '';
-  position: absolute;
-  top: 28px;
-  left: 24px;
-  width: 32px;
-  height: 26px;
-  border: 2px solid var(--text-2);
-  border-radius: 4px;
-  background: var(--cream-2);
-}
+.empty-icon svg { width: 30px; height: 30px; }
 
-.icon-box-large::after {
-  content: '';
-  position: absolute;
-  top: 28px;
-  left: 24px;
-  width: 32px;
-  height: 9px;
-  border-bottom: 2px solid var(--text-2);
-  background: var(--primary-3);
+.empty-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .empty-state p {
   margin: 0;
   color: var(--ink);
-  font-size: 15px;
-  font-weight: 800;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
 }
 
-.btn-publish {
-  min-height: 42px;
-  padding: 9px 24px;
-  background: var(--primary);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
-  color: var(--on-primary);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
+.empty-desc {
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.6;
 }
-
-.btn-publish:hover { transform: translateY(-1px); }
 
 /* 商品格 */
 .products-grid {
@@ -452,7 +433,7 @@ onUnmounted(() => {
   overflow: hidden;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 4px;
   transition: transform 0.26s var(--fish-ease),
               box-shadow 0.26s var(--fish-ease);
 }
@@ -487,7 +468,7 @@ onUnmounted(() => {
   padding: 3px 10px;
   background: var(--card);
   border: 1px solid var(--danger);
-  border-radius: 14px;
+  border-radius: 3px;
   color: var(--danger);
   font-size: 12px;
   font-weight: 700;
@@ -500,16 +481,16 @@ onUnmounted(() => {
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 3px;
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  box-shadow: none;
   cursor: pointer;
 }
 
@@ -535,7 +516,7 @@ onUnmounted(() => {
   padding: 6px;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
   box-shadow: var(--shadow-soft);
   animation: menuIn 0.2s var(--fish-ease) both;
 }
@@ -554,7 +535,7 @@ onUnmounted(() => {
   padding: 6px 10px;
   background: transparent;
   border: none;
-  border-radius: 12px;
+  border-radius: 3px;
   color: var(--text-2);
   font-size: 12px;
   font-weight: 800;
@@ -618,10 +599,10 @@ onUnmounted(() => {
   padding: 9px 28px;
   background: var(--card);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-2);
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
 }
 

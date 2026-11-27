@@ -32,27 +32,64 @@
           <button type="submit" class="search-submit">搜索</button>
         </form>
 
-        <div class="hero-suggestions" aria-label="热门分类">
+      </header>
+
+      <section
+        v-if="!searchQuery && !loading && !error"
+        class="browse-panel"
+        aria-labelledby="browse-title"
+      >
+        <h2 id="browse-title" class="browse-title">按分类浏览</h2>
+        <div class="browse-grid">
           <button
             v-for="cat in quickCategories"
             :key="cat"
             type="button"
-            :class="['suggest-chip', { active: searchQuery === cat }]"
+            class="browse-item"
             @click="searchCategory(cat)"
           >
-            {{ cat }}
+            <span class="browse-name">{{ cat }}</span>
+            <svg class="browse-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M5 12h14"></path>
+              <path d="m13 6 6 6-6 6"></path>
+            </svg>
           </button>
         </div>
-      </header>
+      </section>
 
-      <div class="search-layout">
+      <section
+        v-if="!searchQuery && !loading && !error && recentProducts.length"
+        class="recent-panel"
+        aria-labelledby="recent-title"
+      >
+        <div class="recent-head">
+          <h2 id="recent-title" class="browse-title">最近上架</h2>
+          <span class="recent-count">{{ recentProducts.length }} 件</span>
+        </div>
+        <div class="recent-grid">
+          <XHSProductCard v-for="item in recentProducts" :key="item.id" :product="item" />
+        </div>
+      </section>
+
+      <div v-if="searchQuery || loading || error" class="search-layout">
+        <aside class="filter-rail" aria-labelledby="filter-title">
+          <h2 id="filter-title" class="filter-title">分类</h2>
+          <button
+            v-for="cat in quickCategories"
+            :key="cat"
+            type="button"
+            class="filter-item"
+            @click="searchCategory(cat)"
+          >
+            <span>{{ cat }}</span>
+            <span class="filter-arrow" aria-hidden="true">→</span>
+          </button>
+        </aside>
 
         <section class="search-results" aria-live="polite">
           <div class="results-head">
             <div>
-              <h2 class="results-title">
-                {{ searchQuery ? `“${searchQuery}”` : '搜索好物' }}
-              </h2>
+              <h2 class="results-title">“{{ searchQuery }}” 的结果</h2>
             </div>
             <div v-if="searchQuery && !loading && !error" class="results-count">
               <strong>{{ results.length }}</strong>
@@ -83,29 +120,23 @@
             </div>
 
             <div v-if="hasMore && results.length > 0" class="load-more">
-              <button class="btn btn-secondary" :disabled="loading" @click="fetchResults(false)">
+              <button class="btn btn-outline" :disabled="loading" @click="fetchResults(false)">
                 {{ loading ? '加载中…' : '加载更多' }}
               </button>
             </div>
 
             <div v-if="results.length === 0" class="empty-state">
-              <span class="empty-tape" aria-hidden="true"></span>
-              <div class="empty-doodle" aria-hidden="true">
-                <svg viewBox="0 0 110 110" fill="none">
-                  <circle cx="46" cy="46" r="28" fill="#fbf1d8" stroke="#3f3d56" stroke-width="2.4" />
-                  <path d="M67 67l22 22" stroke="#3f3d56" stroke-width="4" stroke-linecap="round" />
-                  <path d="M33 41c2-7 9-11 16-10" stroke="#e5bd72" stroke-width="3" stroke-linecap="round" />
-                  <path d="M40 54c4 3 9 3 13 0" stroke="#b84461" stroke-width="2" stroke-linecap="round" />
-                  <text x="46" y="55" text-anchor="middle" font-family="Noto Serif SC, Songti SC, serif" font-size="24" font-weight="600" fill="#b84461">?</text>
-                  <path d="M84 26l1.6 3.8 3.8 1.6-3.8 1.6-1.6 3.8-1.6-3.8-3.8-1.6 3.8-1.6Z" fill="#e5bd72" />
+              <div class="empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <circle cx="11" cy="11" r="7"></circle>
+                  <path d="m20 20-4.2-4.2"></path>
                 </svg>
               </div>
               <div class="empty-copy">
-                <h3 class="empty-title">{{ searchQuery ? `没有找到“${searchQuery}”` : '搜点什么吧' }}</h3>
-                <p class="empty-desc">{{ searchQuery ? '换一个更短的关键词，或者换个分类继续找。' : '输入商品名或关键词；也可以从上面的分类开始逛。' }}</p>
+                <h3 class="empty-title">没有匹配的商品</h3>
+                <p class="empty-desc">换一个更短的关键词，或者换个分类继续找。</p>
                 <div class="empty-actions">
-                  <button v-if="searchQuery" type="button" class="btn btn-outline" @click="clearSearch">清空搜索</button>
-                  <router-link to="/" class="btn btn-outline">去首页逛逛</router-link>
+                  <button type="button" class="btn btn-outline" @click="clearSearch">清空搜索</button>
                 </div>
               </div>
             </div>
@@ -135,6 +166,7 @@ const results = ref([])
 const loading = ref(false)
 const error = ref('')
 const hasMore = ref(false)
+const recentProducts = ref([])
 let offset = 0
 const limit = 24
 let requestId = 0
@@ -150,6 +182,32 @@ const formatTime = (dateString) => {
   if (hours < 24) return `${hours}小时前`
   if (days < 30) return `${days}天前`
   return date.toLocaleDateString()
+}
+
+const formatProduct = (product) => ({
+  id: product.id,
+  title: product.title,
+  price: product.price,
+  originalPrice: null,
+  image: product.images && product.images.length > 0
+    ? getImageUrl(product.images[0])
+    : '',
+  favoriteCount: product.favorite_count ?? product.favoriteCount ?? 0,
+  sellerAvatar: resolveAvatar(product.seller_avatar, product.seller_name || '用户'),
+  sellerName: product.seller_name || '匿名用户',
+  publishTime: formatTime(product.created_at),
+  status: product.status
+})
+
+const fetchRecent = async () => {
+  try {
+    const response = await getProducts({ status: 'available', limit: 4, offset: 0 })
+    if (response?.success) {
+      recentProducts.value = (response.data || []).map(formatProduct)
+    }
+  } catch (err) {
+    console.warn('最近上架加载失败:', err)
+  }
 }
 
 const fetchResults = async (reset = false) => {
@@ -185,20 +243,7 @@ const fetchResults = async (reset = false) => {
       return
     }
 
-    const formatted = (response.data || []).map(product => ({
-      id: product.id,
-      title: product.title,
-      price: product.price,
-      originalPrice: null,
-      image: product.images && product.images.length > 0
-        ? getImageUrl(product.images[0])
-        : '',
-      favoriteCount: product.favorite_count ?? product.favoriteCount ?? 0,
-      sellerAvatar: resolveAvatar(product.seller_avatar, product.seller_name || '用户'),
-      sellerName: product.seller_name || '匿名用户',
-      publishTime: formatTime(product.created_at),
-      status: product.status
-    }))
+    const formatted = (response.data || []).map(formatProduct)
 
     results.value = reset ? formatted : [...results.value, ...formatted]
     hasMore.value = Boolean(response.pagination?.hasMore)
@@ -216,6 +261,7 @@ const fetchResults = async (reset = false) => {
 watch(searchQuery, (query) => {
   keyword.value = query
   fetchResults(true)
+  if (!query && recentProducts.value.length === 0) fetchRecent()
 })
 
 const searchCategory = (category) => {
@@ -248,21 +294,23 @@ const clearSearch = () => {
   hasMore.value = false
 }
 
-onMounted(() => fetchResults(true))
+onMounted(() => {
+  if (searchQuery.value) fetchResults(true)
+  else fetchRecent()
+})
 </script>
 
 <style scoped>
 /* Friendly 搜索页：大标题 + 搜索胶囊 + 左侧分类栏 */
 .page {
-  min-height: 100vh;
   background: var(--bg);
 }
 
 .main-content {
   width: 100%;
-  max-width: 1180px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 30px 36px 80px;
+  padding: 28px 32px 80px;
 }
 
 .search-hero {
@@ -302,18 +350,19 @@ onMounted(() => fetchResults(true))
   align-items: center;
   gap: 8px;
   width: 100%;
-  min-height: 56px;
+  min-height: 58px;
   margin-top: 18px;
-  padding: 6px 6px 6px 16px;
+  padding: 0 0 0 16px;
   background: var(--card);
   border: 1px solid var(--line-strong);
-  border-radius: 5px;
-  box-shadow: 3px 3px 0 rgba(63, 61, 86, 0.05);
+  border-radius: 4px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
 .search-form:focus-within {
-  border-color: var(--line-strong);
-  box-shadow: 0 0 0 3px rgba(184, 68, 97, 0.08);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(197, 106, 60, 0.1);
 }
 
 .search-form-icon {
@@ -326,7 +375,7 @@ onMounted(() => fetchResults(true))
 .search-input {
   flex: 1;
   min-width: 0;
-  height: 44px;
+  height: 56px;
   padding: 0 4px;
   background: transparent;
   border: 0;
@@ -347,7 +396,7 @@ onMounted(() => fetchResults(true))
   padding: 0;
   background: var(--cream-1);
   border: 0;
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-3);
   cursor: pointer;
 }
@@ -356,55 +405,178 @@ onMounted(() => fetchResults(true))
 
 .search-submit {
   flex-shrink: 0;
-  min-width: 88px;
-  min-height: 46px;
-  padding: 0 20px;
+  align-self: stretch;
+  min-width: 96px;
+  padding: 0 24px;
   background: var(--primary);
   border: 0;
-  border-radius: 4px;
+  border-radius: 0;
   color: var(--on-primary);
   font-family: var(--font-body);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.22s var(--fish-ease), transform 0.22s var(--fish-ease);
+  transition: background-color 0.22s var(--fish-ease);
 }
 
 .search-submit:hover { background: var(--primary-2); }
-.search-submit:active { transform: scale(0.98); }
+.search-submit:active { background: var(--primary-2); }
 
-.hero-suggestions {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  flex-wrap: wrap;
-  margin-top: 14px;
+.browse-panel {
+  margin-top: 30px;
 }
 
-.suggest-chip {
-  min-height: 32px;
-  padding: 6px 12px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 999px;
+.recent-panel {
+  margin-top: 34px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.recent-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.recent-head .browse-title { margin: 0; }
+
+.recent-count {
   color: var(--text-3);
-  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.22s var(--fish-ease), color 0.22s var(--fish-ease);
+  font-variant-numeric: tabular-nums;
 }
 
-.suggest-chip:hover { background: var(--card); color: var(--ink); }
+.recent-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
 
-.suggest-chip.active {
-  background: var(--primary-3);
+.browse-title {
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.browse-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  min-height: 76px;
+  padding: 0 18px;
+  background: var(--card);
+  border: 0;
+  color: var(--ink);
+  font-family: var(--font-body);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s var(--fish-ease), color 0.2s var(--fish-ease);
+}
+
+.browse-item:hover {
+  background: var(--cream-1);
   color: var(--primary-2);
 }
 
+.browse-item:active {
+  background: var(--cream-2);
+}
+
+.browse-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.browse-arrow {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--text-4);
+  transition: color 0.2s var(--fish-ease), transform 0.2s var(--fish-ease);
+}
+
+.browse-item:hover .browse-arrow {
+  color: var(--primary-2);
+  transform: translateX(2px);
+}
+
 .search-layout {
-  display: block;
+  display: grid;
+  grid-template-columns: 188px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
   margin-top: 22px;
+}
+
+.filter-rail {
+  position: sticky;
+  top: calc(98px + env(safe-area-inset-top, 0px));
+  min-width: 0;
+}
+
+.filter-title {
+  margin: 0;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 2px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-2);
+  border-radius: 0;
+  color: var(--text-3);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s var(--fish-ease), color 0.2s var(--fish-ease);
+}
+
+.filter-item:hover {
+  background: var(--cream-1);
+  color: var(--primary-2);
+}
+
+.filter-arrow {
+  color: var(--text-4);
+  font-size: 13px;
+  line-height: 1;
 }
 
 .search-facets {
@@ -419,17 +591,7 @@ onMounted(() => fetchResults(true))
   padding: 16px 10px 10px;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 16px;
-}
-
-.facet-eyebrow {
-  margin: 0 0 3px;
-  padding: 0 8px;
-  color: var(--primary-2);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  border-radius: 4px;
 }
 
 .facet-title {
@@ -437,9 +599,8 @@ onMounted(() => fetchResults(true))
   padding: 0 8px;
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: 19px;
+  font-size: 24px;
   font-weight: 600;
-  letter-spacing: 0.01em;
 }
 
 .facet-list { display: flex; flex-direction: column; gap: 2px; }
@@ -487,7 +648,7 @@ onMounted(() => fetchResults(true))
   gap: 8px;
   padding: 13px 14px;
   background: var(--secondary-3);
-  border-radius: 18px;
+  border-radius: 4px;
   color: var(--secondary-2);
 }
 
@@ -495,7 +656,7 @@ onMounted(() => fetchResults(true))
 
 .facet-note p {
   margin: 0;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   line-height: 1.65;
 }
@@ -510,15 +671,6 @@ onMounted(() => fetchResults(true))
   padding: 4px 2px 16px;
   border-bottom: 1px solid var(--line);
   margin-bottom: 18px;
-}
-
-.results-eyebrow {
-  margin: 0 0 4px;
-  color: var(--text-4);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
 }
 
 .results-title {
@@ -560,12 +712,12 @@ onMounted(() => fetchResults(true))
   overflow: hidden;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 6px;
 }
 
 .skeleton-image {
   aspect-ratio: 4 / 3.4;
-  background: linear-gradient(100deg, var(--cream-1) 20%, #fff 42%, var(--cream-1) 64%);
+  background: linear-gradient(100deg, var(--cream-1) 20%, var(--card) 42%, var(--cream-1) 64%);
   background-size: 220% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }
@@ -597,46 +749,41 @@ onMounted(() => fetchResults(true))
   text-align: center;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 28px;
+  border-radius: 4px;
 }
 
-/* 搜索无结果：一张贴在公告栏上的便签 */
+/* 搜索无结果：一条平铺的结果说明 */
 .empty-state {
   position: relative;
   display: grid;
-  grid-template-columns: 104px minmax(0, 1fr);
-  align-items: center;
-  gap: 6px 24px;
-  width: min(100%, 700px);
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+  width: 100%;
   min-height: 0;
-  margin: 10px auto 0;
-  padding: 26px 32px 26px 22px;
-  background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: 4px;
-  box-shadow: 4px 5px 0 rgba(63, 61, 86, 0.055);
-  transform: rotate(-0.3deg);
+  margin: 4px auto 0;
+  padding: 26px 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line-2);
+  border-bottom: 1px solid var(--line-2);
+  border-radius: 0;
+  box-shadow: none;
   text-align: left;
 }
 
-.empty-tape {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  width: 78px;
-  height: 18px;
-  background: rgba(229, 189, 114, 0.3);
-  border-left: 1px solid rgba(229, 189, 114, 0.46);
-  border-right: 1px solid rgba(229, 189, 114, 0.46);
-  transform: translateX(-50%) rotate(1.2deg);
+.empty-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  color: var(--primary-2);
 }
 
-.empty-doodle {
-  grid-row: 1 / 3;
-  width: 104px;
+.empty-icon svg {
+  width: 30px;
+  height: 30px;
 }
-
-.empty-doodle svg { width: 100%; height: auto; }
 
 .empty-copy {
   min-width: 0;
@@ -648,7 +795,7 @@ onMounted(() => fetchResults(true))
   width: 48px;
   height: 48px;
   background: var(--primary-3);
-  border-radius: 12px;
+  border-radius: 3px;
   color: var(--primary-2);
   font-family: var(--font-display);
   font-size: 22px;
@@ -659,16 +806,15 @@ onMounted(() => fetchResults(true))
   margin: 0;
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: 19px;
+  font-size: 22px;
   font-weight: 600;
-  letter-spacing: 0.01em;
 }
 
 .empty-desc {
   max-width: 520px;
-  margin: 0;
+  margin: 5px 0 0;
   color: var(--text-3);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.7;
 }
 
@@ -681,50 +827,25 @@ onMounted(() => fetchResults(true))
   margin-top: 14px;
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  padding: 9px 20px;
-  border-radius: 4px;
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.22s var(--fish-ease), transform 0.22s var(--fish-ease);
-}
-
-.btn-primary {
-  background: var(--primary);
-  border: 1px solid var(--primary);
-  color: var(--on-primary);
-}
-
-.btn-secondary,
-.btn-outline {
-  background: var(--card);
-  border: 1px solid var(--line-strong);
-  color: var(--text-2);
-}
-
-.btn-secondary:hover,
-.btn-outline:hover { background: var(--cream-1); }
-.btn-primary:hover { background: var(--primary-2); }
-
 .load-more {
   display: flex;
   justify-content: center;
   padding: 24px 0 4px;
 }
 
+@media (max-width: 1199px) {
+  .search-layout { display: block; }
+  .filter-rail { display: none; }
+  .products-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .recent-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
 @media (max-width: 1024px) {
   .main-content { padding: 24px 24px 64px; }
   .search-hero { padding: 2px 0 22px; border-radius: 0; }
   .search-layout { display: block; }
+  .recent-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
   .products-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
-  .hero-suggestions { gap: 5px; }
-  .suggest-chip { padding: 8px 10px; min-height: 44px; }
 }
 
 @media (max-width: 767px) {
@@ -732,38 +853,35 @@ onMounted(() => fetchResults(true))
   .search-hero { padding: 0 0 18px; border-radius: 0; }
   .hero-title { font-size: 28px; }
   .hero-desc { font-size: 13px; }
-  .search-form { min-height: 52px; margin-top: 16px; padding-left: 14px; }
-  .search-input { font-size: 14px; }
-  .search-submit { min-width: 76px; min-height: 44px; padding: 0 16px; }
-  .hero-suggestions {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    margin: 12px -14px 0;
-    padding: 0 14px 3px;
-    scrollbar-width: none;
-    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
-    mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
-  }
-  .hero-suggestions::-webkit-scrollbar { display: none; }
-  .suggest-chip { flex: 0 0 auto; min-height: 44px; padding: 8px 14px; }
+  .search-form { min-height: 50px; margin-top: 16px; padding-left: 14px; }
+  .search-input { height: 48px; font-size: 14px; }
+  .search-submit { min-width: 76px; padding: 0 16px; }
+  .browse-panel { margin-top: 22px; }
+  .browse-title { font-size: 20px; margin-bottom: 11px; }
+  .browse-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .browse-item { min-height: 58px; padding: 0 14px; }
+  .browse-name { font-size: 13px; }
+  .recent-panel { margin-top: 26px; padding-top: 20px; }
+  .recent-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
   .search-layout { display: block; margin-top: 16px; }
   .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .results-head { padding-bottom: 12px; margin-bottom: 14px; }
   .results-title { font-size: 21px; }
   .products-grid { gap: 11px; }
-  .state-panel { min-height: 300px; padding: 34px 18px; border-radius: 24px; }
+  .state-panel { min-height: 300px; padding: 34px 18px; border-radius: 4px; }
   .empty-state {
     grid-template-columns: 1fr;
     justify-items: center;
     gap: 6px;
     min-height: 0;
-    padding: 30px 20px 24px;
-    border-radius: 4px;
+    padding: 26px 0;
+    border-radius: 0;
     text-align: center;
   }
-  .empty-doodle { grid-row: auto; width: 88px; margin: 0 auto -2px; }
+  .empty-icon { width: 40px; height: 40px; }
+  .empty-icon svg { width: 26px; height: 26px; }
   .empty-title, .empty-desc, .empty-actions { grid-column: 1; grid-row: auto; }
+  .empty-title { font-size: 20px; }
   .empty-desc { max-width: 34ch; }
   .empty-actions { justify-content: center; margin-top: 12px; }
 }

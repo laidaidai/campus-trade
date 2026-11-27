@@ -162,13 +162,13 @@ const handleGoHome = () => {
 
 .btn-retry,
 .btn-home {
-  min-height: 46px;
-  padding: 10px 28px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 700;
+  min-height: 44px;
+  padding: 10px 24px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
+  transition: background-color 0.2s var(--fish-ease), border-color 0.2s var(--fish-ease);
 }
 
 .btn-retry {
@@ -184,19 +184,17 @@ const handleGoHome = () => {
 
 .btn-home {
   background: var(--primary);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--primary);
+  box-shadow: none;
   color: var(--on-primary);
 }
 
 .btn-home:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
+  background: var(--primary-2);
 }
 
 .btn-home:active {
-  transform: translateY(2px);
-  box-shadow: var(--shadow-soft);
+  transform: none;
 }
 
 @media (max-width: 767px) {

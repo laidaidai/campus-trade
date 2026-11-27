@@ -58,7 +58,7 @@
       <div v-if="previewVisible" class="preview-modal" @click="closePreview">
         <div class="preview-content" @click.stop>
           <img :src="previewImageUrl" alt="预览" />
-          <button class="btn-close" @click="closePreview">✕</button>
+          <button class="btn-close" @click="closePreview" aria-label="关闭预览">✕</button>
         </div>
       </div>
     </transition>
@@ -69,7 +69,7 @@
 import { ref, computed, watch } from 'vue'
 import { uploadSingleImage, uploadMultipleImages, deleteImage } from '@/api/upload'
 import { getImageUrl as getFullImageUrl } from '@/config'
-import { smartCompress, createThumbnail } from '@/utils/imageCompress'
+import { smartCompress } from '@/utils/imageCompress'
 import Icon from './Icon.vue'
 import toast from '@/utils/toast'
 import { showDeleteConfirm } from '@/utils/dialog'
@@ -136,6 +136,16 @@ const getImageUrl = (image) => {
   return fullUrl
 }
 
+// 上传相关的错误提示：优先用后端返回的可读文案
+const getUploadErrorMessage = (error) => {
+  const status = error?.response?.status
+  const dataMessage = error?.response?.data?.message
+  if (status === 413) return '图片超过服务端 10MB 上限'
+  if (dataMessage) return dataMessage
+  if (error?.code === 'ECONNABORTED') return '上传超时，请重试'
+  return error?.message || '请稍后重试'
+}
+
 // 触发文件选择
 const triggerUpload = () => {
   fileInput.value?.click()
@@ -154,11 +164,11 @@ const handleFileChange = async (event) => {
     return
   }
   
-  // 检查文件大小（提高限制，因为会自动压缩）
-  const maxSize = 20 * 1024 * 1024
+  // 检查文件大小：服务端 multer 上限 10MB，留出压缩余量
+  const maxSize = 10 * 1024 * 1024
   const oversizedFiles = files.filter(file => file.size > maxSize)
   if (oversizedFiles.length > 0) {
-    toast.warning('部分图片超过20MB限制，请压缩后上传')
+    toast.warning('单张图片不能超过 10MB，请压缩后上传')
     return
   }
   
@@ -186,18 +196,16 @@ const uploadSingle = async (file) => {
     file
   }
   imageList.value.push(imageItem)
-  
+
   try {
     // 智能压缩图片
     imageItem.progress = 20
     const compressedFile = await smartCompress(file)
     imageItem.progress = 40
-    
-    // 创建缩略图用于预览
-    const thumbnail = await createThumbnail(compressedFile, { width: 200, height: 200 })
-    imageItem.url = URL.createObjectURL(thumbnail)
+
+    // 原图直接送上传，预览用本地 URL，避免多一次 canvas 转码
     imageItem.progress = 60
-    
+
     const response = await uploadSingleImage(compressedFile, 'products')
     
     if (response.success) {
@@ -213,7 +221,7 @@ const uploadSingle = async (file) => {
     }
   } catch (error) {
     console.error('上传失败:', error)
-    toast.error('上传失败: ' + (error.response?.data?.message || error.message))
+    toast.error('上传失败: ' + getUploadErrorMessage(error))
     // 移除失败的项
     const index = imageList.value.indexOf(imageItem)
     if (index > -1) {
@@ -268,7 +276,7 @@ const uploadMultiple = async (files) => {
     }
   } catch (error) {
     console.error('批量上传失败:', error)
-    toast.error('上传失败: ' + (error.response?.data?.message || error.message))
+    toast.error('上传失败: ' + getUploadErrorMessage(error))
     // 移除失败的项
     tempItems.forEach(item => {
       const index = imageList.value.indexOf(item)
@@ -360,7 +368,7 @@ const updateModelValue = () => {
   overflow: hidden;
   background: var(--cream-2);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
 }
 
 .upload-item img {
@@ -395,8 +403,8 @@ const updateModelValue = () => {
   display: grid;
   place-items: center;
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
   color: var(--text-2);
   cursor: pointer;
   transition: background-color 0.2s var(--fish-ease),
@@ -446,7 +454,7 @@ const updateModelValue = () => {
   place-items: center;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 16px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.26s var(--fish-ease),
               border-color 0.26s var(--fish-ease);
@@ -512,7 +520,7 @@ const updateModelValue = () => {
   padding: 6px;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 4px;
   box-shadow: var(--shadow-soft);
 }
 
@@ -521,7 +529,7 @@ const updateModelValue = () => {
   max-width: 100%;
   max-height: calc(88vh - 12px);
   object-fit: contain;
-  border-radius: 14px;
+  border-radius: 3px;
 }
 
 .btn-close {
@@ -533,9 +541,9 @@ const updateModelValue = () => {
   display: grid;
   place-items: center;
   background: var(--primary);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--primary);
+  border-radius: 3px;
+  box-shadow: none;
   color: var(--on-primary);
   font-size: 16px;
   font-weight: 700;

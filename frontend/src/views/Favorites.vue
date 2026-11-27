@@ -5,7 +5,7 @@
         <header class="page-head">
           <div class="page-heading">
             <h1 class="page-title">我的收藏</h1>
-            <p class="page-desc">把心动先放在这里，等准备好了再聊。</p>
+            <p class="page-desc">收藏的商品会集中显示在这里。</p>
           </div>
           <div class="head-count">
             <span class="count-value">{{ favorites.length }}</span>
@@ -21,7 +21,6 @@
 
         <!-- 空状态 -->
         <div v-else-if="!loading && favorites.length === 0" class="empty-state">
-          <span class="empty-tape" aria-hidden="true"></span>
           <div class="empty-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
@@ -221,15 +220,14 @@ onMounted(() => {
 
 <style scoped>
 .page {
-  min-height: 100vh;
   background: var(--bg);
 }
 
 .main-content {
   width: 100%;
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 28px 36px 80px;
+  padding: 28px 32px 80px;
 }
 
 .favorites-container {
@@ -243,15 +241,6 @@ onMounted(() => {
   justify-content: space-between;
   gap: 16px;
   padding: 4px 2px 22px;
-}
-
-.page-eyebrow {
-  margin: 0 0 4px;
-  color: var(--primary-2);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
 }
 
 .page-title {
@@ -316,50 +305,25 @@ onMounted(() => {
   to { transform: rotate(360deg); }
 }
 
-/* 空态：实线圆 + 唯一主操作 */
+/* 空态：横条说明，不做居中的大白块 */
 .empty-state {
   position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
   align-items: center;
-  width: min(100%, 460px);
-  margin: 30px auto 8px;
-  gap: 10px;
+  gap: 20px;
+  width: 100%;
+  margin: 8px auto 0;
   min-height: 0;
   max-height: none;
-  padding: 44px 40px 34px;
-  background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: 4px;
-  box-shadow: 4px 5px 0 rgba(63, 61, 86, 0.055);
-  transform: rotate(-0.7deg);
-  text-align: center;
-}
-
-.empty-state::after {
-  content: '同校';
-  position: absolute;
-  right: 22px;
-  bottom: 16px;
-  padding: 2px 7px 3px;
-  border: 1.5px solid rgba(184, 68, 97, 0.28);
-  border-radius: 3px;
-  color: rgba(184, 68, 97, 0.34);
-  font-family: var(--font-serif);
-  font-size: 15px;
-  letter-spacing: 0.14em;
-  transform: rotate(-7deg);
-}
-
-/* 顶部胶带：像贴在墙上的便签，不像系统空态 */
-.empty-tape {
-  position: absolute;
-  top: -11px;
-  left: 50%;
-  width: 86px;
-  height: 21px;
-  background: rgba(229, 189, 114, 0.34);
-  border-left: 1px solid rgba(229, 189, 114, 0.5);
-  border-right: 1px solid rgba(229, 189, 114, 0.5);
-  transform: translateX(-50%) rotate(1.6deg);
+  padding: 28px 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line-2);
+  border-bottom: 1px solid var(--line-2);
+  border-radius: 0;
+  box-shadow: none;
+  text-align: left;
 }
 
 .empty-icon {
@@ -367,38 +331,38 @@ onMounted(() => {
   height: 44px;
   display: grid;
   place-items: center;
-  margin-bottom: 2px;
+  margin-bottom: 0;
   background: transparent;
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  color: var(--primary);
-  transform: rotate(-4deg);
+  color: var(--primary-2);
+  transform: none;
 }
 
 .empty-icon svg {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   stroke-width: 1.7;
 }
 
 .empty-copy {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .empty-title {
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: 21px;
+  font-size: 22px;
   font-weight: 600;
 }
 
 .empty-desc {
   margin: 0;
   color: var(--text-3);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -417,11 +381,19 @@ onMounted(() => {
 }
 
 @media (max-width: 767px) {
-  .main-content { padding: 16px 12px calc(88px + env(safe-area-inset-bottom, 0px)); }
+  .main-content { padding: 16px 14px calc(88px + env(safe-area-inset-bottom, 0px)); }
   .page-head { padding-bottom: 16px; }
   .page-title { font-size: 24px; }
   .count-value { font-size: 18px; }
-  .empty-state { width: 100%; margin-top: 18px; padding: 34px 22px 26px; }
+  .empty-state {
+    width: 100%;
+    margin-top: 18px;
+    padding: 28px 0;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 8px;
+    text-align: center;
+  }
   .favorites-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 }
 </style>

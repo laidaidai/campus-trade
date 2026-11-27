@@ -1,4 +1,5 @@
 import multer from 'multer';
+import type { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
@@ -7,6 +8,9 @@ import crypto from 'crypto';
 const uploadDir = path.join(__dirname, '../../uploads');
 const productImagesDir = path.join(uploadDir, 'products');
 const avatarDir = path.join(uploadDir, 'avatars');
+
+// 单张图片上限 10MB，与前端预检保持一致
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 // 创建目录
 [uploadDir, productImagesDir, avatarDir].forEach(dir => {
@@ -35,18 +39,21 @@ const storage = multer.diskStorage({
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   // 允许的MIME类型
   const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-  
+
   // 允许的文件扩展名
   const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-  
+
   // 获取文件扩展名（转为小写）
   const ext = path.extname(file.originalname).toLowerCase();
-  
+
   // 同时验证MIME类型和文件扩展名
   if (allowedMimes.includes(file.mimetype) && allowedExtensions.includes(ext)) {
     cb(null, true);
   } else {
-    cb(new Error('只支持上传图片文件 (jpg, jpeg, png, gif, webp)'));
+    // 带自定义标记，handleUploadError 会转成 400 可读文案
+    const error: any = new Error('只支持上传图片文件 (jpg, jpeg, png, gif, webp)');
+    error.isUploadTypeError = true;
+    cb(error);
   }
 };
 
@@ -55,7 +62,7 @@ export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 限制10MB
+    fileSize: MAX_FILE_SIZE, // 限制10MB
   }
 });
 
@@ -98,3 +105,66 @@ export const uploadSingle = upload.single('image');
 
 // 多文件上传中间件 (最多9张)
 export const uploadMultiple = upload.array('images', 9);
+
+/**
+ * 把 multer / 文件过滤的错误翻译成可读的 400 响应，
+ * 避免任何上传失败都变成 500 + stack 泄漏。
+ */
+export const handleUploadError = (
+  error: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (!error) {
+    next();
+    return;
+  }
+
+  // 只处理上传相关错误，其余交给全局处理器
+  const uploadErrorCode = error?.code;
+  const isUploadError =
+    error instanceof multer.MulterError ||
+    error?.name === 'MulterError' ||
+    uploadErrorCode === 'LIMIT_FILE_SIZE' ||
+    uploadErrorCode === 'LIMIT_UNEXPECTED_FILE' ||
+    uploadErrorCode === 'LIMIT_FILE_COUNT' ||
+    // 自定义的格式错误标记
+    error?.isUploadTypeError === true;
+
+  if (!isUploadError) {
+    next(error);
+    return;
+  }
+
+  let message = '上传失败，请重试';
+  let status = 400;
+
+  if (uploadErrorCode === 'LIMIT_FILE_SIZE') {
+    message = `单张图片不能超过 ${MAX_FILE_SIZE / 1024 / 1024}MB`;
+    status = 413;
+  } else if (uploadErrorCode === 'LIMIT_UNEXPECTED_FILE' || error?.isUploadTypeError) {
+    message = '只支持上传 jpg / jpeg / png / gif / webp 格式的图片';
+  } else if (uploadErrorCode === 'LIMIT_FILE_COUNT') {
+    message = '一次最多上传 9 张图片';
+  }
+
+  // 清理可能已经落盘的文件
+  const uploaded = (req as any).files;
+  const cleanup = Array.isArray(uploaded)
+    ? uploaded
+    : uploaded && typeof uploaded === 'object'
+      ? Object.values(uploaded).flat() as any[]
+      : [];
+  cleanup.forEach((file: any) => {
+    if (file?.path && fs.existsSync(file.path)) {
+      try {
+        fs.unlinkSync(file.path);
+      } catch {
+        /* 清理失败忽略 */
+      }
+    }
+  });
+
+  res.status(status).json({ success: false, message });
+};

@@ -3,7 +3,7 @@
     <div class="dialog-content" @click.stop>
       <div class="dialog-header">
         <h3>修改订单价格</h3>
-        <button class="close-btn" @click="handleClose">×</button>
+        <button class="close-btn" @click="handleClose" aria-label="关闭">×</button>
       </div>
 
       <div class="dialog-body">
@@ -121,7 +121,7 @@ watch(() => props.visible, (newVal) => {
   max-width: 440px;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 6px;
   box-shadow: var(--shadow-soft);
   overflow: hidden;
   animation: dialogIn 0.26s var(--fish-ease) both;
@@ -156,7 +156,7 @@ watch(() => props.visible, (newVal) => {
   place-items: center;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-2);
   font-size: 20px;
   line-height: 1;
@@ -184,7 +184,7 @@ watch(() => props.visible, (newVal) => {
   padding: 14px 16px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 18px;
+  border-radius: 4px;
 }
 
 .price-label {
@@ -227,7 +227,7 @@ watch(() => props.visible, (newVal) => {
   padding: 0 14px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 16px;
+  border-radius: 4px;
   transition: border-color 0.26s var(--fish-ease),
               box-shadow 0.26s var(--fish-ease),
               background-color 0.26s var(--fish-ease);
@@ -283,11 +283,11 @@ watch(() => props.visible, (newVal) => {
   flex: 1;
   min-height: 44px;
   padding: 10px 18px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 700;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
+  transition: background-color 0.2s var(--fish-ease), border-color 0.2s var(--fish-ease);
 }
 
 .btn-secondary {
@@ -303,14 +303,15 @@ watch(() => props.visible, (newVal) => {
 
 .btn-primary {
   background: var(--primary);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--primary);
+  box-shadow: none;
   color: var(--on-primary);
 }
 
 .btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
+  background: var(--primary-2);
+  border-color: var(--primary-2);
+  transform: none;
 }
 
 .btn-primary:disabled {
@@ -324,9 +325,9 @@ watch(() => props.visible, (newVal) => {
   .dialog-overlay { padding: 0; align-items: flex-end; }
   .dialog-content {
     max-width: 100%;
-    border-radius: 20px 20px 0 0;
+    border-radius: 6px 6px 0 0;
     border-bottom: none;
-    box-shadow: 0 -10px 28px rgba(63,61,86,.10);
+    box-shadow: 0 -10px 28px rgba(42,29,20,.10);
   }
   .dialog-header { padding: 16px 18px; }
   .dialog-body { padding: 16px 18px; }

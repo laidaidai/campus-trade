@@ -233,7 +233,7 @@ onMounted(() => {
   width: 100%;
   overflow: hidden;
   background: var(--cream-2);
-  border-radius: 12px;
+  border-radius: 3px;
 }
 
 .optimized-image {

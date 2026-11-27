@@ -3,43 +3,57 @@
     <!-- 页面锚点 -->
     <header class="home-hero">
       <div class="hero-copy">
-        <p class="hero-kicker"><span class="kicker-dot" aria-hidden="true"></span>校园公告栏 · 只做同校面交</p>
-        <h1 class="hero-title">把闲置，<em>卖给同校的人<svg class="hero-stroke" viewBox="0 0 240 9" aria-hidden="true" preserveAspectRatio="none"><path d="M2 6C48 2 92 8 138 4.5 184 1 218 6 238 4" /></svg></em></h1>
+        <h1 class="hero-title">把闲置，<em>卖给同校的人</em></h1>
         <p class="hero-desc">教材、数码、宿舍用品，发布后同校同学就能看到。当面验货，不收服务费。</p>
       </div>
       <div class="hero-side">
-        <router-link to="/publish" class="hero-cta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
+        <router-link to="/publish" class="hero-link">
+          <span>发布闲置</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="13 6 19 12 13 18"></polyline>
           </svg>
-          发布闲置
         </router-link>
-        <a href="#feed" class="hero-secondary">逛在售好物</a>
       </div>
     </header>
 
-    <!-- 吸顶筛选区 -->
-    <div class="fixed-header">
-      <!-- 分类标签 -->
-      <div class="categories">
-        <button 
-          v-for="category in categories" 
-          :key="category.id"
-          :class="['category-btn', { active: currentCategory === category.id }]"
-          @click="currentCategory = category.id"
-        >
-          <span>{{ category.name }}</span>
-        </button>
-      </div>
-    </div>
+    <div class="home-workspace">
+      <!-- 桌面分类索引；平板以下收进顶部横条 -->
+      <aside class="category-rail" aria-labelledby="category-rail-title">
+        <h2 id="category-rail-title" class="rail-title">分类</h2>
+        <div class="rail-list">
+          <button
+            v-for="category in categories"
+            :key="category.id"
+            type="button"
+            :class="['rail-item', { active: currentCategory === category.id }]"
+            @click="currentCategory = category.id"
+          >
+            <span>{{ category.name }}</span>
+            <span class="rail-mark" aria-hidden="true">{{ currentCategory === category.id ? '•' : '' }}</span>
+          </button>
+        </div>
+      </aside>
 
-    <!-- 可滚动内容区域 -->
-    <main class="main-content">
-      <div class="feed-head" id="feed">
+      <!-- 可滚动内容区域 -->
+      <main class="main-content">
+        <!-- 平板/手机：顶部横滑分类 -->
+        <div class="fixed-header">
+          <div class="categories">
+            <button
+              v-for="category in categories"
+              :key="category.id"
+              :class="['category-btn', { active: currentCategory === category.id }]"
+              @click="currentCategory = category.id"
+            >
+              <span>{{ category.name }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="feed-head" id="feed">
         <div class="feed-heading">
           <h2>在售好物</h2>
-          <p>按发布时间浏览校园里的最新闲置</p>
         </div>
         <div class="feed-count">
           <strong>{{ filteredProducts.length }}</strong>
@@ -87,29 +101,27 @@
         <!-- 空状态 -->
         <transition name="fade-empty">
           <div class="empty-state empty-catalog" v-if="filteredProducts.length === 0" :key="'empty-' + currentCategory">
-            <span class="empty-tape" aria-hidden="true"></span>
             <div class="empty-doodle" aria-hidden="true">
               <svg viewBox="0 0 200 140" fill="none">
-                <ellipse cx="100" cy="129" rx="66" ry="5.5" fill="#f3e3e7" opacity="0.55" />
-                <path d="M53 67 148 67 142 124 58 124Z" fill="#fffdf9" stroke="#3f3d56" stroke-width="2.2" stroke-linejoin="round" />
-                <path d="M53 67 37 45 80 56 85 67" fill="#fbf1d8" stroke="#3f3d56" stroke-width="2.2" stroke-linejoin="round" />
-                <path d="M148 67 163 45 120 56 116 67" fill="#fbf1d8" stroke="#3f3d56" stroke-width="2.2" stroke-linejoin="round" />
+                <ellipse cx="100" cy="129" rx="66" ry="5.5" fill="var(--line)" opacity="0.55" />
+                <path d="M53 67 148 67 142 124 58 124Z" fill="var(--card)" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round" />
+                <path d="M53 67 37 45 80 56 85 67" fill="var(--butter-soft)" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round" />
+                <path d="M148 67 163 45 120 56 116 67" fill="var(--butter-soft)" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round" />
                 <g transform="rotate(-9 89 57)">
-                  <rect x="70" y="42" width="40" height="19" rx="2" fill="#fadce3" stroke="#b84461" stroke-width="1.8" />
-                  <path d="M78 42v19" stroke="#b84461" stroke-width="1.8" />
+                  <rect x="70" y="42" width="40" height="19" rx="2" fill="var(--primary-3)" stroke="var(--primary)" stroke-width="1.8" />
+                  <path d="M78 42v19" stroke="var(--primary)" stroke-width="1.8" />
                 </g>
-                <path d="M121 57c3-10 11-12 15-11 3 1 3 5-1 9-3 3-7 4-14 2Z" fill="#dff3ea" stroke="#2c7357" stroke-width="1.8" />
-                <path d="M125 57c-6-3-11-1-13 3-1 4 2 6 7 5 4-1 6-4 6-8Z" fill="#dff3ea" stroke="#2c7357" stroke-width="1.8" />
-                <path d="M118 58h11l-2 9h-7Z" fill="#e5bd72" stroke="#3f3d56" stroke-width="1.8" />
-                <path d="M100 57v9" stroke="#3f3d56" stroke-width="1.6" />
+                <path d="M121 57c3-10 11-12 15-11 3 1 3 5-1 9-3 3-7 4-14 2Z" fill="var(--secondary-3)" stroke="var(--secondary-2)" stroke-width="1.8" />
+                <path d="M125 57c-6-3-11-1-13 3-1 4 2 6 7 5 4-1 6-4 6-8Z" fill="var(--secondary-3)" stroke="var(--secondary-2)" stroke-width="1.8" />
+                <path d="M118 58h11l-2 9h-7Z" fill="var(--butter)" stroke="var(--ink)" stroke-width="1.8" />
+                <path d="M100 57v9" stroke="var(--ink)" stroke-width="1.6" />
                 <g transform="rotate(8 100 71)">
-                  <rect x="87" y="65" width="26" height="14" rx="2" fill="#fbf1d8" stroke="#3f3d56" stroke-width="1.8" />
-                  <circle cx="89.5" cy="68.5" r="1.8" fill="#fffdf9" stroke="#3f3d56" stroke-width="1.4" />
-                  <text x="96" y="76" fill="#3f3d56" font-family="Space Mono, monospace" font-size="8">¥ 5</text>
+                  <rect x="87" y="65" width="26" height="14" rx="2" fill="var(--butter-soft)" stroke="var(--ink)" stroke-width="1.8" />
+                  <circle cx="89.5" cy="68.5" r="1.8" fill="var(--card)" stroke="var(--ink)" stroke-width="1.4" />
+                  <text x="96" y="76" fill="var(--ink)" font-family="JetBrains Mono, monospace" font-size="8">¥ 5</text>
                 </g>
-                <path d="M65 101c4-3 13-3 17 0M70 108h8" stroke="#ead7dd" stroke-width="1.6" stroke-linecap="round" />
-                <circle cx="135" cy="104" r="2.2" fill="#b84461" />
-                <path d="M143 25l1.8 4.2 4.2 1.8-4.2 1.8-1.8 4.2-1.8-4.2-4.2-1.8 4.2-1.8Z" fill="#e5bd72" />
+                <path d="M65 101c4-3 13-3 17 0M70 108h8" stroke="var(--line-strong)" stroke-width="1.6" stroke-linecap="round" />
+                <circle cx="135" cy="104" r="2.2" fill="var(--primary)" />
               </svg>
             </div>
             <div class="empty-copy">
@@ -121,7 +133,8 @@
           </div>
         </transition>
       </template>
-    </main>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -444,33 +457,97 @@ onMounted(() => {
 /* Friendly 首页：搜索优先、粉彩英雄区、温柔商品流 */
 .home-page {
   width: 100%;
-  max-width: 1180px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 28px 36px 80px;
+  padding: 32px 32px 84px;
   display: flex;
   flex-direction: column;
   background: var(--bg);
   color: var(--ink);
 }
 
+/* 主页：页头 + 分类索引 + 商品主区 */
+.home-workspace {
+  display: grid;
+  grid-template-columns: 188px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.category-rail {
+  position: sticky;
+  top: calc(98px + env(safe-area-inset-top, 0px));
+  min-width: 0;
+  padding-top: 26px;
+}
+
+.rail-title {
+  margin: 0;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.rail-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.rail-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 10px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-2);
+  border-radius: 0;
+  color: var(--text-3);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s var(--fish-ease), color 0.2s var(--fish-ease);
+}
+
+.rail-item:hover {
+  background: var(--cream-1);
+  color: var(--ink);
+}
+
+.rail-item.active {
+  background: var(--cream-1);
+  color: var(--primary-2);
+  font-weight: 600;
+}
+
+.rail-mark {
+  width: 10px;
+  color: var(--primary);
+  font-size: 13px;
+  line-height: 1;
+  text-align: right;
+}
+
+/* 吸顶分类只在平板与手机出现 */
+.fixed-header { display: none; }
+
 /* 页头：直接说明在卖什么，按钮靠右，不用装饰卡 */
 .home-hero {
   position: relative;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 40px;
-  padding: 26px 0 30px;
-  background-color: transparent;
-  background-image: repeating-linear-gradient(
-    180deg,
-    transparent 0 33px,
-    rgba(63, 61, 86, 0.045) 33px 34px
-  );
-  background-position: 0 9px;
-  border: 0;
+  gap: 48px;
+  padding: 42px 0 38px;
   border-bottom: 1px solid var(--line);
-  border-radius: 0;
 }
 
 .hero-copy {
@@ -481,43 +558,15 @@ onMounted(() => {
   max-width: 760px;
 }
 
-.hero-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  align-self: flex-start;
-  margin: 0 0 12px;
-  padding: 4px 10px 4px 8px;
-  background: var(--butter-soft);
-  border-left: 3px solid var(--butter);
-  color: var(--text-warm);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  transform: rotate(-1deg);
-  transform-origin: left center;
-}
-
-.hero-kicker svg {
-  display: none;
-}
-
-.kicker-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--primary);
-}
-
 .hero-title {
   margin: 0;
   max-width: none;
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: clamp(30px, 3vw, 36px);
+  font-size: clamp(36px, 3.8vw, 48px);
   font-weight: 600;
-  letter-spacing: 0.015em;
-  line-height: 1.24;
+  letter-spacing: 0;
+  line-height: 1.15;
 }
 
 .hero-title em {
@@ -527,90 +576,49 @@ onMounted(() => {
   font-style: normal;
 }
 
-.hero-stroke {
-  position: absolute;
-  left: 0;
-  bottom: -7px;
-  width: 100%;
-  height: 9px;
-  overflow: visible;
-}
-
-.hero-stroke path {
-  stroke: var(--butter);
-  stroke-width: 3;
-  stroke-linecap: round;
-  fill: none;
-}
-
 .hero-desc {
-  margin: 12px 0 0;
-  max-width: 680px;
+  margin: 15px 0 0;
+  max-width: 620px;
   color: var(--text-3);
   font-size: 14px;
-  font-weight: 500;
-  line-height: 1.7;
+  font-weight: 400;
+  line-height: 1.75;
 }
 
 .hero-side {
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  flex: 0 0 auto;
-  width: 168px;
-}
-
-.hero-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   gap: 8px;
-  width: 100%;
-  min-height: 46px;
-  padding: 12px 20px;
-  background: var(--primary);
-  border-radius: 4px;
-  box-shadow: 3px 3px 0 rgba(168, 58, 87, 0.16);
-  color: var(--on-primary);
-  font-size: 14px;
-  font-weight: 700;
-  transition: transform 0.24s var(--fish-ease), background-color 0.24s var(--fish-ease),
-    box-shadow 0.24s var(--fish-ease);
+  flex: 0 0 auto;
+  width: auto;
 }
 
-.hero-cta svg {
-  width: 18px;
-  height: 18px;
-}
-
-.hero-cta:hover {
-  transform: translateY(-1px);
-  background: var(--primary-2);
-}
-
-.hero-cta:active {
-  transform: translateY(0);
-}
-
-.hero-secondary {
+.hero-link {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 46px;
-  padding: 12px 20px;
-  background: transparent;
-  border: 1px solid var(--line-strong);
-  border-radius: 4px;
-  color: var(--ink);
-  font-size: 14px;
+  gap: 7px;
+  min-height: 36px;
+  padding: 4px 0 5px;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--primary-2);
+  font-size: 13px;
   font-weight: 600;
-  transition: background-color 0.24s var(--fish-ease), border-color 0.24s var(--fish-ease);
+  transition: color 0.2s var(--fish-ease), border-color 0.2s var(--fish-ease);
 }
 
-.hero-secondary:hover {
-  background: var(--cream-2);
-  border-color: var(--secondary);
+.hero-link svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s var(--fish-ease);
+}
+
+.hero-link:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.hero-link:hover svg {
+  transform: translateX(3px);
 }
 
 .hero-points {
@@ -635,7 +643,7 @@ onMounted(() => {
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: var(--secondary);
+  background: var(--secondary-2);
 }
 
 /* 右侧说明：结构化的交易步骤，而不是悬浮数据卡 */
@@ -653,7 +661,7 @@ onMounted(() => {
   margin: 0 0 12px;
   color: var(--primary-2);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
 }
@@ -686,7 +694,7 @@ onMounted(() => {
   padding-top: 3px;
   color: var(--primary);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
 }
@@ -719,13 +727,14 @@ onMounted(() => {
 /* 搜索与分类：吸顶但保持轻盈 */
 .fixed-header {
   position: sticky;
-  top: calc(76px + env(safe-area-inset-top, 0px));
+  top: calc(74px + env(safe-area-inset-top, 0px));
   z-index: 100;
-  margin: 14px -4px 0;
-  padding: 8px 4px 6px;
-  background: rgba(253, 249, 243, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  margin: 0 -4px;
+  padding: 0 4px;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 /* 分类：桌面完整换行，移动横向滑动 */
@@ -733,8 +742,8 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  gap: 8px;
-  padding: 2px 0 4px;
+  gap: 22px;
+  padding: 0;
   overflow: visible;
 }
 
@@ -744,8 +753,8 @@ onMounted(() => {
 .category-btn {
   position: relative;
   flex-shrink: 0;
-  min-height: 42px;
-  padding: 8px 14px;
+  min-height: 46px;
+  padding: 10px 0;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -754,15 +763,15 @@ onMounted(() => {
   border-bottom: 2px solid transparent;
   border-radius: 0;
   color: var(--text-3);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.2s var(--fish-ease), color 0.2s var(--fish-ease);
 }
 
 .category-btn:hover {
-  background: var(--butter-soft);
+  background: transparent;
   color: var(--ink);
 }
 
@@ -774,14 +783,14 @@ onMounted(() => {
   background: transparent;
   border-bottom-color: var(--primary);
   color: var(--primary-2);
-  font-weight: 700;
+  font-weight: 600;
   box-shadow: none;
 }
 
 /* 商品流 */
 .main-content {
   flex: 1;
-  padding-top: 14px;
+  padding-top: 0;
   max-width: 100%;
   margin: 0;
   overflow: visible;
@@ -792,23 +801,16 @@ onMounted(() => {
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  padding: 4px 2px 16px;
+  padding: 26px 0 18px;
 }
 
 .feed-heading h2 {
-  margin: 0 0 4px;
+  margin: 0;
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: 25px;
+  font-size: 26px;
   font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-.feed-heading p {
-  margin: 0;
-  color: var(--text-3);
-  font-size: 12px;
-  font-weight: 500;
+  letter-spacing: 0;
 }
 
 .feed-count {
@@ -842,7 +844,7 @@ onMounted(() => {
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 22px;
+  gap: 18px;
   margin: 0 0 8px;
 }
 
@@ -851,8 +853,8 @@ onMounted(() => {
   overflow: hidden;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  border-radius: 4px;
+  box-shadow: none;
 }
 
 .skeleton-image {
@@ -945,19 +947,21 @@ onMounted(() => {
 
 .empty-icon.error-icon {
   color: var(--danger);
-  border-color: var(--danger-bg);
-  font-size: 28px;
-  font-weight: 700;
+  border-color: var(--danger);
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .empty-state {
-  gap: 14px;
-  min-height: 300px;
+  gap: 12px;
+  min-height: 260px;
   max-height: none;
   margin-top: 12px;
-  padding: 48px 20px;
-  background: var(--cream-1);
-  border-radius: var(--radius-lg);
+  padding: 44px 20px;
+  background: transparent;
+  border-top: 1px solid var(--line-2);
+  border-bottom: 1px solid var(--line-2);
+  border-radius: 0;
 }
 
 .empty-state.empty-catalog {
@@ -966,36 +970,23 @@ onMounted(() => {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  gap: 22px;
-  width: min(100%, 820px);
+  gap: 20px;
+  width: 100%;
   min-height: 0;
-  margin: 12px auto 0;
-  padding: 18px 30px 20px 18px;
-  background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: 4px;
-  box-shadow: 4px 5px 0 rgba(63, 61, 86, 0.055);
-  transform: rotate(-0.35deg);
+  margin: 8px auto 0;
+  padding: 24px 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line-2);
+  border-bottom: 1px solid var(--line-2);
+  border-radius: 0;
+  box-shadow: none;
   text-align: left;
 }
 
-.empty-state.empty-catalog::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 150px;
-  width: 80px;
-  height: 19px;
-  background: rgba(229, 189, 114, 0.3);
-  border-left: 1px solid rgba(229, 189, 114, 0.46);
-  border-right: 1px solid rgba(229, 189, 114, 0.46);
-  transform: rotate(-1.8deg);
-}
-
 .empty-doodle {
-  flex: 0 0 190px;
-  width: 190px;
-  padding-left: 4px;
+  flex: 0 0 128px;
+  width: 128px;
 }
 
 .empty-doodle svg {
@@ -1010,18 +1001,17 @@ onMounted(() => {
 }
 
 .empty-catalog .empty-title {
-  margin: 0 0 6px;
+  margin: 0 0 5px;
   font-family: var(--font-serif);
   font-weight: 600;
-  letter-spacing: 0.01em;
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.3;
-  letter-spacing: -0.015em;
 }
 
 .empty-catalog .empty-desc {
   margin: 0;
   max-width: 46ch;
+  font-size: 13px;
 }
 
 .empty-catalog .btn { flex: 0 0 auto; }
@@ -1049,26 +1039,26 @@ onMounted(() => {
   margin-top: 12px;
   color: var(--text-4);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
 }
 
 .empty-icon {
-  width: 92px;
-  height: 92px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-sm);
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  box-shadow: none;
   color: var(--text-3);
 }
 
 .empty-icon :deep(svg) {
-  width: 42px;
-  height: 42px;
+  width: 20px;
+  height: 20px;
   stroke-width: 1.6;
 }
 
@@ -1083,12 +1073,16 @@ onMounted(() => {
   margin-top: 2px;
 }
 
-/* 1100 以下：分类横滑，避免换行孤儿 */
-@media (max-width: 1100px) {
+/* 1199 以下取消桌面索引栏，分类回到顶部横条 */
+@media (max-width: 1199px) {
+  .home-workspace { display: block; }
+  .category-rail { display: none; }
+  .fixed-header { display: block; }
+  .products-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
   .categories {
     flex-wrap: nowrap;
     justify-content: flex-start;
-    gap: 5px;
+    gap: 18px;
     overflow-x: auto;
     scrollbar-width: none;
   }
@@ -1097,9 +1091,13 @@ onMounted(() => {
     -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 30px), transparent);
     mask-image: linear-gradient(to right, #000 calc(100% - 30px), transparent);
   }
+  .category-btn { flex: 0 0 auto; padding: 6px 9px; font-size: 12px; min-height: 44px; }
+}
+
+/* 1100 以下：分类横滑，避免换行孤儿 */
+@media (max-width: 1100px) {
   .category-btn { flex: 0 0 auto; padding: 6px 9px; font-size: 12px; }
   .home-hero { gap: 24px; padding: 22px 0 26px; }
-  .hero-side { width: 158px; }
   .hero-title { font-size: 38px; }
 }
 
@@ -1125,17 +1123,16 @@ onMounted(() => {
 
 /* 手机：两栏，控件保持 44px */
 @media (max-width: 767px) {
-  .home-page { padding: 12px 12px calc(94px + env(safe-area-inset-bottom, 0px)); }
+  .home-page { padding: 10px 14px calc(94px + env(safe-area-inset-bottom, 0px)); }
   .home-hero {
-    padding: 18px 0 20px;
+    padding: 28px 0 26px;
     border-radius: 0;
     gap: 0;
   }
-  .hero-kicker { margin-bottom: 7px; font-size: 10px; }
-  .hero-title { font-size: 30px; line-height: 1.24; max-width: none; }
+  .hero-title { font-size: 32px; line-height: 1.18; max-width: none; }
   .hero-desc,
   .hero-side { display: none; }
-  .fixed-header { top: calc(62px + env(safe-area-inset-top, 0px)); margin: 12px -4px 0; padding: 8px 4px 6px; }
+  .fixed-header { top: calc(60px + env(safe-area-inset-top, 0px)); margin: 0 -4px; padding: 0 4px; }
   .categories {
     flex-wrap: nowrap;
     justify-content: flex-start;
@@ -1145,44 +1142,42 @@ onMounted(() => {
     padding-right: 12px;
   }
   .categories::-webkit-scrollbar { display: none; }
-  .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
-  .category-btn { padding: 8px 14px; font-size: 12px; min-height: 44px; }
-  .feed-head { padding: 2px 2px 12px; }
+  .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .categories { gap: 18px; }
+  .category-btn { padding: 9px 0; font-size: 11px; min-height: 44px; }
+  .feed-head { padding: 18px 2px 12px; }
   .feed-heading h2 { font-size: 20px; }
-  .feed-heading p { display: none; }
   .feed-count { padding: 0; }
   .feed-count strong { font-size: 15px; }
   .feed-count span { font-size: 11px; }
-  .main-content { padding-top: 10px; }
+  .main-content { padding-top: 0; }
   .load-more-btn { padding: 9px 26px; font-size: 13px; }
-  .empty-icon { width: 78px; height: 78px; }
-  .empty-state { padding: 36px 16px; border-radius: 20px; }
+  .empty-icon { width: 44px; height: 44px; }
+  .empty-state { padding: 32px 18px; border-radius: 4px; }
   .empty-state.empty-catalog {
     flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+    align-items: center;
+    gap: 10px;
     width: 100%;
     min-height: 0;
-    padding: 22px 20px 20px;
-    border-radius: 6px;
+    padding: 26px 0;
+    border-radius: 0;
+    text-align: center;
   }
-  .empty-state.empty-catalog::before { left: 50%; transform: translateX(-50%) rotate(1.5deg); }
-  .empty-doodle { flex: 0 0 auto; width: min(100%, 220px); margin: 0 auto -6px; }
-  .empty-catalog .btn { width: 100%; margin-left: 0; }
+  .empty-doodle { flex: 0 0 auto; width: 128px; margin: 0; }
+  .empty-catalog .btn { width: auto; min-width: 172px; margin-left: 0; }
 }
 
 /* 手机横屏：压缩首屏，让搜索进入一屏 */
 @media (max-height: 520px) and (orientation: landscape) {
   .home-hero { flex-direction: row; align-items: flex-end; gap: 24px; padding: 16px 0 18px; border-radius: 0; }
   .hero-desc { display: none; }
-  .hero-side { width: 150px; }
   .hero-title { font-size: 32px; line-height: 1.2; }
   .hero-title br { display: none; }
 }
 
 /* 触屏：hover 只作桌面增强，点按后不保留抬升 */
 @media (hover: none), (pointer: coarse) {
-  .hero-cta:hover,
   .load-more-btn:hover { transform: none; }
   .search-btn:hover { transform: translateY(-50%); }
 }

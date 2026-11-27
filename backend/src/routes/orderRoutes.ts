@@ -23,5 +23,8 @@ router.patch('/:id/status', OrderController.updateOrderStatus);
 // 取消订单
 router.patch('/:id/cancel', OrderController.cancelOrder);
 
+// 完成后评价对方
+router.post('/:id/review', writeLimiter, OrderController.createReview);
+
 export default router;
 

@@ -204,7 +204,12 @@ const handleAvatarChange = async (event) => {
     }
   } catch (error) {
     console.error('上传头像失败:', error)
-    toast.error('上传失败: ' + (error.message || '请稍后重试'))
+    // 优先展示后端可读文案（体积超限 / 格式不符）
+    const message = error.response?.data?.message
+      || (error.response?.status === 413 ? '图片超过服务端 10MB 上限' : '')
+      || (error.code === 'ECONNABORTED' ? '上传超时，请重试' : '')
+      || '请稍后重试'
+    toast.error('上传失败: ' + message)
   } finally {
     // 清空 input，允许重复选择同一文件
     if (avatarInput.value) {
@@ -318,10 +323,10 @@ onMounted(() => {
 }
 
 .section-label {
-  color: var(--text-3);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .section-hint {
@@ -372,13 +377,13 @@ onMounted(() => {
 
 .btn-upload {
   min-height: 32px;
-  padding: 4px 12px;
+  padding: 5px 10px;
   background: transparent;
-  border: 2px solid var(--on-panel);
-  border-radius: 999px;
+  border: 1px solid var(--on-panel);
+  border-radius: 3px;
   color: var(--on-panel);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -397,8 +402,8 @@ onMounted(() => {
 .form-group label {
   color: var(--ink);
   font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .label-note {
@@ -415,7 +420,7 @@ onMounted(() => {
   padding: 11px 14px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 16px;
+  border-radius: 4px;
   color: var(--ink);
   font-size: 14px;
   font-family: inherit;
@@ -454,24 +459,22 @@ onMounted(() => {
   min-height: 46px;
   padding: 10px 28px;
   background: var(--primary);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--primary);
+  border-radius: 3px;
+  box-shadow: none;
   color: var(--on-primary);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
+  transition: background-color 0.2s var(--fish-ease);
 }
 
 .btn-submit:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
+  background: var(--primary-2);
 }
 
 .btn-submit:disabled {
   opacity: 0.55;
-  box-shadow: none;
   cursor: not-allowed;
 }
 

@@ -149,9 +149,9 @@ html, body, #app {
 .main-wrapper {
   width: 100%;
   min-height: 100vh;
-  padding-top: calc(76px + env(safe-area-inset-top, 0px));
+  padding-top: calc(74px + env(safe-area-inset-top, 0px));
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--bg);
 }
 
@@ -160,13 +160,13 @@ html, body, #app {
 }
 
 .main-wrapper.mobile {
-  padding-top: calc(62px + env(safe-area-inset-top, 0px));
+  padding-top: calc(60px + env(safe-area-inset-top, 0px));
   padding-bottom: var(--mobile-nav-space);
 }
 
 @media (max-width: 767px) {
   .main-wrapper {
-    padding-top: calc(62px + env(safe-area-inset-top, 0px));
+    padding-top: calc(60px + env(safe-area-inset-top, 0px));
     padding-bottom: var(--mobile-nav-space);
   }
   .main-wrapper.full-width {

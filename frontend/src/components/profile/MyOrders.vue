@@ -19,21 +19,11 @@
       <div v-if="loading" class="loading">加载中...</div>
       
       <div v-else-if="displayOrders.length === 0" class="empty">
-        <div class="receipt-meta"><span>CAMPUS TRADE</span><span>NO. 0000</span></div>
-        <div class="empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-            <line x1="12" y1="22.08" x2="12" y2="12"></line>
-          </svg>
-        </div>
         <div class="empty-copy">
           <p class="empty-title">{{ activeTab === 'bought' ? '还没有购买记录' : '还没有卖出记录' }}</p>
           <span class="empty-desc">{{ activeTab === 'bought' ? '买到的商品会集中显示在这里。' : '卖出后，订单会记录在这里。' }}</span>
         </div>
-        <div class="receipt-divider" aria-hidden="true"></div>
-        <button type="button" class="btn btn-primary empty-action" @click="router.push('/')">去逛逛</button>
-        <p class="receipt-foot">同校面交 · 当面验货</p>
+        <button type="button" class="btn btn-outline empty-action" @click="router.push('/')">去逛逛</button>
       </div>
 
       <div 
@@ -53,7 +43,7 @@
           <div class="order-meta">
             <span class="order-price">¥{{ formatPrice(order.price) }}</span>
             <span class="order-status" :class="`status-${order.status}`">
-              {{ getStatusText(order.status) }}
+              {{ getStatusText(order) }}
             </span>
           </div>
           <div class="order-time">{{ formatTime(order.created_at) }}</div>
@@ -68,6 +58,7 @@
       :visible="showDetailDialog"
       :order="selectedOrder"
       @close="showDetailDialog = false"
+      @updated="loadOrders"
     />
   </div>
 </template>
@@ -104,15 +95,16 @@ const displayOrders = computed(() => {
   }
 })
 
-const getStatusText = (status) => {
+const getStatusText = (order) => {
   const statusMap = {
-    'pending': '待付款',
-    'paid': '已付款',
+    'pending': '待卖家确认',
+    'confirmed': order.delivery_mode === 'meetup' ? '待面交' : '待发货',
+    'paid': '已确认',
     'shipped': '已发货',
     'completed': '已完成',
     'cancelled': '已取消'
   }
-  return statusMap[status] || status
+  return statusMap[order.status] || order.status
 }
 
 const formatTime = (time) => {
@@ -167,18 +159,20 @@ onMounted(() => {
 /* 分段切换：纸片胶囊 */
 .tabs {
   display: flex;
-  gap: 8px;
+  gap: 22px;
+  border-bottom: 1px solid var(--line);
 }
 
 .tab-btn {
-  min-height: 40px;
-  padding: 8px 22px;
-  background: var(--cream-1);
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  min-height: 44px;
+  padding: 8px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
   color: var(--text-3);
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.26s var(--fish-ease),
               border-color 0.26s var(--fish-ease),
@@ -192,10 +186,10 @@ onMounted(() => {
 }
 
 .tab-btn.active {
-  background: var(--primary);
-  border-color: var(--edge);
-  box-shadow: var(--shadow-soft);
-  color: var(--on-primary);
+  background: transparent;
+  border-bottom-color: var(--primary);
+  color: var(--primary-2);
+  box-shadow: none;
 }
 
 .orders-list {
@@ -211,53 +205,23 @@ onMounted(() => {
   text-align: center;
 }
 
-/* 空订单：一张小票，不像通用空态卡 */
+/* 空订单：直接留在工作台里，不套小票卡 */
 .empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 9px;
-  width: min(100%, 390px);
-  min-height: 0;
-  margin: 26px auto 8px;
-  padding: 18px 30px 22px;
-  background: var(--card);
-  border: 1px dashed var(--line-strong);
-  border-radius: 2px;
-  box-shadow: 4px 5px 0 rgba(63, 61, 86, 0.05);
-  color: var(--text-3);
-  text-align: center;
-  transform: rotate(0.35deg);
-}
-
-.receipt-meta {
-  display: flex;
-  justify-content: space-between;
+  gap: 12px;
   width: 100%;
-  padding-bottom: 12px;
-  border-bottom: 1px dashed var(--line-strong);
-  color: var(--text-4);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-}
-
-.empty-icon {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  margin-top: 10px;
+  min-height: 0;
+  margin: 0;
+  padding: 62px 16px 54px;
   background: transparent;
   border: 0;
-  border-radius: 0;
-  color: var(--primary-2);
-  transform: rotate(-3deg);
+  color: var(--text-3);
+  text-align: center;
 }
 
-.empty-icon svg { width: 30px; height: 30px; stroke-width: 1.6; }
-
-.empty-copy { display: flex; flex-direction: column; gap: 3px; }
+.empty-copy { display: flex; flex-direction: column; gap: 4px; }
 
 .empty-title {
   margin: 0;
@@ -265,49 +229,35 @@ onMounted(() => {
   font-family: var(--font-serif);
   font-size: 20px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .empty-desc {
   color: var(--text-3);
   font-size: 12px;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
-.receipt-divider {
-  width: 100%;
-  margin: 8px 0 2px;
-  border-top: 1px dashed var(--line-strong);
-}
+.empty-action { margin-top: 2px; }
 
-.empty-action { margin-top: 4px; min-height: 40px; padding: 8px 22px; }
-
-.receipt-foot {
-  margin: 2px 0 0;
-  color: var(--text-4);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-}
-
-/* 订单行：纸卡 */
+/* 订单行：列表横条，不再在内容卡里套卡 */
 .order-card {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 18px;
+  padding: 14px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-2);
+  border-radius: 0;
   cursor: pointer;
-  transition: transform 0.26s var(--fish-ease),
-              box-shadow 0.26s var(--fish-ease),
-              background-color 0.26s var(--fish-ease);
+  transition: background-color 0.18s var(--fish-ease);
 }
 
+.order-card:last-child { border-bottom: 0; }
+
 .order-card:hover {
-  transform: translateY(-2px);
   background: var(--cream-1);
-  box-shadow: var(--shadow-soft);
 }
 
 .order-image {
@@ -317,7 +267,7 @@ onMounted(() => {
   object-fit: cover;
   background: var(--cream-2);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 3px;
 }
 
 .order-info {
@@ -331,8 +281,8 @@ onMounted(() => {
 .order-title {
   margin: 0;
   color: var(--ink);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -347,18 +297,18 @@ onMounted(() => {
 
 .order-price {
   color: var(--primary-2);
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
 
 .order-status {
-  padding: 2px 9px;
+  padding: 2px 6px;
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 2px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -369,6 +319,7 @@ onMounted(() => {
 }
 
 .status-paid,
+.status-confirmed,
 .status-shipped {
   background: var(--primary-3);
   border-color: var(--primary-2);

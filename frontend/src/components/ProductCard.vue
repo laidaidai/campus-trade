@@ -85,7 +85,7 @@ function goToDetail() {
 .product-card:hover {
   transform: translateY(-8px) scale(1.02);
   box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 36, 66, 0.3);
+  border-color: rgba(197, 106, 60, 0.18);
 }
 
 /* 商品图片 */
@@ -93,7 +93,7 @@ function goToDetail() {
   position: relative;
   width: 100%;
   padding-top: 100%;
-  background: #f5f5f5;
+  background: var(--cream-1);
   overflow: hidden;
 }
 
@@ -248,7 +248,7 @@ function goToDetail() {
   justify-content: space-between;
   align-items: center;
   padding-top: 8px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--line);
   margin-top: auto;
 }
 

@@ -150,7 +150,7 @@ defineExpose({
   padding: 24px;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 6px;
   box-shadow: var(--shadow-soft);
   animation: modalIn 0.26s var(--fish-ease) both;
 }
@@ -174,7 +174,7 @@ defineExpose({
   display: grid;
   place-items: center;
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   background: var(--cream-1);
 }
 
@@ -216,7 +216,7 @@ defineExpose({
   place-items: center;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-3);
   font-size: 22px;
   line-height: 1;
@@ -235,7 +235,7 @@ defineExpose({
   margin: 0;
   color: var(--ink);
   font-size: 21px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.25;
 }
 
@@ -262,11 +262,11 @@ defineExpose({
 .btn {
   min-height: 44px;
   padding: 9px 22px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 800;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
+  transition: background-color 0.2s var(--fish-ease), border-color 0.2s var(--fish-ease);
 }
 
 .btn-cancel {
@@ -281,24 +281,24 @@ defineExpose({
 }
 
 .btn-cancel:active {
-  transform: translateY(2px);
+  transform: none;
 }
 
 .btn-confirm {
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--primary);
+  box-shadow: none;
   background: var(--primary);
   color: var(--on-primary);
 }
 
 .btn-confirm:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
+  background: var(--primary-2);
+  border-color: var(--primary-2);
+  transform: none;
 }
 
 .btn-confirm:active {
-  transform: translateY(2px);
-  box-shadow: var(--shadow-soft);
+  transform: none;
 }
 
 .btn-confirm.btn-danger {
@@ -343,7 +343,7 @@ defineExpose({
     border-right: none;
     border-bottom: none;
     border-left: none;
-    border-radius: 24px 24px 0 0;
+    border-radius: 8px 24px 0 0;
     animation-name: sheetIn;
   }
   @keyframes sheetIn {

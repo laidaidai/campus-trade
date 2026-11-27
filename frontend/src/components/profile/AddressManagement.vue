@@ -1,7 +1,7 @@
 <template>
   <div class="address-management">
     <!-- 添加地址按钮 -->
-    <button class="btn-add-address" @click="showAddDialog">
+    <button class="btn btn-primary btn-add-address" @click="showAddDialog">
       <span class="icon">+</span>
       添加新地址
     </button>
@@ -14,8 +14,14 @@
 
     <!-- 空状态 -->
     <div v-else-if="addresses.length === 0" class="empty-state">
-      <div class="empty-icon icon-map-pin-large"></div>
+      <div class="empty-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M20 10c0 5-8 11-8 11s-8-6-8-11a8 8 0 0 1 16 0z"></path>
+          <circle cx="12" cy="10" r="2.6"></circle>
+        </svg>
+      </div>
       <p>还没有收货地址</p>
+      <small>新增后，下单时可以直接选用。</small>
     </div>
 
     <!-- 地址列表 -->
@@ -93,7 +99,7 @@
               <input 
                 v-model="form.province" 
                 type="text" 
-                placeholder="如:北京市"
+                placeholder="如：北京市"
                 required
               />
             </div>
@@ -102,7 +108,7 @@
               <input 
                 v-model="form.city" 
                 type="text" 
-                placeholder="如:北京市"
+                placeholder="如：北京市"
                 required
               />
             </div>
@@ -111,7 +117,7 @@
               <input 
                 v-model="form.district" 
                 type="text" 
-                placeholder="如:海淀区"
+                placeholder="如：海淀区"
                 required
               />
             </div>
@@ -121,7 +127,7 @@
             <label>详细地址 *</label>
             <textarea 
               v-model="form.detail" 
-              placeholder="请输入详细地址,如街道、门牌号等"
+              placeholder="请输入详细地址，如街道、门牌号等"
               rows="3"
               required
             ></textarea>
@@ -292,30 +298,11 @@ onMounted(() => {
 /* 新增：主操作 */
 .btn-add-address {
   align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 9px 22px;
-  background: var(--primary);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
-  color: var(--on-primary);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
-}
-
-.btn-add-address:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
 }
 
 .btn-add-address .icon {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1;
 }
 
@@ -347,56 +334,34 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 48px 20px;
-  background: var(--cream-1);
-  border: 1px solid var(--line-strong);
-  border-radius: 24px;
+  gap: 6px;
+  padding: 58px 16px 50px;
+  background: transparent;
+  border: 0;
+  text-align: center;
 }
 
 .empty-icon {
-  position: relative;
-  width: 84px;
-  height: 84px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 2px;
+  color: var(--primary-2);
 }
 
-/* CSS 定位针 */
-.icon-map-pin-large::before {
-  content: '';
-  position: absolute;
-  top: 18px;
-  left: 30px;
-  width: 22px;
-  height: 30px;
-  border: 2px solid var(--text-2);
-  border-radius: 18px 14px 14px 0;
-  transform: rotate(-45deg);
-}
-
-.icon-map-pin-large::after {
-  content: '';
-  position: absolute;
-  top: 30px;
-  left: 39px;
-  width: 8px;
-  height: 8px;
-  background: var(--primary);
-  border-radius: 999px;
-}
+.empty-icon svg { width: 30px; height: 30px; }
 
 .empty-state p {
   margin: 0;
   color: var(--ink);
-  font-size: 15px;
-  font-weight: 800;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .empty-state small {
-  color: var(--text-4);
+  color: var(--text-3);
   font-size: 12px;
 }
 
@@ -414,7 +379,7 @@ onMounted(() => {
   padding: 16px;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 4px;
   transition: transform 0.26s var(--fish-ease),
               box-shadow 0.26s var(--fish-ease),
               background-color 0.26s var(--fish-ease);
@@ -426,8 +391,8 @@ onMounted(() => {
 }
 
 .address-card.default {
-  background: var(--primary-3);
-  border-color: var(--primary-2);
+  background: var(--cream-1);
+  border-color: var(--line-strong);
 }
 
 .address-header {
@@ -452,13 +417,13 @@ onMounted(() => {
 }
 
 .default-badge {
-  padding: 3px 10px;
+  padding: 2px 6px;
   background: var(--primary);
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  border: 1px solid var(--primary);
+  border-radius: 2px;
   color: var(--on-primary);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .address-detail {
@@ -472,19 +437,19 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding-top: 10px;
-  border-top: 2px solid var(--line);
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
 }
 
 .btn-action {
-  min-height: 34px;
-  padding: 6px 14px;
+  min-height: 36px;
+  padding: 6px 12px;
   background: var(--card);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-2);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -519,7 +484,7 @@ onMounted(() => {
   padding: 22px;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: 6px;
   box-shadow: var(--shadow-soft);
   animation: dialogIn 0.26s var(--fish-ease) both;
 }
@@ -571,7 +536,7 @@ onMounted(() => {
   padding: 10px 12px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 14px;
+  border-radius: 3px;
   color: var(--ink);
   font-size: 13px;
   font-family: inherit;
@@ -627,9 +592,9 @@ onMounted(() => {
   flex: 1;
   min-height: 44px;
   padding: 10px 18px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 700;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -646,13 +611,14 @@ onMounted(() => {
 
 .btn-submit {
   background: var(--primary);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--primary);
+  box-shadow: none;
   color: var(--on-primary);
 }
 
 .btn-submit:hover {
-  transform: translateY(-1px);
+  background: var(--primary-2);
+  transform: none;
 }
 
 @media (max-width: 767px) {
@@ -662,9 +628,9 @@ onMounted(() => {
   .dialog-content {
     max-width: 100%;
     max-height: 92vh;
-    border-radius: 20px 20px 0 0;
+    border-radius: 6px 6px 0 0;
     border-bottom: none;
-    box-shadow: 0 -10px 28px rgba(63,61,86,.10);
+    box-shadow: 0 -10px 28px rgba(42,29,20,.10);
   }
   .form-row { flex-direction: column; }
 }

@@ -86,10 +86,7 @@ function onSearch() {
   align-items: center;
   gap: 8px;
   text-decoration: none;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary);
   font-size: 20px;
   font-weight: 700;
   white-space: nowrap;
@@ -115,10 +112,7 @@ function onSearch() {
 }
 
 .logo-text {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary);
 }
 
 /* 搜索框 */
@@ -159,7 +153,7 @@ function onSearch() {
   width: 36px;
   height: 36px;
   border: none;
-  border-radius: 14px;
+  border-radius: 3px;
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
   color: #fff;
   cursor: pointer;
@@ -205,7 +199,7 @@ function onSearch() {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border-radius: 14px;
+  border-radius: 3px;
   text-decoration: none;
   color: rgba(0, 0, 0, 0.6);
   font-size: 14px;

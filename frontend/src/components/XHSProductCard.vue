@@ -17,12 +17,6 @@
         <div class="sold-watermark">已售出</div>
       </div>
       
-      <!-- 手写价签：贴在商品图上的集市标签 -->
-      <div class="price-tag">
-        <span class="tag-price">¥{{ formatPrice(product.price) }}</span>
-        <span v-if="product.originalPrice" class="tag-original">¥{{ formatPrice(product.originalPrice) }}</span>
-      </div>
-
       <!-- 删除图标 (在收藏页面显示，无论是否售出) -->
       <div 
         v-if="showDeleteIcon" 
@@ -42,7 +36,12 @@
     <!-- 商品信息 -->
     <div class="card-content">
       <h3 class="card-title">{{ product.title }}</h3>
-      
+
+      <div class="price-row">
+        <span class="price-now">¥{{ formatPrice(product.price) }}</span>
+        <span v-if="product.originalPrice" class="price-original">¥{{ formatPrice(product.originalPrice) }}</span>
+      </div>
+
       <div class="card-footer">
         <div class="seller-info">
           <img :src="resolveAvatar(product.sellerAvatar, product.sellerName)" :alt="product.sellerName" class="avatar" />
@@ -131,36 +130,33 @@ function formatNumber(num) {
 </script>
 
 <style scoped>
-/* 集市纸卡：薄边、硬影、贴在墙上的小海报 */
+/* 商品卡：陶土色系的目录卡片，图片在上，文字与价格在下 */
 .xhs-card {
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: 5px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
   cursor: pointer;
-  box-shadow: 3px 4px 0 rgba(63, 61, 86, 0.06);
-  transition: transform 0.3s var(--fish-ease), box-shadow 0.3s var(--fish-ease),
-    border-color 0.3s var(--fish-ease);
-  animation: cardIn 0.34s var(--fish-ease) both;
+  box-shadow: none;
+  transition: border-color 0.2s var(--fish-ease), transform 0.2s var(--fish-ease);
+  animation: cardIn 0.3s var(--fish-ease) both;
 }
 
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .xhs-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--primary-3);
-  box-shadow: 4px 7px 0 rgba(63, 61, 86, 0.09);
+  transform: translateY(-2px);
+  border-color: var(--primary);
 }
 
 .xhs-card:active {
-  transform: translateY(-1px);
-  box-shadow: 3px 4px 0 rgba(63, 61, 86, 0.06);
+  transform: translateY(0);
 }
 
 .card-image {
@@ -169,71 +165,70 @@ function formatNumber(num) {
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--cream-2);
+  border-bottom: 1px solid var(--line);
 }
 
 .card-image :deep(img) {
-  transition: transform 0.42s var(--fish-ease);
+  transition: transform 0.36s var(--fish-ease);
 }
 
 .xhs-card:hover .card-image :deep(img) {
-  transform: scale(1.035);
+  transform: scale(1.025);
 }
 
-/* 已售出：只盖一枚章，不遮住商品 */
+/* 已售：左上角的一枚状态签 */
 .sold-overlay {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 8px;
+  left: 8px;
   display: flex;
   pointer-events: none;
   z-index: 2;
 }
 
 .sold-watermark {
-  padding: 3px 9px;
+  padding: 3px 8px;
   color: var(--primary-2);
-  background: rgba(255, 253, 249, 0.94);
-  border: 1px solid rgba(184, 68, 97, 0.3);
-  border-radius: 3px;
-  font-family: var(--font-serif);
-  font-size: 12px;
+  background: var(--card);
+  border: 1px solid var(--primary);
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.01em;
   white-space: nowrap;
-  transform: rotate(-4deg);
   user-select: none;
 }
 
 .delete-icon {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 34px;
-  height: 34px;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 253, 249, 0.94);
+  background: var(--card);
   border: 1px solid var(--line-strong);
-  border-radius: 4px;
-  box-shadow: 2px 2px 0 rgba(63, 61, 86, 0.06);
+  border-radius: 3px;
   cursor: pointer;
   z-index: 3;
-  transition: background-color 0.24s var(--fish-ease), transform 0.24s var(--fish-ease);
+  transition: background-color 0.18s var(--fish-ease), border-color 0.18s var(--fish-ease);
 }
 
 .delete-icon.force-show { opacity: 1 !important; }
 
 .delete-icon svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   color: var(--text-2);
-  transition: color 0.24s var(--fish-ease);
+  transition: color 0.18s var(--fish-ease);
 }
 
 .delete-icon:hover {
   background: var(--danger-bg);
-  transform: scale(1.04);
+  border-color: var(--danger);
 }
 
 .delete-icon:hover svg {
@@ -243,8 +238,8 @@ function formatNumber(num) {
 .card-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 13px 14px 12px;
+  gap: 8px;
+  padding: 12px 13px 12px;
 }
 
 .card-title {
@@ -255,7 +250,6 @@ function formatNumber(num) {
   font-size: 15px;
   font-weight: 600;
   line-height: 1.5;
-  letter-spacing: 0.015em;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -264,66 +258,54 @@ function formatNumber(num) {
   text-overflow: ellipsis;
 }
 
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.price-now {
+  color: var(--primary-2);
+  font-family: var(--font-mono);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.price-original {
+  color: var(--text-4);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-decoration: line-through;
+}
+
 .card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding-top: 9px;
-  border-top: 1px dashed var(--line);
-}
-
-/* 贴在图片左下角的价签 */
-.price-tag {
-  position: absolute;
-  left: 10px;
-  bottom: 10px;
-  z-index: 2;
-  display: flex;
-  align-items: baseline;
-  gap: 5px;
-  padding: 4px 9px 5px;
-  background: var(--butter-soft);
-  border: 1px solid rgba(229, 189, 114, 0.66);
-  border-radius: 2px;
-  box-shadow: 2px 2px 0 rgba(63, 61, 86, 0.06);
-  transform: rotate(-2.4deg);
-}
-
-.tag-price {
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
-.tag-original {
-  color: var(--text-4);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  text-decoration: line-through;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
 }
 
 .seller-info {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   min-width: 0;
 }
 
 .avatar {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   object-fit: cover;
-  border-radius: 999px;
-  box-shadow: 0 0 0 2px rgba(184, 68, 97, 0.13);
+  border-radius: 50%;
 }
 
 .seller-name {
-  max-width: 76px;
+  max-width: 82px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -342,15 +324,15 @@ function formatNumber(num) {
 }
 
 .meta-inline svg {
-  width: 13px;
-  height: 13px;
-  color: var(--primary);
+  width: 12px;
+  height: 12px;
+  color: var(--text-4);
 }
 
 @media (max-width: 767px) {
   .card-content {
-    gap: 7px;
-    padding: 11px 11px 10px;
+    gap: 6px;
+    padding: 10px 10px 9px;
   }
 
   .card-title {
@@ -359,43 +341,30 @@ function formatNumber(num) {
     line-height: 1.45;
   }
 
+  .price-now { font-size: 15px; }
+
   .seller-name {
-    max-width: 62px;
-    font-size: 10px;
+    max-width: 64px;
+    font-size: 11px;
   }
-
-  .price-tag {
-    left: 7px;
-    bottom: 7px;
-    padding: 3px 7px 4px;
-  }
-
-  .tag-price { font-size: 12px; }
 
   .delete-icon {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     top: 6px;
     right: 6px;
+    opacity: 1;
   }
 
-  .delete-icon svg {
-    width: 15px;
-    height: 15px;
-  }
+  .delete-icon svg { width: 14px; height: 14px; }
 
-  .sold-watermark {
-    padding: 5px 12px;
-    font-size: 14px;
-  }
+  .sold-watermark { font-size: 11px; }
 }
 
-/* 触屏没有 hover：避免卡片和图片在点按后停留在悬停态 */
 @media (hover: none), (pointer: coarse) {
   .xhs-card:hover {
     transform: none;
     border-color: var(--line);
-    box-shadow: var(--shadow-sm);
   }
   .xhs-card:hover .card-image :deep(img) { transform: none; }
 }

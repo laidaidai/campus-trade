@@ -192,7 +192,7 @@ onUnmounted(() => {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-right: 1px solid var(--line);
-  box-shadow: 8px 0 32px rgba(63, 61, 86, 0.05);
+  box-shadow: 8px 0 32px rgba(42, 29, 20, 0.04);
   z-index: 1000;
 }
 
@@ -212,8 +212,8 @@ onUnmounted(() => {
   flex-shrink: 0;
   background: var(--primary);
   color: var(--on-primary);
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(184, 68, 97, 0.28);
+  border-radius: 4px;
+  box-shadow: 0 8px 20px rgba(197, 106, 60, 0.18);
   font-family: var(--font-display);
   font-size: 22px;
   font-weight: 700;
@@ -237,10 +237,10 @@ onUnmounted(() => {
 
 .logo-sub {
   color: var(--text-4);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
 }
 
 /* 主操作 */
@@ -254,7 +254,7 @@ onUnmounted(() => {
   padding: 11px 16px;
   background: var(--primary);
   border-radius: var(--radius-full);
-  box-shadow: 0 8px 20px rgba(184, 68, 97, 0.24);
+  box-shadow: 0 8px 20px rgba(197, 106, 60, 0.16);
   color: var(--on-primary);
   font-size: 14px;
   font-weight: 700;
@@ -265,7 +265,7 @@ onUnmounted(() => {
 .sidebar-cta:hover {
   transform: translateY(-1px);
   background: var(--primary-2);
-  box-shadow: 0 12px 26px rgba(184, 68, 97, 0.3);
+  box-shadow: 0 12px 26px var(--primary-3);
 }
 
 .sidebar-cta:active {
@@ -296,7 +296,7 @@ onUnmounted(() => {
   min-height: 46px;
   padding: 10px 14px;
   border: 1px solid transparent;
-  border-radius: 16px;
+  border-radius: 4px;
   color: var(--text-2);
   font-size: 15px;
   font-weight: 600;
@@ -390,7 +390,7 @@ onUnmounted(() => {
   overflow: hidden;
   background: var(--cream-2);
   border-radius: var(--radius-full);
-  box-shadow: 0 0 0 3px rgba(184, 68, 97, 0.16);
+  box-shadow: 0 0 0 3px rgba(197, 106, 60, 0.10);
 }
 
 .user-avatar {
@@ -438,7 +438,7 @@ onUnmounted(() => {
   padding: 10px 14px;
   background: var(--primary);
   border-radius: var(--radius-full);
-  box-shadow: 0 8px 20px rgba(184, 68, 97, 0.24);
+  box-shadow: 0 8px 20px rgba(197, 106, 60, 0.16);
   color: var(--on-primary);
   font-size: 14px;
   font-weight: 700;
@@ -492,7 +492,7 @@ onUnmounted(() => {
     margin: 10px auto 6px;
     padding: 0;
     flex-shrink: 0;
-    border-radius: 18px;
+    border-radius: 4px;
   }
 
   .sidebar-nav {
@@ -533,7 +533,7 @@ onUnmounted(() => {
     width: 52px;
     min-height: 52px;
     padding: 0;
-    border-radius: 18px;
+    border-radius: 4px;
     font-size: 0;
     gap: 0;
   }
@@ -555,11 +555,11 @@ onUnmounted(() => {
     width: 100%;
     height: auto;
     flex-direction: row;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border-top: 1px solid var(--line);
-    box-shadow: 0 -10px 30px rgba(63, 61, 86, 0.08);
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--line-strong);
+    box-shadow: none;
     z-index: 1000;
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
@@ -576,7 +576,7 @@ onUnmounted(() => {
     flex: 1;
     flex-direction: column;
     gap: 2px;
-    min-height: 66px;
+    min-height: 64px;
     padding: 8px 4px 6px;
     border: none;
     border-radius: 0;
@@ -600,11 +600,11 @@ onUnmounted(() => {
     left: 50%;
     top: 2px;
     bottom: auto;
-    width: 22px;
-    height: 3px;
+    width: 18px;
+    height: 2px;
     transform: translateX(-50%);
     background: var(--primary);
-    border-radius: 999px;
+    border-radius: 0;
   }
 
   .sidebar.mobile .nav-item.router-link-active .nav-icon {
@@ -619,7 +619,7 @@ onUnmounted(() => {
   .sidebar.mobile .nav-text {
     display: block;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
   }
 
   .sidebar.mobile .nav-badge {
@@ -629,7 +629,7 @@ onUnmounted(() => {
     min-width: 16px;
     height: 16px;
     padding: 0 4px;
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .sidebar.mobile .sidebar-foot,

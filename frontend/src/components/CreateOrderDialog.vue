@@ -2,8 +2,8 @@
   <div v-if="visible" class="dialog-overlay" @click="handleClose">
     <div class="dialog-content" @click.stop>
       <div class="dialog-header">
-        <h3>发起订单</h3>
-        <button class="close-btn" @click="handleClose">×</button>
+        <h3>发起交易</h3>
+        <button class="close-btn" @click="handleClose" aria-label="关闭">×</button>
       </div>
 
       <div class="dialog-body">
@@ -20,8 +20,51 @@
           </div>
         </div>
 
-        <!-- 地址选择 -->
+        <!-- 交易方式 -->
         <div class="form-section">
+          <label class="form-label">交易方式</label>
+          <div class="mode-switch" role="group" aria-label="交易方式">
+            <button
+              type="button"
+              :class="['mode-btn', { active: deliveryMode === 'meetup' }]"
+              @click="deliveryMode = 'meetup'"
+            >
+              面交
+            </button>
+            <button
+              type="button"
+              :class="['mode-btn', { active: deliveryMode === 'shipping' }]"
+              @click="deliveryMode = 'shipping'"
+            >
+              邮寄
+            </button>
+          </div>
+        </div>
+
+        <!-- 面交信息 -->
+        <div v-if="deliveryMode === 'meetup'" class="form-section">
+          <label class="form-label" for="meetup-place">面交地点 *</label>
+          <input
+            id="meetup-place"
+            v-model="meetupPlace"
+            type="text"
+            class="form-input"
+            placeholder="如：图书馆南门"
+            maxlength="200"
+          />
+          <label class="form-label" for="meetup-time">面交时间</label>
+          <input
+            id="meetup-time"
+            v-model="meetupTime"
+            type="text"
+            class="form-input"
+            placeholder="如：周五 18:30"
+            maxlength="100"
+          />
+        </div>
+
+        <!-- 地址选择 -->
+        <div v-if="deliveryMode === 'shipping'" class="form-section">
           <div class="form-label-row">
             <label class="form-label">收货地址 *</label>
             <button 
@@ -73,7 +116,7 @@
           <textarea 
             v-model="remark"
             class="form-textarea"
-            placeholder="选填,可以说明购买意向或其他要求"
+            placeholder="选填，可以说明购买意向或其他要求"
             rows="3"
             maxlength="200"
           ></textarea>
@@ -88,9 +131,9 @@
         <button 
           class="btn btn-primary" 
           @click="handleSubmit"
-          :disabled="!selectedAddressId || submitting"
+          :disabled="!canSubmit || submitting"
         >
-          {{ submitting ? '发送中...' : '发送订单' }}
+          {{ submitting ? '发送中...' : '发送交易请求' }}
         </button>
       </div>
     </div>
@@ -98,7 +141,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { getImageUrl } from '@/config'
 import { getMyAddresses } from '@/api/address'
 import toast from '@/utils/toast'
@@ -123,8 +166,18 @@ const emit = defineEmits(['close', 'submit'])
 const addresses = ref([])
 const selectedAddressId = ref(null)
 const selectedAddress = ref(null)
+const deliveryMode = ref('meetup')
+const meetupPlace = ref('')
+const meetupTime = ref('')
 const remark = ref('')
 const submitting = ref(false)
+
+const canSubmit = computed(() => {
+  if (deliveryMode.value === 'meetup') {
+    return Boolean(meetupPlace.value.trim())
+  }
+  return Boolean(selectedAddressId.value)
+})
 
 // 获取地址列表
 const fetchAddresses = async () => {
@@ -168,7 +221,11 @@ const goToAddressManagement = () => {
 
 // 提交订单
 const handleSubmit = () => {
-  if (!selectedAddressId.value) {
+  if (deliveryMode.value === 'meetup' && !meetupPlace.value.trim()) {
+    toast.warning('请填写面交地点')
+    return
+  }
+  if (deliveryMode.value === 'shipping' && !selectedAddressId.value) {
     toast.warning('请选择收货地址')
     return
   }
@@ -176,8 +233,11 @@ const handleSubmit = () => {
   submitting.value = true
 
   emit('submit', {
-    address_id: selectedAddressId.value,
-    address_detail: selectedAddress.value,
+    delivery_mode: deliveryMode.value,
+    meetup_place: deliveryMode.value === 'meetup' ? meetupPlace.value.trim() : null,
+    meetup_time: deliveryMode.value === 'meetup' ? meetupTime.value.trim() : null,
+    address_id: deliveryMode.value === 'shipping' ? selectedAddressId.value : null,
+    address_detail: deliveryMode.value === 'shipping' ? selectedAddress.value : null,
     remark: remark.value
   })
 
@@ -189,8 +249,11 @@ const handleClose = () => {
   emit('close')
   // 重置表单
   setTimeout(() => {
+    deliveryMode.value = 'meetup'
     selectedAddressId.value = null
     selectedAddress.value = null
+    meetupPlace.value = ''
+    meetupTime.value = ''
     remark.value = ''
     submitting.value = false
   }, 300)
@@ -199,6 +262,8 @@ const handleClose = () => {
 // 监听visible变化
 watch(() => props.visible, (newVal) => {
   if (newVal) {
+    deliveryMode.value = 'meetup'
+    submitting.value = false
     fetchAddresses()
   }
 })
@@ -231,7 +296,7 @@ onMounted(() => {
   overflow: hidden;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 6px;
   box-shadow: var(--shadow-soft);
   animation: dialogIn 0.26s var(--fish-ease) both;
 }
@@ -254,7 +319,7 @@ onMounted(() => {
   margin: 0;
   color: var(--ink);
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .close-btn {
@@ -265,7 +330,7 @@ onMounted(() => {
   place-items: center;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-2);
   font-size: 20px;
   line-height: 1;
@@ -281,6 +346,7 @@ onMounted(() => {
 
 .dialog-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 20px 22px;
   display: flex;
@@ -295,7 +361,7 @@ onMounted(() => {
   padding: 12px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 18px;
+  border-radius: 4px;
 }
 
 .product-image {
@@ -304,7 +370,7 @@ onMounted(() => {
   flex-shrink: 0;
   object-fit: cover;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 3px;
 }
 
 .product-info {
@@ -358,15 +424,49 @@ onMounted(() => {
   letter-spacing: 0.03em;
 }
 
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+}
+
+.mode-btn {
+  min-height: 42px;
+  padding: 8px 14px;
+  background: var(--cream-1);
+  border: 0;
+  color: var(--text-3);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s var(--fish-ease), color 0.2s var(--fish-ease);
+}
+
+.mode-btn + .mode-btn {
+  border-left: 1px solid var(--line-strong);
+}
+
+.mode-btn.active {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.mode-btn:not(.active):hover {
+  background: var(--cream-2);
+  color: var(--ink);
+}
+
 .btn-add-address {
   min-height: 32px;
   padding: 5px 13px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-2);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
   transition: border-color 0.2s var(--fish-ease), color 0.2s var(--fish-ease);
 }
@@ -377,12 +477,13 @@ onMounted(() => {
 }
 
 .form-select,
+.form-input,
 .form-textarea {
   width: 100%;
   padding: 11px 12px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 16px;
+  border-radius: 4px;
   color: var(--ink);
   font-size: 14px;
   font-family: inherit;
@@ -391,12 +492,17 @@ onMounted(() => {
               background-color 0.26s var(--fish-ease);
 }
 
-.form-select {
+.form-select,
+.form-input {
   min-height: 44px;
+}
+
+.form-select {
   cursor: pointer;
 }
 
 .form-select:focus,
+.form-input:focus,
 .form-textarea:focus {
   outline: none;
   background: var(--card);
@@ -424,7 +530,7 @@ onMounted(() => {
   padding: 12px 14px;
   background: var(--cream-2);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
 }
 
 .address-detail-row {
@@ -453,7 +559,7 @@ onMounted(() => {
   padding: 14px;
   background: var(--cream-2);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
 }
 
 .empty-address p {
@@ -467,11 +573,11 @@ onMounted(() => {
   min-height: 34px;
   padding: 6px 14px;
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
   color: var(--primary-2);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -492,11 +598,11 @@ onMounted(() => {
   flex: 1;
   min-height: 44px;
   padding: 10px 18px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 700;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
+  transition: background-color 0.2s var(--fish-ease), border-color 0.2s var(--fish-ease);
 }
 
 .btn:disabled {
@@ -518,14 +624,15 @@ onMounted(() => {
 
 .btn-primary {
   background: var(--primary);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--primary);
+  box-shadow: none;
   color: var(--on-primary);
 }
 
 .btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
+  background: var(--primary-2);
+  border-color: var(--primary-2);
+  transform: none;
 }
 
 .btn-primary:active:not(:disabled) {
@@ -540,9 +647,9 @@ onMounted(() => {
   .dialog-content {
     max-width: 100%;
     max-height: 92vh;
-    border-radius: 20px 20px 0 0;
+    border-radius: 6px 20px 0 0;
     border-bottom: none;
-    box-shadow: 0 -10px 28px rgba(63,61,86,.10);
+    box-shadow: 0 -10px 28px rgba(42,29,20,.10);
   }
   .dialog-header { padding: 16px 18px; }
   .dialog-body { padding: 16px 18px; }

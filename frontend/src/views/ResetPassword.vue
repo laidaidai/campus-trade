@@ -211,7 +211,7 @@ const handleSubmit = async () => {
   padding: 34px;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 24px;
+  border-radius: 8px;
   box-shadow: var(--shadow-soft);
 }
 
@@ -239,7 +239,7 @@ const handleSubmit = async () => {
   margin-bottom: 16px;
   padding: 10px 14px;
   border: 1px solid var(--line-strong);
-  border-radius: 16px;
+  border-radius: 4px;
   font-size: 13px;
   font-weight: 700;
   animation: messageIn 0.26s var(--fish-ease) both;
@@ -287,7 +287,7 @@ const handleSubmit = async () => {
   padding: 11px 14px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 16px;
+  border-radius: 4px;
   color: var(--ink);
   font-size: 15px;
   transition: border-color 0.26s var(--fish-ease),
@@ -312,28 +312,26 @@ const handleSubmit = async () => {
 
 .submit-btn {
   width: 100%;
-  min-height: 48px;
+  min-height: 46px;
   margin-top: 4px;
-  padding: 12px;
+  padding: 11px;
   background: var(--primary);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--primary);
+  border-radius: 3px;
+  box-shadow: none;
   color: var(--on-primary);
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
+  transition: background-color 0.2s var(--fish-ease);
 }
 
 .submit-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
+  background: var(--primary-2);
 }
 
 .submit-btn:active:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow: var(--shadow-soft);
+  transform: none;
 }
 
 .submit-btn:disabled {
@@ -361,7 +359,7 @@ const handleSubmit = async () => {
 
 @media (max-width: 767px) {
   .reset-password-page { padding: 16px 12px 32px; align-items: flex-start; }
-  .reset-box { padding: 24px 18px; border-radius: 20px; }
+  .reset-box { padding: 24px 18px; border-radius: 6px; }
   .reset-header h2 { font-size: 24px; }
 }
 

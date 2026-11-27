@@ -32,18 +32,11 @@
           </button>
         </nav>
 
-        <div class="profile-tip">
-          <span class="tip-heart">♡</span>
-          <p>同校面交，先验货再确认，交易更安心。</p>
-        </div>
       </aside>
 
       <main class="profile-content">
         <div class="section-head">
-          <div>
-            <h2 class="section-title">{{ currentSection.label }}</h2>
-            <p class="section-desc">{{ currentSection.desc }}</p>
-          </div>
+          <h2 class="section-title">{{ currentSection.label }}</h2>
         </div>
 
         <div class="content-section">
@@ -124,24 +117,19 @@ const handleLogout = async () => {
 
 const menuItems = ref([
   {
-    key: 'myProducts', label: '我的发布', icon: 'box', count: undefined,
-    desc: '管理你发布的闲置，查看在售与已售状态。'
+    key: 'myProducts', label: '我的发布', icon: 'box', count: undefined
   },
   {
-    key: 'orders', label: '我的订单', icon: 'shopping-bag', count: undefined,
-    desc: '集中查看你买到和卖出的订单。'
+    key: 'orders', label: '我的订单', icon: 'shopping-bag', count: undefined
   },
   {
-    key: 'history', label: '浏览历史', icon: 'eye', count: undefined,
-    desc: '最近浏览过的商品，继续之前的选择。'
+    key: 'history', label: '浏览历史', icon: 'eye', count: undefined
   },
   {
-    key: 'addresses', label: '地址管理', icon: 'map-pin', count: undefined,
-    desc: '维护收货地址，下单时直接选用。'
+    key: 'addresses', label: '地址管理', icon: 'map-pin', count: undefined
   },
   {
-    key: 'profile', label: '个人资料', icon: 'settings', count: undefined,
-    desc: '更新你的账号信息和联系方式。'
+    key: 'profile', label: '个人资料', icon: 'settings', count: undefined
   }
 ])
 
@@ -160,24 +148,23 @@ const userAvatar = computed(() => {
 <style scoped>
 /* Friendly 个人空间：左侧身份与导航，右侧内容工作台 */
 .page {
-  min-height: 100vh;
   background: var(--bg);
 }
 
 .profile-shell {
   width: 100%;
-  max-width: 1180px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 36px 80px;
+  padding: 28px 32px 80px;
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  gap: 26px;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 32px;
   align-items: start;
 }
 
 .profile-sidebar {
   position: sticky;
-  top: 100px;
+  top: calc(98px + env(safe-area-inset-top, 0px));
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -189,24 +176,11 @@ const userAvatar = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 30px 20px 18px;
-  background: var(--cream-1);
-  border: 1px solid var(--line-strong);
+  padding: 26px 18px 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 4px;
-  box-shadow: 3px 4px 0 rgba(63, 61, 86, 0.055);
-}
-
-.profile-hero::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  width: 74px;
-  height: 18px;
-  background: rgba(229, 189, 114, 0.31);
-  border-left: 1px solid rgba(229, 189, 114, 0.47);
-  border-right: 1px solid rgba(229, 189, 114, 0.47);
-  transform: translateX(-50%) rotate(-1.4deg);
+  box-shadow: none;
 }
 
 .identity {
@@ -218,14 +192,14 @@ const userAvatar = computed(() => {
 }
 
 .user-avatar {
-  width: 68px;
-  height: 68px;
+  width: 64px;
+  height: 64px;
   flex-shrink: 0;
   object-fit: cover;
   background: var(--card);
-  border: 2px solid var(--card);
-  border-radius: 999px;
-  box-shadow: 0 0 0 4px rgba(184, 68, 97, 0.14);
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  box-shadow: none;
 }
 
 .identity-copy {
@@ -240,7 +214,10 @@ const userAvatar = computed(() => {
   font-weight: 600;
   line-height: 1.3;
   letter-spacing: 0.01em;
-  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: normal;
 }
 
 .user-email {
@@ -261,9 +238,9 @@ const userAvatar = computed(() => {
   width: 100%;
   min-height: 44px;
   padding: 9px 10px;
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 3px;
   color: var(--text-3);
   font-family: var(--font-body);
   font-size: 11px;
@@ -289,9 +266,8 @@ const userAvatar = computed(() => {
   gap: 0;
   padding: 4px 0;
   background: var(--card);
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--line);
   border-radius: 4px;
-  box-shadow: 3px 4px 0 rgba(63, 61, 86, 0.05);
   overflow: hidden;
 }
 
@@ -305,8 +281,7 @@ const userAvatar = computed(() => {
   padding: 9px 15px;
   background: transparent;
   border: 0;
-  border-bottom: 1px dashed var(--line);
-  border-left: 3px solid transparent;
+  border-bottom: 1px solid var(--line-2);
   border-radius: 0;
   color: var(--text-2);
   font-size: 13px;
@@ -324,15 +299,9 @@ const userAvatar = computed(() => {
 }
 
 .profile-tab.active {
-  background: var(--butter-soft);
-  border-left-color: var(--primary);
+  background: var(--primary-3);
   color: var(--primary-2);
   box-shadow: none;
-}
-
-.profile-tab.active .tab-count {
-  background: rgba(255, 253, 249, 0.8);
-  border-color: rgba(184, 68, 97, 0.2);
 }
 
 .tab-label {
@@ -341,104 +310,50 @@ const userAvatar = computed(() => {
 }
 
 .tab-count {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  display: grid;
-  place-items: center;
-  background: var(--cream-1);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--text-2);
-  font-size: 10px;
-  font-weight: 700;
+  min-width: 0;
+  height: auto;
+  padding: 0;
+  display: block;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
-/* 一条贴在手边的薄荷便签 */
-.profile-tip {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  padding: 13px 15px;
-  background: var(--secondary-3);
-  border: 1px solid rgba(108, 197, 160, 0.32);
-  border-radius: 3px;
-  box-shadow: 2px 3px 0 rgba(44, 115, 87, 0.06);
-  color: var(--secondary-2);
-  transform: rotate(-0.8deg);
+.profile-tab.active .tab-count {
+  background: none;
+  border: 0;
+  color: var(--primary-2);
 }
 
-.tip-heart {
-  font-size: 16px;
-  line-height: 1.3;
-}
-
-.profile-tip p {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.65;
-}
-
-/* 右侧内容：一块安静的工作台 */
+/* 右侧内容：直接落在纸面，不再套一层大卡 */
 .profile-content {
   position: relative;
   min-width: 0;
-  min-height: 620px;
-  padding: 32px 30px 30px;
-  background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: 5px;
-  box-shadow: 4px 6px 0 rgba(63, 61, 86, 0.055);
-}
-
-.profile-content::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 46px;
-  width: 78px;
-  height: 18px;
-  background: rgba(229, 189, 114, 0.28);
-  border-left: 1px solid rgba(229, 189, 114, 0.44);
-  border-right: 1px solid rgba(229, 189, 114, 0.44);
-  transform: rotate(-2deg);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .section-head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 0 2px 22px;
+  display: block;
+  padding: 0 0 16px;
   border-bottom: 1px solid var(--line);
-  margin-bottom: 22px;
-}
-
-.section-eyebrow {
-  margin: 0 0 5px;
-  color: var(--primary-2);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  margin-bottom: 18px;
 }
 
 .section-title {
-  margin: 0 0 4px;
+  margin: 0;
   color: var(--ink);
   font-family: var(--font-serif);
   font-size: 26px;
   font-weight: 600;
   letter-spacing: 0.01em;
-}
-
-.section-desc {
-  margin: 0;
-  color: var(--text-3);
-  font-size: 13px;
-  line-height: 1.6;
 }
 
 .content-section {
@@ -600,18 +515,13 @@ const userAvatar = computed(() => {
   }
   .profile-content {
     padding: 24px 22px 26px;
-    border-radius: 28px;
+    border-radius: 4px;
   }
   .section-title { font-size: 23px; }
 }
 
 /* 900 以下：恢复单列，导航横滑 */
 @media (max-width: 767px) {
-  .profile-content::before {
-    left: 50%;
-    transform: translateX(-50%) rotate(-2deg);
-  }
-
   .profile-shell {
     display: block;
     padding: 16px 14px 108px;
@@ -622,42 +532,47 @@ const userAvatar = computed(() => {
   }
   .profile-hero {
     padding: 18px;
-    border-radius: 24px;
+    border-radius: 4px;
   }
   .identity { padding-right: 34px; }
   .user-avatar { width: 60px; height: 60px; }
   .username { font-size: 20px; }
   .profile-tabs {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 3px;
     padding: 6px;
-    border-radius: 20px;
+    border-radius: 4px;
     overflow: visible;
   }
   .profile-tab {
     width: 100%;
     min-height: 44px;
-    justify-content: flex-start;
-    gap: 7px;
-    padding: 8px 9px;
+    justify-content: center;
+    gap: 0;
+    padding: 8px 2px;
+    border-bottom: 0;
     white-space: nowrap;
     font-size: 12px;
   }
+  .profile-tabs .profile-tab:last-child { border-bottom: 0; }
+  .profile-tab .menu-icon { display: none; }
+  .profile-tab .tab-label { flex: 0 0 auto; }
   .profile-tip { display: none; }
   .profile-content {
     min-height: 0;
     margin-top: 14px;
     padding: 22px 18px 24px;
-    border-radius: 26px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
   }
   .section-head {
     padding-bottom: 16px;
     margin-bottom: 16px;
   }
   .section-title { font-size: 21px; }
-  .section-desc { font-size: 12px; }
-  .logout-btn { position: absolute; top: 10px; right: 10px; width: 44px; min-height: 44px; height: 44px; padding: 0; border-radius: 999px; }
+  .logout-btn { position: absolute; top: 10px; right: 10px; width: 44px; min-height: 44px; height: 44px; padding: 0; border-radius: 3px; }
   .logout-label { display: none; }
   .identity { padding-right: 34px; }
 }
@@ -668,8 +583,8 @@ const userAvatar = computed(() => {
   .identity { gap: 10px; }
   .user-avatar { width: 52px; height: 52px; }
   .username { font-size: 18px; }
-  .user-email { font-size: 10px; }
+  .user-email { font-size: 11px; }
   .profile-content { padding: 18px 14px 20px; }
-  .profile-tab { gap: 5px; padding: 8px 7px; font-size: 11px; }
+  .profile-tab { gap: 0; padding: 8px 2px; font-size: 11px; }
 }
 </style>

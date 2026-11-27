@@ -93,11 +93,10 @@ defineExpose({ show, close })
   min-width: 280px;
   max-width: min(520px, calc(100vw - 32px));
   padding: 12px 16px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-left-width: 6px;
-  border-radius: 18px;
-  box-shadow: var(--shadow-soft);
+  background: var(--cream-1);
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  box-shadow: none;
 }
 
 .toast-content {
@@ -121,21 +120,21 @@ defineExpose({ show, close })
   flex: 1;
   color: var(--ink);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.5;
   word-break: break-word;
 }
 
-.toast-success { border-left-color: var(--success); }
+.toast-success { border-color: var(--success); }
 .toast-success .toast-icon { color: var(--success); }
 
-.toast-error { border-left-color: var(--danger); }
+.toast-error { border-color: var(--danger); }
 .toast-error .toast-icon { color: var(--danger); }
 
-.toast-warning { border-left-color: var(--warn-text); }
+.toast-warning { border-color: var(--warn-text); }
 .toast-warning .toast-icon { color: var(--warn-text); }
 
-.toast-info { border-left-color: var(--primary); }
+.toast-info { border-color: var(--primary); }
 .toast-info .toast-icon { color: var(--primary); }
 
 /* 过渡 */

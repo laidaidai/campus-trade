@@ -3,7 +3,7 @@
     <div class="captcha-box" @click.stop>
       <div class="captcha-header">
         <h3>{{ title }}</h3>
-        <button class="close-btn" @click="handleClose">&times;</button>
+        <button class="close-btn" @click="handleClose" aria-label="关闭验证">&times;</button>
       </div>
       
       <div class="captcha-content">
@@ -142,11 +142,11 @@ const initSlider = async () => {
   block.height = canvasHeight
 
   // 先绘制一个占位背景
-  ctx.fillStyle = '#fadce3'
+  ctx.fillStyle = 'var(--primary-3)'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   
   // 添加加载提示
-  ctx.fillStyle = '#9b6572'
+  ctx.fillStyle = 'var(--text-3)'
   ctx.font = '14px sans-serif'
   ctx.textAlign = 'center'
   ctx.fillText('加载中...', canvas.width / 2, canvas.height / 2)
@@ -196,7 +196,7 @@ const initSlider = async () => {
     // 绘制缺口边框，使其更明显
     ctx.save()
     drawPuzzlePath(ctx, puzzleX.value, puzzleY, puzzleSize, r)
-    ctx.strokeStyle = '#3f3d56'
+    ctx.strokeStyle = 'var(--ink)'
     ctx.lineWidth = 2
     ctx.stroke()
     ctx.restore()
@@ -223,7 +223,7 @@ const initSlider = async () => {
     // 添加拼图块边框
     blockCtx.save()
     drawPuzzlePath(blockCtx, 0, puzzleY, puzzleSize, r)
-    blockCtx.strokeStyle = '#ffffff'
+    blockCtx.strokeStyle = 'var(--card)'
     blockCtx.lineWidth = 3
     blockCtx.stroke()
     blockCtx.restore()
@@ -242,7 +242,7 @@ const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   const width = canvasWidth
   const height = canvasHeight
   // 纸底背景
-  ctx.fillStyle = '#fadce3'
+  ctx.fillStyle = 'var(--primary-3)'
   ctx.fillRect(0, 0, width, height)
   
   // 添加一些装饰图案
@@ -275,7 +275,7 @@ const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   // 绘制缺口边框，使其更明显
   ctx.save()
   drawPuzzlePath(ctx, puzzleX.value, puzzleY, puzzleSize, r)
-  ctx.strokeStyle = '#3f3d56'
+  ctx.strokeStyle = 'var(--ink)'
   ctx.lineWidth = 2
   ctx.stroke()
   ctx.restore()
@@ -286,7 +286,7 @@ const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   tempCanvas.width = width
   tempCanvas.height = height
   const tempCtx = tempCanvas.getContext('2d')
-  tempCtx.fillStyle = '#fadce3'
+  tempCtx.fillStyle = 'var(--primary-3)'
   tempCtx.fillRect(0, 0, width, height)
   
   tempCtx.fillStyle = 'rgba(184,68,97,0.16)'
@@ -324,7 +324,7 @@ const drawWithColorBackground = (ctx, blockCtx, canvasWidth, canvasHeight) => {
   // 添加拼图块边框
   blockCtx.save()
   drawPuzzlePath(blockCtx, 0, puzzleY, puzzleSize, r)
-  blockCtx.strokeStyle = '#ffffff'
+  blockCtx.strokeStyle = 'var(--card)'
   blockCtx.lineWidth = 3
   blockCtx.stroke()
   blockCtx.restore()
@@ -584,7 +584,7 @@ onUnmounted(() => {
   overflow-y: auto;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: 6px;
   box-shadow: var(--shadow-soft);
   animation: slideUp 0.26s var(--fish-ease) both;
 }
@@ -618,7 +618,7 @@ onUnmounted(() => {
   place-items: center;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-2);
   font-size: 22px;
   line-height: 1;
@@ -651,7 +651,7 @@ onUnmounted(() => {
   overflow: hidden;
   background: var(--cream-2);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
 }
 
 .background-canvas {
@@ -676,7 +676,7 @@ onUnmounted(() => {
   padding: 8px 12px;
   background: var(--cream-1);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 3px;
   color: var(--text-3);
   font-size: 12px;
   font-weight: 700;
@@ -808,10 +808,10 @@ onUnmounted(() => {
   padding: 7px 18px;
   background: var(--card);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-2);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
 }
 

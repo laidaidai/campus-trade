@@ -10,7 +10,6 @@
       </header>
       <div class="inbox-empty-body">
         <div class="inbox-note">
-          <span class="inbox-tape" aria-hidden="true"></span>
           <div class="empty-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -19,7 +18,6 @@
           <p class="inbox-empty-title">还没有消息</p>
           <span class="empty-caption">找到心仪的商品后，点击“我想要”和卖家聊聊。</span>
           <button type="button" class="btn btn-primary empty-action" @click="$router.push('/')">去逛逛</button>
-          <span class="inbox-stamp" aria-hidden="true">同校</span>
         </div>
       </div>
     </section>
@@ -157,7 +155,6 @@
               @modify-price="handleModifyPrice"
               @confirm="handleSellerConfirm"
               @cancel="handleCancelOrder"
-              @buyer-confirm="handleBuyerConfirm"
               @view-order="handleViewOrder"
             />
           </div>
@@ -169,14 +166,18 @@
 
         <!-- 输入框 -->
         <div class="chat-input-area">
-          <!-- 发起订单按钮 (只有买家且商品在售) -->
+          <!-- 发起交易按钮 (只有买家且商品在售) -->
           <div v-if="currentConversation && !isSeller" class="order-button-wrapper">
             <button 
                class="create-order-btn"
-               :disabled="currentConversation.product_status === 'sold'"
+               :disabled="currentConversation.product_status !== 'available'"
                @click="handleCreateOrderClick"
             >
-               {{ currentConversation.product_status === 'sold' ? '已售出，无法下单' : '发起订单' }}
+               {{ currentConversation.product_status === 'reserved'
+                 ? '已被预订，无法发起交易'
+                 : currentConversation.product_status === 'sold'
+                   ? '已售出，无法发起交易'
+                   : '发起交易' }}
             </button>
           </div>
           <div class="input-wrapper">
@@ -202,7 +203,7 @@
       @undo="handleUndoDelete"
     />
 
-    <!-- 发起订单对话框 -->
+    <!-- 发起交易对话框 -->
     <CreateOrderDialog
       :visible="showCreateOrderDialog"
       :product="{
@@ -466,9 +467,9 @@ const viewProduct = () => {
   }
 };
 
-// 处理发起订单按钮点击
+// 处理发起交易按钮点击
 const handleCreateOrderClick = () => {
-  if (currentConversation.value?.product_status !== 'sold') {
+  if (currentConversation.value?.product_status === 'available') {
     showCreateOrderDialog.value = true;
   }
 };
@@ -738,12 +739,16 @@ onMounted(async () => {
 });
 
 // 订单相关功能
-// 发起订单
+// 发起交易
 const handleCreateOrder = async (orderInfo) => {
   try {
     // 二次校验：商品必须在售
-    if (currentConversation.value?.product_status === 'sold') {
-      toast.error('该商品已售出，无法发起订单');
+    if (currentConversation.value?.product_status !== 'available') {
+      toast.error(
+        currentConversation.value?.product_status === 'reserved'
+          ? '该商品已被预订，无法发起交易'
+          : '该商品已售出，无法发起交易'
+      );
       return;
     }
 
@@ -753,6 +758,9 @@ const handleCreateOrder = async (orderInfo) => {
       product_image: currentConversation.value.product_image,
       original_price: currentConversation.value.product_price,
       final_price: currentConversation.value.product_price,
+      delivery_mode: orderInfo.delivery_mode,
+      meetup_place: orderInfo.meetup_place,
+      meetup_time: orderInfo.meetup_time,
       address_id: orderInfo.address_id,
       address_detail: orderInfo.address_detail,
       status: 'pending',
@@ -767,7 +775,7 @@ const handleCreateOrder = async (orderInfo) => {
     });
 
     showCreateOrderDialog.value = false;
-    toast.success('订单已发送');
+    toast.success('交易请求已发送');
     
     // 立即更新当前会话的最后一条消息
     const convIndex = conversations.value.findIndex(c => c.id === currentConversation.value.id);
@@ -787,7 +795,8 @@ const handleCreateOrder = async (orderInfo) => {
     }
   } catch (error) {
     console.error('发送订单失败:', error);
-    toast.error('发送订单失败');
+    toast.error('发送交易请求失败');
+    showCreateOrderDialog.value = false;
   }
 };
 
@@ -838,66 +847,16 @@ const handlePriceModified = async (data) => {
   }
 };
 
-// 买家确认订单
-const handleBuyerConfirm = async (orderData) => {
-  try {
-    // 创建正式订单
-    const response = await createOrder({
-      product_id: orderData.product_id,
-      seller_id: currentConversation.value.seller_id,
-      price: orderData.final_price,
-      address_id: orderData.address_id,
-      remark: orderData.remark,
-      conversation_id: currentConversation.value.id
-    });
-
-    if (response.success) {
-      // 发送确认消息
-      const confirmedOrderData = {
-        ...orderData,
-        status: 'confirmed',
-        order_id: response.data.order_id
-      };
-
-      const msgResponse = await messageApi.sendMessage({
-        conversation_id: currentConversation.value.id,
-        receiver_id: currentConversation.value.seller_id,
-        content: JSON.stringify(confirmedOrderData),
-        type: 'order'
-      });
-
-      toast.success('订单创建成功');
-      
-      // 立即更新会话列表
-      const convIndex = conversations.value.findIndex(c => c.id === currentConversation.value.id);
-      if (convIndex !== -1) {
-        conversations.value[convIndex].last_message = JSON.stringify(confirmedOrderData);
-        conversations.value[convIndex].last_message_time = new Date().toISOString();
-        
-        const conv = conversations.value.splice(convIndex, 1)[0];
-        conversations.value.unshift(conv);
-      }
-      
-      // 添加消息到列表
-      if (msgResponse.message) {
-        messages.value.push(msgResponse.message);
-        nextTick(() => scrollToBottom());
-      }
-    }
-  } catch (error) {
-    console.error('确认订单失败:', error);
-    toast.error('确认订单失败');
-  }
-};
-
-// 卖家确认订单
+// 卖家确认交易：创建正式订单并进入待面交/待发货
 const handleSellerConfirm = async (orderData) => {
   try {
-    // 创建订单
     const response = await createOrder({
       product_id: orderData.product_id,
       seller_id: currentConversation.value.seller_id,
       price: orderData.final_price,
+      delivery_mode: orderData.delivery_mode,
+      meetup_place: orderData.meetup_place,
+      meetup_time: orderData.meetup_time,
       address_id: orderData.address_id,
       remark: orderData.remark,
       conversation_id: currentConversation.value.id
@@ -918,17 +877,17 @@ const handleSellerConfirm = async (orderData) => {
       });
 
       toast.success('订单已确认');
-      
+
       // 立即更新会话列表
       const convIndex = conversations.value.findIndex(c => c.id === currentConversation.value.id);
       if (convIndex !== -1) {
         conversations.value[convIndex].last_message = JSON.stringify(confirmedOrderData);
         conversations.value[convIndex].last_message_time = new Date().toISOString();
-        
+
         const conv = conversations.value.splice(convIndex, 1)[0];
         conversations.value.unshift(conv);
       }
-      
+
       // 添加消息到列表
       if (msgResponse.message) {
         messages.value.push(msgResponse.message);
@@ -1015,19 +974,19 @@ watch(currentConversation, () => {
 /* 网页两栏：会话列表 + 聊天台，两块纸卡 */
 .messages-container {
   display: flex;
-  gap: 18px;
-  height: calc(100vh - 76px - env(safe-area-inset-top, 0px));
-  height: calc(100dvh - 76px - env(safe-area-inset-top, 0px));
-  max-width: 1240px;
+  gap: 20px;
+  height: calc(100vh - 74px - env(safe-area-inset-top, 0px));
+  height: calc(100dvh - 74px - env(safe-area-inset-top, 0px));
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px 24px;
+  padding: 20px 32px;
   background: var(--bg);
   box-sizing: border-box;
 }
 
 /* 左：会话列表 */
 .conversations-sidebar {
-  width: 320px;
+  width: 300px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -1035,7 +994,7 @@ watch(currentConversation, () => {
   background: var(--card);
   border: 1px solid var(--line-strong);
   border-radius: 5px;
-  box-shadow: 3px 4px 0 rgba(63, 61, 86, 0.05);
+  box-shadow: none;
 }
 
 .sidebar-header {
@@ -1062,11 +1021,11 @@ watch(currentConversation, () => {
   display: grid;
   place-items: center;
   background: var(--primary);
-  border: 1.5px solid var(--edge);
-  border-radius: 999px;
+  border: 1px solid var(--primary);
+  border-radius: 2px;
   color: var(--on-primary);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1086,7 +1045,7 @@ watch(currentConversation, () => {
   gap: 11px;
   padding: 10px;
   border: 1px solid transparent;
-  border-radius: 18px;
+  border-radius: 4px;
   cursor: pointer;
   user-select: none;
   transition: background-color 0.26s var(--fish-ease),
@@ -1171,11 +1130,11 @@ watch(currentConversation, () => {
   display: grid;
   place-items: center;
   background: var(--primary);
-  border: 1.5px solid var(--edge);
-  border-radius: 999px;
+  border: 1px solid var(--primary);
+  border-radius: 2px;
   color: var(--on-primary);
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1214,7 +1173,7 @@ watch(currentConversation, () => {
   place-items: center;
   background: var(--card);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-3);
   cursor: pointer;
   opacity: 0;
@@ -1256,14 +1215,14 @@ watch(currentConversation, () => {
 .empty-list-icon {
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
+  width: 52px;
+  height: 52px;
   margin-bottom: 2px;
   color: var(--primary-2);
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  box-shadow: var(--shadow-soft);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .empty-list-icon svg { width: 28px; height: 28px; }
@@ -1285,9 +1244,19 @@ watch(currentConversation, () => {
   flex-direction: column;
   overflow: hidden;
   background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: 5px;
-  box-shadow: 4px 6px 0 rgba(63, 61, 86, 0.055);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+/* 桌面无会话：只留一块全宽空态 */
+.messages-container.desktop-empty .conversations-sidebar,
+.messages-container.desktop-empty .chat-area {
+  display: none;
+}
+
+.messages-container.desktop-empty .inbox-empty {
+  display: flex;
 }
 
 .inbox-empty-head {
@@ -1317,92 +1286,16 @@ watch(currentConversation, () => {
   padding: 32px 24px;
 }
 
-/* 空白消息不是一整块空面板，而是一张钉在墙上的留言纸 */
+/* 空白消息：编辑式留白，不加纸片/胶带装饰 */
 .inbox-note {
   position: relative;
-  width: min(100%, 440px);
+  width: min(100%, 480px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 38px 30px 30px;
-  background: var(--cream-1);
-  border: 1px solid var(--line-strong);
-  border-radius: 4px;
-  box-shadow: 4px 5px 0 rgba(63, 61, 86, 0.05);
+  gap: 12px;
+  padding: 24px;
   text-align: center;
-  transform: rotate(-0.5deg);
-}
-
-.inbox-tape {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  width: 78px;
-  height: 18px;
-  background: rgba(229, 189, 114, 0.32);
-  border-left: 1px solid rgba(229, 189, 114, 0.48);
-  border-right: 1px solid rgba(229, 189, 114, 0.48);
-  transform: translateX(-50%) rotate(1.4deg);
-}
-
-.inbox-stamp {
-  position: absolute;
-  right: 18px;
-  bottom: 14px;
-  padding: 2px 6px;
-  border: 1px solid rgba(184, 68, 97, 0.24);
-  border-radius: 2px;
-  color: rgba(184, 68, 97, 0.3);
-  font-family: var(--font-serif);
-  font-size: 13px;
-  letter-spacing: 0.12em;
-  transform: rotate(-7deg);
-}
-
-.inbox-empty-title {
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-@media (min-width: 768px) {
-  .messages-container.desktop-empty .conversations-sidebar,
-  .messages-container.desktop-empty .chat-area {
-    display: none;
-  }
-  .messages-container.desktop-empty .inbox-empty {
-    display: flex;
-  }
-}
-
-/* 右：聊天台 */
-.chat-area {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: 5px;
-  box-shadow: 3px 4px 0 rgba(63, 61, 86, 0.05);
-  box-shadow: var(--shadow-soft);
-}
-
-.empty-chat {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  background: var(--cream-1);
-  color: var(--text-3);
-  font-size: 14px;
 }
 
 .empty-icon {
@@ -1414,14 +1307,71 @@ watch(currentConversation, () => {
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  color: var(--primary);
-  transform: rotate(-3deg);
+  color: var(--primary-2);
 }
 
 .empty-icon svg {
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
   stroke-width: 1.7;
+}
+
+.inbox-empty-title {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.inbox-note .empty-caption {
+  max-width: 38ch;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.chat-area {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.empty-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.empty-chat .empty-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.empty-chat .empty-icon svg { width: 38px; height: 38px; }
+
+.empty-chat p {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.empty-chat .empty-caption {
+  max-width: 34ch;
+  font-size: 12px;
+  line-height: 1.75;
 }
 
 .chat-header {
@@ -1463,9 +1413,7 @@ watch(currentConversation, () => {
 }
 
 .chat-header .info .product-name {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  display: block;
   color: var(--text-3);
   font-size: 12px;
   overflow: hidden;
@@ -1478,15 +1426,15 @@ watch(currentConversation, () => {
 }
 
 .btn-link {
-  min-height: 38px;
-  padding: 7px 16px;
-  background: var(--cream-1);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  min-height: 36px;
+  padding: 6px 14px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  box-shadow: none;
   color: var(--ink);
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s var(--fish-ease), transform 0.2s var(--fish-ease);
 }
@@ -1507,7 +1455,7 @@ watch(currentConversation, () => {
   place-items: center;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--ink);
   cursor: pointer;
 }
@@ -1594,7 +1542,7 @@ watch(currentConversation, () => {
 .message-item.is-mine .message-bubble {
   background: var(--primary);
   border-color: var(--edge);
-  border-radius: 18px 4px 16px 16px;
+  border-radius: 4px 4px 16px 16px;
   box-shadow: var(--shadow-soft);
   color: var(--on-primary);
 }
@@ -1628,7 +1576,7 @@ watch(currentConversation, () => {
   padding: 6px 14px;
   background: var(--cream-2);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 4px;
   color: var(--text-3);
   font-size: 12px;
 }
@@ -1648,15 +1596,15 @@ watch(currentConversation, () => {
 }
 
 .create-order-btn {
-  min-height: 40px;
-  padding: 8px 18px;
-  background: var(--cream-1);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  min-height: 38px;
+  padding: 7px 16px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  box-shadow: none;
   color: var(--ink);
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -1683,7 +1631,7 @@ watch(currentConversation, () => {
   padding: 12px 14px;
   background: var(--card);
   border: 1px solid var(--line-strong);
-  border-radius: 18px;
+  border-radius: 4px;
   color: var(--ink);
   font-size: 14px;
   line-height: 1.5;
@@ -1706,12 +1654,12 @@ watch(currentConversation, () => {
   min-width: 88px;
   height: 48px;
   background: var(--primary);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--primary);
+  border-radius: 3px;
+  box-shadow: none;
   color: var(--on-primary);
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
@@ -1735,7 +1683,7 @@ watch(currentConversation, () => {
 /* 平板横屏：列表收窄 */
 @media (min-width: 768px) and (max-width: 1100px) {
   .conversations-sidebar { width: 264px; }
-  .messages-container { gap: 14px; padding: 16px; }
+  .messages-container { gap: 14px; padding: 16px 24px; }
 }
 
 /* 手机：单栏切换；平板起保留会话列表 + 聊天双栏 */
@@ -1743,16 +1691,16 @@ watch(currentConversation, () => {
   .messages-container.mobile {
     flex-direction: column;
     gap: 12px;
-    height: calc(100vh - 62px - env(safe-area-inset-top, 0px) - var(--mobile-nav-space));
-    height: calc(100dvh - 62px - env(safe-area-inset-top, 0px) - var(--mobile-nav-space));
+    height: calc(100vh - 60px - env(safe-area-inset-top, 0px) - var(--mobile-nav-space));
+    height: calc(100dvh - 60px - env(safe-area-inset-top, 0px) - var(--mobile-nav-space));
     padding: 10px;
   }
 
   .conversations-sidebar {
     width: 100%;
     flex: 1;
-    border-radius: 24px;
-    box-shadow: var(--shadow-soft);
+    border-radius: 4px;
+    box-shadow: none;
   }
 
   .conversations-sidebar.hidden {
@@ -1761,8 +1709,8 @@ watch(currentConversation, () => {
 
   .chat-area {
     display: none;
-    border-radius: 24px;
-    box-shadow: var(--shadow-soft);
+    border-radius: 4px;
+    box-shadow: none;
   }
 
   .chat-area.show {

@@ -34,7 +34,7 @@ import AuthCard from '@/components/AuthCard.vue'
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 880px;
+  max-width: 960px;
 }
 
 .auth-brand {
@@ -53,8 +53,7 @@ import AuthCard from '@/components/AuthCard.vue'
   place-items: center;
   flex-shrink: 0;
   background: var(--primary);
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(184, 68, 97, 0.24);
+  border-radius: 3px;
   color: var(--on-primary);
   font-family: var(--font-display);
   font-size: 20px;

@@ -1,19 +1,27 @@
 import pool from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
+export type OrderStatus = 'pending' | 'confirmed' | 'paid' | 'shipped' | 'completed' | 'cancelled';
+export type DeliveryMode = 'meetup' | 'shipping';
+
 export interface Order extends RowDataPacket {
   id: number;
   product_id: number;
   seller_id: number;
   buyer_id: number;
   price: number;
-  status: 'pending' | 'paid' | 'shipped' | 'completed' | 'cancelled';
+  delivery_mode: DeliveryMode;
+  meetup_place?: string | null;
+  meetup_time?: string | null;
+  status: OrderStatus;
   address_id?: number;
   remark?: string;
   created_at: Date;
   paid_at?: Date;
+  confirmed_at?: Date;
   shipped_at?: Date;
   completed_at?: Date;
+  cancelled_at?: Date;
   deleted_at?: Date;
   // 关联数据
   product_title?: string;
@@ -26,6 +34,16 @@ export interface Order extends RowDataPacket {
   address_name?: string;
   address_phone?: string;
   address_full?: string;
+  reviews?: Array<{
+    id: number;
+    reviewer_id: number;
+    reviewee_id: number;
+    rating: number;
+    content?: string | null;
+    created_at: Date;
+    reviewer_name?: string;
+    reviewer_avatar?: string;
+  }>;
 }
 
 export interface AddressSnapshot {
@@ -34,33 +52,44 @@ export interface AddressSnapshot {
   full: string;
 }
 
+export interface CreateOrderInput {
+  productId: number;
+  sellerId: number;
+  buyerId: number;
+  price: number;
+  deliveryMode: DeliveryMode;
+  status: 'pending' | 'confirmed';
+  addressId?: number | null;
+  remark?: string;
+  addressSnapshot?: AddressSnapshot;
+  meetupPlace?: string | null;
+  meetupTime?: string | null;
+}
+
 /**
  * 创建订单
  */
-export const createOrder = async (
-  productId: number,
-  sellerId: number,
-  buyerId: number,
-  price: number,
-  addressId?: number,
-  remark?: string,
-  addressSnapshot?: AddressSnapshot
-): Promise<number> => {
+export const createOrder = async (data: CreateOrderInput): Promise<number> => {
   const [result] = await pool.query<ResultSetHeader>(
     `INSERT INTO orders
-       (product_id, seller_id, buyer_id, price, address_id,
-        address_name, address_phone, address_full, remark, status)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+       (product_id, seller_id, buyer_id, price, delivery_mode, meetup_place, meetup_time,
+        address_id, address_name, address_phone, address_full, remark, status, confirmed_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-      productId,
-      sellerId,
-      buyerId,
-      price,
-      addressId ?? null,
-      addressSnapshot?.name ?? null,
-      addressSnapshot?.phone ?? null,
-      addressSnapshot?.full ?? null,
-      remark ?? null
+      data.productId,
+      data.sellerId,
+      data.buyerId,
+      data.price,
+      data.deliveryMode,
+      data.meetupPlace ?? null,
+      data.meetupTime ?? null,
+      data.addressId ?? null,
+      data.addressSnapshot?.name ?? null,
+      data.addressSnapshot?.phone ?? null,
+      data.addressSnapshot?.full ?? null,
+      data.remark ?? null,
+      data.status,
+      data.status === 'confirmed' ? new Date() : null
     ]
   );
 
@@ -166,10 +195,10 @@ export const getUserOrders = async (
  */
 export const updateOrderStatus = async (
   orderId: number,
-  status: 'pending' | 'paid' | 'shipped' | 'completed' | 'cancelled'
+  status: OrderStatus
 ): Promise<boolean> => {
   const statusTimeMap: { [key: string]: string } = {
-    'paid': 'paid_at',
+    'confirmed': 'confirmed_at',
     'shipped': 'shipped_at',
     'completed': 'completed_at'
   };
@@ -194,7 +223,7 @@ export const updateOrderStatus = async (
  */
 export const cancelOrder = async (orderId: number): Promise<boolean> => {
   const [result] = await pool.query<ResultSetHeader>(
-    'UPDATE orders SET status = ? WHERE id = ?',
+    'UPDATE orders SET status = ?, cancelled_at = NOW() WHERE id = ?',
     ['cancelled', orderId]
   );
   return result.affectedRows > 0;
@@ -243,7 +272,7 @@ export const hasActiveOrdersForProduct = async (
        FROM orders
       WHERE product_id = ?
         AND id <> ?
-        AND status IN ('pending', 'paid', 'shipped')
+        AND status IN ('pending', 'confirmed', 'paid', 'shipped')
       LIMIT 1`,
     [productId, excludeOrderId]
   );

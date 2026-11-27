@@ -301,8 +301,8 @@ const clearHistory = () => {
   overflow: hidden;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 18px;
-  box-shadow: 0 16px 40px rgba(63, 61, 86, 0.13);
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(42, 29, 20, 0.12);
   animation: panelIn 0.26s var(--fish-ease) both;
 }
 
@@ -335,7 +335,7 @@ const clearHistory = () => {
   place-items: center;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 3px;
   color: var(--on-panel);
   font-size: 12px;
   font-weight: 700;
@@ -384,7 +384,7 @@ const clearHistory = () => {
   place-items: center;
   background: transparent;
   border: 0;
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-3);
   font-size: 22px;
   line-height: 1;
@@ -401,7 +401,7 @@ const clearHistory = () => {
   place-items: center;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-3);
   cursor: pointer;
 }
@@ -451,10 +451,10 @@ const clearHistory = () => {
 
 .login-btn {
   min-height: 38px;
-  padding: 8px 22px;
+  padding: 8px 20px;
   background: var(--primary);
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  border: 1px solid var(--primary);
+  border-radius: 3px;
   box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   font-size: 13px;
@@ -483,9 +483,9 @@ const clearHistory = () => {
 .suggestion-chip {
   min-height: 34px;
   padding: 6px 12px;
-  background: var(--cream-1);
+  background: var(--card);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-2);
   font-size: 12px;
   font-weight: 700;
@@ -518,9 +518,9 @@ const clearHistory = () => {
   place-items: center;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 3px;
   color: var(--on-panel);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -540,7 +540,7 @@ const clearHistory = () => {
   padding: 9px 13px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 18px;
+  border-radius: 4px;
   color: var(--text-2);
   font-size: 13px;
   line-height: 1.65;
@@ -573,7 +573,7 @@ const clearHistory = () => {
   overflow: hidden;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
   cursor: pointer;
   transition: transform 0.2s var(--fish-ease), box-shadow 0.2s var(--fish-ease);
 }
@@ -635,7 +635,7 @@ const clearHistory = () => {
 
 .card-cond {
   color: var(--text-4);
-  font-size: 10px;
+  font-size: 11px;
   white-space: nowrap;
 }
 
@@ -676,7 +676,7 @@ const clearHistory = () => {
   padding: 10px 12px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 16px;
+  border-radius: 4px;
   color: var(--ink);
   font-size: 13px;
   font-family: inherit;
@@ -705,7 +705,7 @@ const clearHistory = () => {
   place-items: center;
   background: var(--primary);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
   box-shadow: var(--shadow-soft);
   color: var(--on-primary);
   cursor: pointer;
@@ -731,7 +731,7 @@ const clearHistory = () => {
 .ai-panel-tip {
   padding: 0 14px 10px;
   color: var(--text-4);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.4;
 }
 

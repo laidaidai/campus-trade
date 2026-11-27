@@ -1,0 +1,14 @@
+2026-11-26 工作制
+柔光阴影升级：全站 0-blur 硬偏移投影改为偏移+柔和模糊的柔光；theme.css 新增 --shadow-primary/-hover，sm/md/lg 改双层柔光；.btn/.xhs-card/hero-cta/空态卡/商品图等 20+ 处同步；npm run build 通过，截图验收无异常。
+2026-11-26 工作制
+- 按 AGENTS.md 前端细则完成令牌化收口：硬编码色值（Home/Search 的 SVG fill/stroke、ProductCard、CaptchaVerify canvas）全部改取 theme.css 变量；5 个弹窗关闭按钮补 aria-label；npm run build 通过，1440×900 与 390×844 截图验收无异常。
+2026-11-26 工作制
+- 按 awesome-design / Terracotta 重构全站视觉：奶油纸底、陶土红、衬线标题、4px 方角与细线体系；补齐首页/搜索/收藏/发布/详情/消息/账户/用户主页及移动底栏，清理旧粉色与胶带装饰；npm run build 通过，1440×900 与 390×844 抽查无异常。
+2026-11-26 工作制
+- 精修 Terracotta 全站：搜索框与按钮齐平（外框裁切、内层同高）；统一按钮为 3px 方角、42–46px 高、去投影，修复个人资料/地址/订单/商品/消息等残留胶囊；去掉按钮/标签的 10px 以下微字，改用 IBM Plex Sans + Newsreader 替代 Inter/Fraunces，主色加深到 #B25A30 并通过 AA 对比；清除 kicker、渐变、单侧强调条与嵌套卡；impeccable 扫描仅剩“奶油底色”这一有意选择；npm run build 与 backend tsc 通过，关键页 1440×900/390×844 已复核，QA 数据已清理。
+2026-11-26 工作制
+- 交易闭环落地：订单支持面交/邮寄双模式，卖家在聊天确认后创建订单并进入待面交/待发货；邮寄订单可标记发货，买家可确认面交/收货；双方可在未发货前取消；商品从 reserved 到 sold/available 同步；完成后买卖双方各评一次，卖家评分展示在商品详情与用户主页。新增 orders 迁移与 reviews 表；修复聊天下单流程（卖家确认只创建一次正式订单，买家不再重复下单）。真实接口测试 24/24 通过，1440×900 与 390×844 截图验收，QA 账号/商品/订单/评价/会话已全部清理，前后端 build 通过。
+2026-11-26 工作制
+- 布局统一：Header 与 Home/Search/Product/Profile/Publish/Favorites/UserHome 全部收口到 max-width 1200、桌面 32px、移动 14px；搜索页新增“按分类浏览”网格填充首屏空白；移除页面多余 min-height 消除短页空滚；发布页移动端固定提交栏试验因遮挡表单一同回退为自然末尾；前端 build 通过，1440/768/390 全页 scrollWidth == innerWidth，QA 数据已清理。
+2026-11-27 工作制
+- 全站布局重构：首页改为 188px 分类索引 + 4/3/2 列商品流，搜索加入分类目录、最近上架与 188px 结果筛选栏；个人中心改为 240px 身份/导航栏 + 无外框工作区；详情改 1.12/.88 图册分栏，发布合并为 360px+1fr 单张工作台，消息收窄为 300px 会话栏，收藏空态改横向说明带，用户页与登录页重排；App shell 改 overflow-x:clip 修复 sticky；前端 build 通过，1440/768/390 共 30 组页面无横向溢出，桌面/手机吸顶线 98/60 实测，impeccable layout 扫描为空，QA 数据已清理。

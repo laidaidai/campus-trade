@@ -3,6 +3,7 @@ import * as OrderModel from '../models/orderModel';
 import * as ProductModel from '../models/productModel';
 import * as MessageModel from '../models/messageModel';
 import * as AddressModel from '../models/addressModel';
+import * as ReviewModel from '../models/reviewModel';
 import { toPositiveInt } from '../utils/validation';
 
 /**
@@ -16,7 +17,16 @@ import { toPositiveInt } from '../utils/validation';
  */
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { product_id, price, address_id, remark, conversation_id } = req.body;
+    const {
+      product_id,
+      price,
+      address_id,
+      remark,
+      conversation_id,
+      delivery_mode,
+      meetup_place,
+      meetup_time
+    } = req.body;
     const authenticatedReq = req as any;
     const callerId = Number(authenticatedReq.user?.userId);
 
@@ -121,19 +131,9 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    // 收货地址必须存在且属于当前买家，同时保存下单时的地址快照
-    if (address_id === undefined || address_id === null || address_id === '') {
-      res.status(400).json({ success: false, message: '请选择收货地址' });
-      return;
-    }
-    const addressId = Number(address_id);
-    if (!Number.isInteger(addressId) || addressId <= 0) {
-      res.status(400).json({ success: false, message: '收货地址参数不合法' });
-      return;
-    }
-    const address = await AddressModel.getAddressById(addressId, Number(buyerId));
-    if (!address) {
-      res.status(400).json({ success: false, message: '收货地址不存在或不属于当前用户' });
+    const deliveryMode = delivery_mode === undefined ? 'shipping' : String(delivery_mode);
+    if (deliveryMode !== 'meetup' && deliveryMode !== 'shipping') {
+      res.status(400).json({ success: false, message: '交易方式不合法' });
       return;
     }
 
@@ -143,31 +143,80 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
+    let addressId: number | null = null;
+    let addressSnapshot: OrderModel.AddressSnapshot | undefined;
+    let meetupPlace: string | null = null;
+    let meetupTime: string | null = null;
+
+    if (deliveryMode === 'meetup') {
+      meetupPlace = meetup_place === undefined || meetup_place === null ? '' : String(meetup_place).trim();
+      if (!meetupPlace) {
+        res.status(400).json({ success: false, message: '请填写面交地点' });
+        return;
+      }
+      if (meetupPlace.length > 200) {
+        res.status(400).json({ success: false, message: '面交地点不能超过200个字符' });
+        return;
+      }
+
+      meetupTime = meetup_time === undefined || meetup_time === null ? null : String(meetup_time).trim();
+      if (meetupTime && meetupTime.length > 100) {
+        res.status(400).json({ success: false, message: '面交时间不能超过100个字符' });
+        return;
+      }
+      if (!meetupTime) meetupTime = null;
+    } else {
+      // 邮寄必须有收货地址，且属于当前买家；同时保存下单时的地址快照
+      if (address_id === undefined || address_id === null || address_id === '') {
+        res.status(400).json({ success: false, message: '请选择收货地址' });
+        return;
+      }
+      const parsedAddressId = Number(address_id);
+      if (!Number.isInteger(parsedAddressId) || parsedAddressId <= 0) {
+        res.status(400).json({ success: false, message: '收货地址参数不合法' });
+        return;
+      }
+      const address = await AddressModel.getAddressById(parsedAddressId, Number(buyerId));
+      if (!address) {
+        res.status(400).json({ success: false, message: '收货地址不存在或不属于当前用户' });
+        return;
+      }
+      addressId = parsedAddressId;
+      addressSnapshot = {
+        name: address.name,
+        phone: address.phone,
+        full: `${address.province} ${address.city} ${address.district} ${address.detail}`.trim()
+      };
+    }
+
     // 原子占货，防止两个请求同时把同一件商品下单
-    const reserved = await ProductModel.markProductSold(productId);
+    const reserved = await ProductModel.reserveProduct(productId);
     if (!reserved) {
       res.status(409).json({ success: false, message: '商品刚刚已被其他买家下单' });
       return;
     }
 
+    // 卖家在聊天中确认交易时创建订单，此时订单直接进入待面交/待发货
+    const initialStatus = callerId === Number(product.seller_id) ? 'confirmed' : 'pending';
+
     let orderId: number;
     try {
-      orderId = await OrderModel.createOrder(
+      orderId = await OrderModel.createOrder({
         productId,
-        Number(product.seller_id),
-        Number(buyerId),
-        priceValue,
+        sellerId: Number(product.seller_id),
+        buyerId: Number(buyerId),
+        price: priceValue,
+        deliveryMode,
+        status: initialStatus,
         addressId,
-        remarkText || undefined,
-        {
-          name: address.name,
-          phone: address.phone,
-          full: `${address.province} ${address.city} ${address.district} ${address.detail}`.trim()
-        }
-      );
+        remark: remarkText || undefined,
+        addressSnapshot,
+        meetupPlace,
+        meetupTime
+      });
     } catch (error) {
       // 订单落库失败时释放占货，避免商品被永久锁死
-      await ProductModel.updateProductStatus(productId, 'available');
+      await ProductModel.releaseProductReservation(productId);
       throw error;
     }
 
@@ -228,6 +277,8 @@ export const getOrderById = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
+    order.reviews = await ReviewModel.getOrderReviews(orderId);
+
     res.json({
       success: true,
       data: order
@@ -287,97 +338,120 @@ export const getMyOrders = async (req: Request, res: Response): Promise<void> =>
 
 /**
  * 更新订单状态
+ *
+ * pending -> confirmed（卖家确认） -> completed（买家确认面交/收货）
+ * pending -> confirmed（卖家确认） -> shipped（邮寄发货） -> completed（买家确认收货）
  */
 export const updateOrderStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const orderId = toPositiveInt(req.params.id);
     if (!orderId) {
-      res.status(400).json({
-        success: false,
-        message: '无效的订单ID'
-      });
+      res.status(400).json({ success: false, message: '无效的订单ID' });
       return;
     }
-    const { status } = req.body;
+
     const authenticatedReq = req as any;
     const userId = authenticatedReq.user?.userId;
-
     if (!userId) {
-      res.status(401).json({
-        success: false,
-        message: '未登录或登录已过期'
-      });
+      res.status(401).json({ success: false, message: '未登录或登录已过期' });
       return;
     }
 
-    // 获取订单验证权限
     const order = await OrderModel.getOrderById(orderId);
     if (!order) {
-      res.status(404).json({
-        success: false,
-        message: '订单不存在'
-      });
+      res.status(404).json({ success: false, message: '订单不存在' });
       return;
     }
 
-    // 只有卖家可以更新订单状态（发货、完成等）
-    if (order.seller_id !== userId) {
-      res.status(403).json({
-        success: false,
-        message: '无权修改此订单'
-      });
+    const isBuyer = Number(order.buyer_id) === Number(userId);
+    const isSeller = Number(order.seller_id) === Number(userId);
+    if (!isBuyer && !isSeller) {
+      res.status(403).json({ success: false, message: '无权修改此订单' });
       return;
     }
 
-    // 验证订单状态白名单和状态机
-    const validStatuses = ['pending', 'paid', 'shipped', 'completed', 'cancelled'] as const;
-    if (!status || !validStatuses.includes(status)) {
-      res.status(400).json({
-        success: false,
-        message: '无效的订单状态'
-      });
+    const requestedStatus = String(req.body?.status || '');
+    if (!['confirmed', 'shipped', 'completed', 'cancelled'].includes(requestedStatus)) {
+      res.status(400).json({ success: false, message: '无效的订单状态' });
       return;
     }
 
-    const transitions: Record<string, string[]> = {
-      pending: ['paid', 'cancelled'],
-      paid: ['shipped', 'cancelled'],
-      shipped: ['completed'],
-      completed: [],
-      cancelled: []
-    };
-    if (!transitions[order.status]?.includes(status)) {
-      res.status(409).json({
-        success: false,
-        message: `订单不能从 ${order.status} 直接变更为 ${status}`
-      });
-      return;
+    if (requestedStatus === 'confirmed') {
+      if (!isSeller) {
+        res.status(403).json({ success: false, message: '只有卖家可以确认订单' });
+        return;
+      }
+      if (order.status !== 'pending') {
+        res.status(409).json({ success: false, message: '当前订单状态不能确认' });
+        return;
+      }
     }
 
-    const updated = await OrderModel.updateOrderStatus(orderId, status);
+    if (requestedStatus === 'shipped') {
+      if (!isSeller) {
+        res.status(403).json({ success: false, message: '只有卖家可以发货' });
+        return;
+      }
+      if (order.delivery_mode !== 'shipping' || order.status !== 'confirmed') {
+        res.status(409).json({ success: false, message: '只有已确认的邮寄订单可以发货' });
+        return;
+      }
+    }
+
+    if (requestedStatus === 'completed') {
+      if (!isBuyer) {
+        res.status(403).json({ success: false, message: '请由买家确认交易完成' });
+        return;
+      }
+      const canComplete =
+        order.delivery_mode === 'meetup'
+          ? order.status === 'confirmed'
+          : order.status === 'shipped';
+      if (!canComplete) {
+        res.status(409).json({
+          success: false,
+          message: order.delivery_mode === 'meetup'
+            ? '面交订单需在卖家确认后完成'
+            : '邮寄订单需在卖家发货后确认收货'
+        });
+        return;
+      }
+    }
+
+    if (requestedStatus === 'cancelled') {
+      if (!['pending', 'confirmed'].includes(order.status)) {
+        res.status(400).json({
+          success: false,
+          message: order.status === 'shipped' ? '订单已发货，无法取消' : '当前订单无法取消'
+        });
+        return;
+      }
+    }
+
+    const updated = await OrderModel.updateOrderStatus(
+      orderId,
+      requestedStatus as OrderModel.OrderStatus
+    );
     if (!updated) {
       res.status(404).json({ success: false, message: '订单不存在' });
       return;
     }
 
-    // 通过状态接口取消订单时，同样按“无其他进行中订单”释放商品
-    if (status === 'cancelled') {
+    if (requestedStatus === 'completed') {
+      await ProductModel.finalizeProductSold(order.product_id);
+    }
+
+    if (requestedStatus === 'cancelled') {
       const hasActive = await OrderModel.hasActiveOrdersForProduct(order.product_id, orderId);
       if (!hasActive) {
-        await ProductModel.updateProductStatus(order.product_id, 'available');
+        await ProductModel.releaseProductReservation(order.product_id);
       }
     }
 
-    res.json({
-      success: true,
-      message: '订单状态更新成功'
-    });
+    res.json({ success: true, message: '订单状态更新成功' });
   } catch (error) {
     console.error('更新订单状态失败:', error);
-    res.status(500).json({
-      success: false,
-      message: '更新订单状态失败'
-    });
+    res.status(500).json({ success: false, message: '更新订单状态失败' });
   }
 };
 
@@ -424,8 +498,8 @@ export const cancelOrder = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    // 只有待付款/已付款订单可以取消；已发货、已完成、已取消都不能回退
-    if (!['pending', 'paid'].includes(order.status)) {
+    // 只有待确认/已确认订单可以取消；已发货、已完成、已取消都不能回退
+    if (!['pending', 'confirmed'].includes(order.status)) {
       res.status(400).json({
         success: false,
         message: order.status === 'shipped'
@@ -444,7 +518,7 @@ export const cancelOrder = async (req: Request, res: Response): Promise<void> =>
     // 同一商品没有其他进行中的订单时，才恢复为可售
     const hasActive = await OrderModel.hasActiveOrdersForProduct(order.product_id, orderId);
     if (!hasActive) {
-      await ProductModel.updateProductStatus(order.product_id, 'available');
+      await ProductModel.releaseProductReservation(order.product_id);
     }
 
     res.json({
@@ -457,6 +531,83 @@ export const cancelOrder = async (req: Request, res: Response): Promise<void> =>
       success: false,
       message: '取消订单失败'
     });
+  }
+};
+
+/**
+ * 完成后互评：买卖双方各可评价对方一次。
+ */
+export const createReview = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const orderId = toPositiveInt(req.params.id);
+    if (!orderId) {
+      res.status(400).json({ success: false, message: '无效的订单ID' });
+      return;
+    }
+
+    const authenticatedReq = req as any;
+    const userId = authenticatedReq.user?.userId;
+    if (!userId) {
+      res.status(401).json({ success: false, message: '未登录或登录已过期' });
+      return;
+    }
+
+    const order = await OrderModel.getOrderById(orderId);
+    if (!order) {
+      res.status(404).json({ success: false, message: '订单不存在' });
+      return;
+    }
+
+    const isBuyer = Number(order.buyer_id) === Number(userId);
+    const isSeller = Number(order.seller_id) === Number(userId);
+    if (!isBuyer && !isSeller) {
+      res.status(403).json({ success: false, message: '无权评价此订单' });
+      return;
+    }
+    if (order.status !== 'completed') {
+      res.status(400).json({ success: false, message: '交易完成后才能评价' });
+      return;
+    }
+
+    const rating = Number(req.body?.rating);
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      res.status(400).json({ success: false, message: '评分需为 1-5 星' });
+      return;
+    }
+
+    const content = req.body?.content === undefined || req.body?.content === null
+      ? null
+      : String(req.body.content).trim();
+    if (content && content.length > 500) {
+      res.status(400).json({ success: false, message: '评价不能超过500个字符' });
+      return;
+    }
+
+    const revieweeId = isBuyer ? Number(order.seller_id) : Number(order.buyer_id);
+
+    try {
+      const reviewId = await ReviewModel.createReview(
+        orderId,
+        Number(userId),
+        revieweeId,
+        rating,
+        content || undefined
+      );
+      res.status(201).json({
+        success: true,
+        data: { review_id: reviewId },
+        message: '评价已提交'
+      });
+    } catch (error: any) {
+      if (error?.code === 'ER_DUP_ENTRY') {
+        res.status(409).json({ success: false, message: '你已经评价过这笔订单' });
+        return;
+      }
+      throw error;
+    }
+  } catch (error) {
+    console.error('提交评价失败:', error);
+    res.status(500).json({ success: false, message: '提交评价失败' });
   }
 };
 

@@ -16,13 +16,20 @@
           <h1 class="username">{{ userInfo.username }}</h1>
           <p class="user-meta">
             <span>加入于 {{ formatDate(userInfo.created_at) }}</span>
+            <span v-if="userInfo.rating_count">
+              评分 {{ userInfo.rating_avg }}（{{ userInfo.rating_count }} 条）
+            </span>
           </p>
+        </div>
+        <div class="seller-stats" aria-label="卖家商品状态">
+          <div><strong>{{ availableCount }}</strong><span>在售</span></div>
+          <div><strong>{{ soldCount }}</strong><span>已售</span></div>
         </div>
       </div>
 
       <!-- 商品列表 -->
       <div class="products-section">
-        <h2 class="section-title">TA的商品 <span class="title-count">{{ products.length }}</span></h2>
+        <h2 class="section-title">TA的商品 <span class="title-count">{{ String(products.length).padStart(2, '0') }} 件</span></h2>
         
         <!-- 加载中 -->
         <div v-if="loading" class="loading-state">
@@ -53,9 +60,13 @@
           >
             <div class="product-image">
               <img :src="getImageUrl(product.images[0])" :alt="product.title" />
-              <!-- 已售出水印 -->
-              <div v-if="product.status === 'sold'" class="sold-watermark">
-                已售出
+              <!-- 状态水印 -->
+              <div
+                v-if="product.status !== 'available'"
+                class="sold-watermark"
+                :class="{ reserved: product.status === 'reserved' }"
+              >
+                {{ product.status === 'sold' ? '已售出' : '已预订' }}
               </div>
             </div>
             <div class="product-info">
@@ -87,6 +98,9 @@ const userId = computed(() => route.params.id)
 const userInfo = ref(null)
 const products = ref([])
 const loading = ref(false)
+
+const availableCount = computed(() => products.value.filter(p => p.status === 'available').length)
+const soldCount = computed(() => products.value.filter(p => p.status === 'sold').length)
 
 // 获取用户头像
 const getUserAvatar = computed(() => {
@@ -174,15 +188,14 @@ onMounted(() => {
 
 <style scoped>
 .page {
-  min-height: 100vh;
   background: var(--bg);
 }
 
 .user-homepage {
   width: 100%;
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 28px 36px 80px;
+  padding: 28px 32px 80px;
 }
 
 /* 卖家身份：深色 Hero */
@@ -191,12 +204,12 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 18px;
-  padding: 26px 24px;
-  background: var(--cream-1);
+  padding: 24px;
+  background: var(--card);
   color: var(--ink);
   border: 1px solid var(--line);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
+  border-radius: 4px;
+  box-shadow: none;
 }
 
 .back-link {
@@ -222,14 +235,14 @@ onMounted(() => {
 .back-link svg { width: 16px; height: 16px; }
 
 .user-avatar {
-  width: 88px;
-  height: 88px;
+  width: 72px;
+  height: 72px;
   flex-shrink: 0;
   object-fit: cover;
-  background: var(--card);
-  border: 3px solid var(--card);
-  border-radius: 999px;
-  box-shadow: 0 0 0 4px rgba(184, 68, 97, 0.15);
+  background: var(--cream-1);
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  box-shadow: none;
 }
 
 .user-info {
@@ -246,7 +259,10 @@ onMounted(() => {
   font-weight: 600;
   line-height: 1.25;
   letter-spacing: 0.01em;
-  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: normal;
 }
 
 .user-meta {
@@ -255,8 +271,39 @@ onMounted(() => {
   gap: 10px;
   margin: 0;
   color: var(--text-3);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
+}
+
+.seller-stats {
+  display: flex;
+  gap: 28px;
+  margin-left: auto;
+  padding-left: 24px;
+}
+
+.seller-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.seller-stats strong {
+  color: var(--primary-2);
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.seller-stats span {
+  color: var(--text-4);
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.02em;
 }
 
 .products-section {
@@ -272,15 +319,16 @@ onMounted(() => {
   border-bottom: 1px solid var(--line);
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: 21px;
+  font-size: 26px;
   font-weight: 600;
-  letter-spacing: 0.01em;
 }
 
 .title-count {
-  color: var(--primary-2);
-  font-size: 22px;
-  font-weight: 700;
+  color: var(--text-3);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
 
@@ -295,17 +343,13 @@ onMounted(() => {
   overflow: hidden;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 24px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: transform 0.34s var(--fish-ease),
-              box-shadow 0.34s var(--fish-ease),
-              background-color 0.34s var(--fish-ease);
+  transition: border-color 0.18s var(--fish-ease);
 }
 
 .product-item:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  background: var(--card);
+  border-color: var(--primary);
 }
 
 .product-image {
@@ -329,16 +373,22 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 10px;
-  color: var(--danger);
-  background: rgba(255, 252, 253, 0.94);
-  border: 1px solid rgba(184, 68, 97, 0.35);
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  padding: 3px 7px;
+  color: var(--primary-2);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  border: 1px solid var(--primary);
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   white-space: nowrap;
   pointer-events: none;
+}
+
+.sold-watermark.reserved {
+  color: var(--warn-text);
+  border-color: var(--warn-text);
 }
 
 .product-info {
@@ -353,7 +403,7 @@ onMounted(() => {
   min-height: 42px;
   color: var(--ink);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.45;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -365,17 +415,20 @@ onMounted(() => {
 .product-price {
   margin: 0;
   color: var(--primary-2);
-  font-size: 20px;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .product-time {
   margin: 0;
   color: var(--text-4);
+  font-family: var(--font-body);
   font-size: 11px;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
 
@@ -409,18 +462,17 @@ onMounted(() => {
   padding: 40px 20px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 20px;
+  border-radius: 6px;
 }
 
 .empty-icon {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   display: grid;
   place-items: center;
-  background: var(--card);
+  background: transparent;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  border-radius: 4px;
   color: var(--text-2);
 }
 
@@ -453,8 +505,8 @@ onMounted(() => {
 
 /* 手机 */
 @media (max-width: 767px) {
-  .user-homepage { padding: 12px 12px 40px; }
-  .user-card { padding: 18px 16px; gap: 14px; border-radius: 20px; }
+  .user-homepage { padding: 12px 14px 40px; }
+  .user-card { padding: 18px 16px; gap: 14px; border-radius: 6px; }
   .user-avatar { width: 64px; height: 64px; }
   .username { font-size: 21px; }
   .user-info { padding-right: 0; }

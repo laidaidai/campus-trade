@@ -29,8 +29,17 @@
         </div>
       </div>
 
+      <!-- 面交信息 -->
+      <div v-if="orderData.delivery_mode === 'meetup'" class="address-info">
+        <div class="info-label">面交</div>
+        <div class="info-content">
+          {{ orderData.meetup_place }}
+          <span v-if="orderData.meetup_time"> · {{ orderData.meetup_time }}</span>
+        </div>
+      </div>
+
       <!-- 地址信息 -->
-      <div v-if="orderData.address_detail" class="address-info">
+      <div v-else-if="orderData.address_detail" class="address-info">
         <div class="info-label">收货地址</div>
         <div class="info-content">
           {{ formatAddress(orderData.address_detail) }}
@@ -52,12 +61,12 @@
       </template>
 
       <!-- 卖家视图 -->
-      <template v-else-if="isSeller && orderData.status === 'pending' && isLatestOrder">
+      <template v-else-if="isSeller && (orderData.status === 'pending' || orderData.status === 'modified') && isLatestOrder">
         <button class="btn btn-secondary" @click="handleModifyPrice">
           修改价格
         </button>
         <button class="btn btn-primary" @click="handleConfirm">
-          确认订单
+          确认交易
         </button>
       </template>
 
@@ -65,11 +74,9 @@
       <template v-else-if="!isSeller && isLatestOrder">
         <!-- 待确认状态 -->
         <template v-if="orderData.status === 'pending' || orderData.status === 'modified'">
+          <span class="expired-text">等待卖家确认</span>
           <button class="btn btn-secondary" @click="handleCancel">
             取消
-          </button>
-          <button class="btn btn-primary" @click="handleBuyerConfirm">
-            确认下单
           </button>
         </template>
 
@@ -79,6 +86,18 @@
             查看订单
           </button>
         </template>
+
+        <template v-else-if="orderData.status === 'confirmed'">
+          <span class="expired-text">交易已确认</span>
+        </template>
+      </template>
+
+      <!-- 卖家已确认但订单尚未生成时的兜底 -->
+      <template v-else-if="isSeller && orderData.status === 'confirmed'">
+        <button v-if="orderData.order_id" class="btn btn-outline" @click="viewOrderDetail">
+          查看订单
+        </button>
+        <span v-else class="expired-text">等待买家下单</span>
       </template>
 
       <!-- 已拒绝状态 -->
@@ -113,14 +132,14 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['modify-price', 'confirm', 'cancel', 'buyer-confirm', 'view-order'])
+const emit = defineEmits(['modify-price', 'confirm', 'cancel', 'view-order'])
 
 // 状态文本映射
 const getStatusText = (status) => {
   const statusMap = {
-    'pending': '待确认',
+    'pending': '待卖家确认',
     'modified': '价格已修改',
-    'confirmed': '已确认',
+    'confirmed': '交易已确认',
     'rejected': '已取消'
   }
   return statusMap[status] || status
@@ -147,10 +166,6 @@ const handleCancel = () => {
   emit('cancel', props.orderData)
 }
 
-const handleBuyerConfirm = () => {
-  emit('buyer-confirm', props.orderData)
-}
-
 const viewOrderDetail = () => {
   emit('view-order', props.orderData.order_id)
 }
@@ -164,8 +179,8 @@ const viewOrderDetail = () => {
   padding: 12px;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 18px;
-  box-shadow: 3px 4px 0 var(--shadow-soft);
+  border-radius: 4px;
+  box-shadow: var(--shadow-sm);
 }
 
 .order-message.is-mine {
@@ -185,17 +200,17 @@ const viewOrderDetail = () => {
 .order-title {
   color: var(--ink);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .order-status-badge {
   flex-shrink: 0;
   padding: 3px 10px;
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 2px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -235,7 +250,7 @@ const viewOrderDetail = () => {
   flex-shrink: 0;
   object-fit: cover;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 3px;
   background: var(--cream-2);
 }
 
@@ -287,13 +302,13 @@ const viewOrderDetail = () => {
   padding: 9px 10px;
   background: var(--cream-2);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 3px;
 }
 
 .info-label {
   margin-bottom: 3px;
   color: var(--text-3);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
 }
@@ -319,11 +334,10 @@ const viewOrderDetail = () => {
   min-width: 96px;
   min-height: 38px;
   padding: 7px 14px;
-  border-radius: 999px;
+  border-radius: 3px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.26s var(--fish-ease), box-shadow 0.26s var(--fish-ease);
 }
 
 .btn-secondary {
@@ -339,19 +353,18 @@ const viewOrderDetail = () => {
 
 .btn-primary {
   background: var(--primary);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--primary);
+  box-shadow: none;
   color: var(--on-primary);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
+  background: var(--primary-2);
 }
 
 .btn-outline {
   background: var(--card);
-  border: 2px solid var(--primary-2);
+  border: 1px solid var(--primary-2);
   color: var(--primary-2);
 }
 

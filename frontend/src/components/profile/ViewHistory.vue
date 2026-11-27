@@ -1,10 +1,9 @@
 <template>
   <div class="view-history">
     <!-- 顶部操作栏 -->
-    <div class="history-header">
+    <div v-if="products.length > 0" class="history-header">
       <p class="history-count">共 {{ products.length }} 条浏览记录</p>
       <button 
-        v-if="products.length > 0"
         class="btn-clear"
         @click="confirmClear"
       >
@@ -20,10 +19,18 @@
 
     <!-- 空状态 -->
     <div v-else-if="products.length === 0" class="empty-state">
-      <div class="empty-icon icon-eye-large"></div>
-      <p>还没有浏览记录</p>
-      <button class="btn-browse" @click="$router.push('/')">
-        去首页逛逛
+      <div class="empty-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"></path>
+          <circle cx="12" cy="12" r="2.5"></circle>
+        </svg>
+      </div>
+      <div class="empty-copy">
+        <p class="empty-title">还没有浏览记录</p>
+        <span class="empty-desc">看过的商品会留在历史里，方便再找回来。</span>
+      </div>
+      <button class="btn btn-outline" @click="$router.push('/')">
+        去逛逛
       </button>
     </div>
 
@@ -190,8 +197,8 @@ onMounted(() => {
 .history-count {
   margin: 0;
   color: var(--text-3);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .btn-clear {
@@ -199,10 +206,10 @@ onMounted(() => {
   padding: 7px 16px;
   background: var(--card);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-2);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
   transition: border-color 0.2s var(--fish-ease), color 0.2s var(--fish-ease);
 }
@@ -240,68 +247,41 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 48px 20px;
-  background: var(--cream-1);
-  border: 1px solid var(--line-strong);
-  border-radius: 24px;
+  gap: 10px;
+  padding: 62px 16px 54px;
+  background: transparent;
+  border: 0;
+  text-align: center;
 }
 
 .empty-icon {
-  position: relative;
-  width: 84px;
-  height: 84px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: var(--primary-2);
 }
 
-/* CSS 眼睛 */
-.icon-eye-large::before {
-  content: '';
-  position: absolute;
-  top: 30px;
-  left: 20px;
-  width: 40px;
-  height: 22px;
-  border: 2px solid var(--text-2);
-  border-radius: 999px / 60%;
-}
+.empty-icon svg { width: 30px; height: 30px; }
 
-.icon-eye-large::after {
-  content: '';
-  position: absolute;
-  top: 39px;
-  left: 37px;
-  width: 8px;
-  height: 8px;
-  background: var(--primary);
-  border-radius: 999px;
+.empty-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .empty-state p {
   margin: 0;
   color: var(--ink);
-  font-size: 15px;
-  font-weight: 800;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
 }
 
-.btn-browse {
-  min-height: 42px;
-  padding: 9px 24px;
-  background: var(--primary);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
-  color: var(--on-primary);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.btn-browse:hover {
-  transform: translateY(-1px);
+.empty-desc {
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 /* 历史卡 */
@@ -316,7 +296,7 @@ onMounted(() => {
   overflow: hidden;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 4px;
   transition: transform 0.26s var(--fish-ease),
               box-shadow 0.26s var(--fish-ease),
               background-color 0.26s var(--fish-ease);
@@ -350,7 +330,7 @@ onMounted(() => {
   padding: 2px 9px;
   background: var(--card);
   border: 1px solid var(--danger);
-  border-radius: 12px;
+  border-radius: 3px;
   color: var(--danger);
   font-size: 11px;
   font-weight: 700;
@@ -400,8 +380,8 @@ onMounted(() => {
   display: grid;
   place-items: center;
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
   color: var(--text-2);
   font-size: 16px;
   line-height: 1;
@@ -429,10 +409,10 @@ onMounted(() => {
   padding: 9px 28px;
   background: var(--card);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--text-2);
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
 }
 

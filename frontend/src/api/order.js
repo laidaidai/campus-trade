@@ -36,3 +36,10 @@ export const cancelOrder = (orderId) => {
   return api.patch(`/orders/${orderId}/cancel`)
 }
 
+/**
+ * 完成后评价对方
+ */
+export const createReview = (orderId, data) => {
+  return api.post(`/orders/${orderId}/review`, data)
+}
+

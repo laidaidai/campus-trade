@@ -3,6 +3,7 @@ import { UserModel, User } from '../models/userModel';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '../middleware/auth';
 import { verifyCode } from '../utils/verificationCode';
+import * as ReviewModel from '../models/reviewModel';
 
 /**
  * 是否要求注册时验证邮箱
@@ -409,10 +410,11 @@ export class UserController {
 
       // 公开接口只返回安全字段，不暴露邮箱和手机号
       const { password, email, phone, ...publicInfo } = user;
+      const rating = await ReviewModel.getUserRating(userId);
       
       res.json({ 
         success: true,
-        data: publicInfo 
+        data: { ...publicInfo, ...rating }
       });
     } catch (error: any) {
       console.error('Get user by ID error:', error);

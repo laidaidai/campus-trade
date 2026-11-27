@@ -140,13 +140,18 @@
             <div v-if="isOwnProduct && product.status === 'available'" class="seller-actions">
               <button class="btn btn-primary" @click="markAsSold">标记为已售出</button>
             </div>
+            <div v-else-if="isOwnProduct" class="action-row">
+              <button class="btn btn-primary cta" disabled>
+                {{ getStatusText(product.status) }}
+              </button>
+            </div>
             <div v-else class="action-row">
               <button
                 class="btn btn-primary cta"
-                :disabled="product.status === 'sold'"
+                :disabled="product.status !== 'available'"
                 @click="contactSeller"
               >
-                {{ product.status === 'sold' ? '已售出' : '我想要' }}
+                {{ product.status === 'available' ? '我想要' : getStatusText(product.status) }}
               </button>
               <button
                 class="btn btn-outline cta-fav"
@@ -186,7 +191,12 @@
                    <div class="seller-name">
                      {{ product.seller_name || '匿名用户' }}
                    </div>
-                   <div class="seller-meta">发布于 {{ formatDate(product.created_at) }}</div>
+                   <div class="seller-meta">
+                    发布于 {{ formatDate(product.created_at) }}
+                    <span v-if="product.seller_review_count">
+                      · 评分 {{ product.seller_rating }}（{{ product.seller_review_count }} 条）
+                    </span>
+                  </div>
                  </div>
                  <svg class="goto-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                    <path d="M9 18l6-6-6-6"/>
@@ -213,15 +223,15 @@
           >
             标记已售出
           </button>
-          <span v-else class="buybar-state">已售出</span>
+          <span v-else class="buybar-state">{{ getStatusText(product.status) }}</span>
         </template>
         <template v-else>
           <button
             class="btn btn-primary buybar-main"
-            :disabled="product.status === 'sold'"
+            :disabled="product.status !== 'available'"
             @click="contactSeller"
           >
-            {{ product.status === 'sold' ? '已售出' : '我想要' }}
+            {{ product.status === 'available' ? '我想要' : getStatusText(product.status) }}
           </button>
           <button
             class="btn btn-outline buybar-fav"
@@ -590,15 +600,14 @@ onMounted(() => {
 
 <style scoped>
 .page {
-  min-height: 100vh;
   background: var(--bg);
 }
 
 .main-content {
   width: 100%;
-  max-width: 1160px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 22px 36px 80px;
+  padding: 22px 32px 80px;
 }
 
 /* 移动端首屏操作条：桌面端不出现 */
@@ -616,7 +625,7 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  border-radius: 14px;
+  border-radius: 3px;
   transition: color 0.26s var(--fish-ease), background-color 0.26s var(--fish-ease);
 }
 
@@ -643,7 +652,7 @@ onMounted(() => {
   padding: 48px 24px;
   background: var(--cream-1);
   border: 1px solid var(--line-strong);
-  border-radius: 24px;
+  border-radius: 8px;
   color: var(--text-3);
   font-size: 14px;
 }
@@ -678,17 +687,19 @@ onMounted(() => {
 }
 
 .btn-back {
-  min-height: 44px;
-  padding: 10px 26px;
+  min-height: 42px;
+  padding: 10px 24px;
   background: var(--primary);
-  border: none;
-  border-radius: 999px;
-  box-shadow: 0 8px 20px rgba(184, 68, 97, 0.24);
+  border: 1px solid var(--primary);
+  border-radius: 3px;
+  box-shadow: none;
   color: var(--on-primary);
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
 }
+
+.btn-back:hover { background: var(--primary-2); }
 
 /* 主体 */
 .detail-container {
@@ -702,22 +713,22 @@ onMounted(() => {
   top: -6px;
   left: 20px;
   z-index: 5;
-  padding: 6px 18px;
+  padding: 4px 10px;
   background: var(--primary-3);
-  border: none;
-  border-radius: 999px;
+  border: 1px solid var(--primary-2);
+  border-radius: 2px;
   color: var(--primary-2);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  transform: rotate(-4deg);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transform: rotate(-3deg);
   pointer-events: none;
 }
 
 .product-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
-  gap: 32px;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  gap: 36px;
   align-items: start;
 }
 
@@ -737,7 +748,7 @@ onMounted(() => {
   background: var(--cream-2);
   border: 1px solid var(--line-strong);
   border-radius: 5px;
-  box-shadow: 4px 6px 0 rgba(63, 61, 86, 0.055);
+  box-shadow: var(--shadow-sm);
   cursor: zoom-in;
 }
 
@@ -757,16 +768,18 @@ onMounted(() => {
   position: absolute;
   left: 12px;
   bottom: 12px;
-  min-height: 28px;
-  padding: 4px 11px;
+  min-height: 26px;
+  padding: 3px 8px;
   display: inline-flex;
   align-items: center;
-  background: var(--card);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--ink);
-  font-size: 12px;
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   z-index: 2;
   pointer-events: none;
 }
@@ -787,13 +800,13 @@ onMounted(() => {
   display: grid;
   place-items: center;
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  box-shadow: none;
   color: var(--ink);
   cursor: pointer;
   pointer-events: auto;
-  transition: transform 0.2s var(--fish-ease);
+  transition: background-color 0.2s var(--fish-ease);
 }
 
 .nav-btn svg {
@@ -802,7 +815,7 @@ onMounted(() => {
 }
 
 .nav-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
+  background: var(--cream-2);
 }
 
 .nav-btn:disabled {
@@ -826,7 +839,7 @@ onMounted(() => {
   overflow: hidden;
   background: var(--cream-2);
   border: 1px solid var(--line-strong);
-  border-radius: 14px;
+  border-radius: 3px;
   cursor: pointer;
   transition: border-color 0.2s var(--fish-ease), box-shadow 0.2s var(--fish-ease);
 }
@@ -846,13 +859,15 @@ onMounted(() => {
   object-fit: cover;
 }
 
-/* 规格：实线列表 */
+/* 规格：带横线的参数表，不再做成内嵌卡片 */
 .detail-list {
   margin-top: 2px;
-  padding: 2px 14px;
-  background: var(--cream-1);
-  border: 1px solid var(--line-strong);
-  border-radius: 3px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
 }
 
 .detail-item {
@@ -860,8 +875,8 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 46px;
-  border-bottom: 1px dashed var(--line-strong);
+  min-height: 44px;
+  border-bottom: 1px solid var(--line-2);
 }
 
 .detail-item:last-child {
@@ -871,17 +886,16 @@ onMounted(() => {
 .detail-item .label {
   color: var(--text-3);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: 600;
 }
 
 .detail-item .value {
   color: var(--ink);
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.status-available { color: var(--success) !important; }
+.status-available { color: var(--primary-2) !important; }
 .status-sold { color: var(--danger) !important; }
 .status-reserved { color: var(--warn-text) !important; }
 
@@ -894,7 +908,7 @@ onMounted(() => {
   background: var(--card);
   border: 1px solid var(--line-strong);
   border-radius: 5px;
-  box-shadow: 4px 6px 0 rgba(63, 61, 86, 0.055);
+  box-shadow: var(--shadow-sm);
 }
 
 .product-title {
@@ -1006,8 +1020,8 @@ onMounted(() => {
   margin: 0;
   color: var(--ink);
   font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .description-text {
@@ -1090,24 +1104,28 @@ onMounted(() => {
   border-top: 1px solid var(--line);
 }
 
+/* 卖家：一行身份信息，不再套米色小卡 */
 .seller-card {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 14px;
-  background: var(--cream-1);
-  border: 1px solid var(--line-strong);
-  border-radius: 4px;
+  padding: 12px 0 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
 }
 
 .seller-card.clickable {
   cursor: pointer;
-  transition: background-color 0.26s var(--fish-ease), border-color 0.26s var(--fish-ease);
 }
 
-.seller-card.clickable:hover {
-  background: var(--cream-2);
-  border-color: var(--edge);
+.seller-card.clickable:hover .seller-name {
+  color: var(--primary-2);
+}
+
+.seller-card.clickable:hover .goto-icon {
+  transform: translateX(2px);
 }
 
 .seller-avatar {
@@ -1128,10 +1146,11 @@ onMounted(() => {
 .seller-name {
   color: var(--ink);
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color 0.2s var(--fish-ease);
 }
 
 .seller-meta {
@@ -1145,6 +1164,7 @@ onMounted(() => {
   height: 20px;
   flex-shrink: 0;
   color: var(--text-3);
+  transition: transform 0.2s var(--fish-ease);
 }
 
 /* 图片预览：深色台面 */
@@ -1178,13 +1198,13 @@ onMounted(() => {
 }
 
 .preview-counter {
-  padding: 5px 14px;
+  padding: 4px 10px;
   background: var(--panel);
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 2px;
   color: var(--on-panel);
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1194,9 +1214,9 @@ onMounted(() => {
   display: grid;
   place-items: center;
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  box-shadow: none;
   color: var(--ink);
   cursor: pointer;
 }
@@ -1224,7 +1244,7 @@ onMounted(() => {
   max-height: 72vh;
   object-fit: contain;
   border: 1px solid var(--line-strong);
-  border-radius: 18px;
+  border-radius: 4px;
   background: var(--panel);
 }
 
@@ -1237,9 +1257,9 @@ onMounted(() => {
   display: grid;
   place-items: center;
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  box-shadow: none;
   color: var(--ink);
   cursor: pointer;
 }
@@ -1277,7 +1297,7 @@ onMounted(() => {
   overflow: hidden;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 3px;
   cursor: pointer;
   opacity: 0.7;
 }
@@ -1295,7 +1315,7 @@ onMounted(() => {
 
 /* 平板 */
 @media (max-width: 1200px) {
-  .product-layout { gap: 26px; }
+  .product-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 26px; }
   .product-info { padding: 22px; }
   .price { font-size: 36px; }
   .product-title { font-size: 24px; }
@@ -1311,8 +1331,8 @@ onMounted(() => {
 }
 
 @media (max-width: 767px) {
-  .main-content { padding: 12px 12px calc(168px + env(safe-area-inset-bottom, 0px)); }
-  .product-info { padding: 18px; border-radius: 24px; }
+  .main-content { padding: 12px 14px calc(168px + env(safe-area-inset-bottom, 0px)); }
+  .product-info { padding: 18px; border-radius: 8px; }
   .product-title { font-size: 22px; }
   .price { font-size: 34px; }
   .product-info .action-row,
@@ -1339,7 +1359,7 @@ onMounted(() => {
     padding: 10px 12px;
     background: var(--card);
     border-top: 1px solid var(--line-strong);
-    box-shadow: 0 -6px 18px rgba(63,61,86,.06);
+    box-shadow: 0 -6px 18px rgba(42,29,20,.08);
   }
 
   .buybar-summary {

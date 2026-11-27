@@ -16,11 +16,15 @@ export interface Product {
   // 关联信息
   seller_name?: string;
   seller_avatar?: string;
+  seller_rating?: number | null;
+  seller_review_count?: number;
 }
 
 export interface ProductWithSeller extends Product {
   seller_name: string;
   seller_avatar: string;
+  seller_rating?: number | null;
+  seller_review_count?: number;
 }
 
 export const getAllProducts = async (
@@ -109,7 +113,9 @@ export const getProductById = async (id: number): Promise<ProductWithSeller | nu
       p.*,
       u.username as seller_name,
       u.avatar as seller_avatar,
-      COALESCE(COUNT(DISTINCT f.id), 0) as favorite_count
+      COALESCE(COUNT(DISTINCT f.id), 0) as favorite_count,
+      (SELECT ROUND(AVG(r.rating), 1) FROM reviews r WHERE r.reviewee_id = p.seller_id) as seller_rating,
+      (SELECT COUNT(*) FROM reviews r WHERE r.reviewee_id = p.seller_id) as seller_review_count
     FROM products p
     LEFT JOIN users u ON p.seller_id = u.id
     LEFT JOIN favorites f ON p.id = f.product_id
@@ -168,12 +174,34 @@ export const updateProductStatus = async (
 };
 
 /**
- * 仅当商品仍为 available 时原子地标记为 sold。
+ * 仅当商品仍为 available 时原子地标记为 reserved。
  * 返回 false 表示已被其他请求抢先下单。
  */
-export const markProductSold = async (id: number): Promise<boolean> => {
+export const reserveProduct = async (id: number): Promise<boolean> => {
   const [result] = await pool.query<ResultSetHeader>(
-    `UPDATE products SET status = 'sold' WHERE id = ? AND status = 'available'`,
+    `UPDATE products SET status = 'reserved' WHERE id = ? AND status = 'available'`,
+    [id]
+  );
+  return result.affectedRows > 0;
+};
+
+/**
+ * 订单完成后把预留商品落为已售。
+ */
+export const finalizeProductSold = async (id: number): Promise<boolean> => {
+  const [result] = await pool.query<ResultSetHeader>(
+    `UPDATE products SET status = 'sold' WHERE id = ? AND status IN ('reserved', 'available')`,
+    [id]
+  );
+  return result.affectedRows > 0;
+};
+
+/**
+ * 取消订单时仅释放仍在预留中的商品，不影响已售商品。
+ */
+export const releaseProductReservation = async (id: number): Promise<boolean> => {
+  const [result] = await pool.query<ResultSetHeader>(
+    `UPDATE products SET status = 'available' WHERE id = ? AND status = 'reserved'`,
     [id]
   );
   return result.affectedRows > 0;

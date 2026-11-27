@@ -196,7 +196,10 @@ campus-trade/
 - ✅ 浏览历史
 - ✅ 实时聊天（买卖双方沟通）
 - ✅ 消息未读提醒
-- ✅ 订单管理（开发中）
+- ✅ 面交 / 邮寄双模式订单
+- ✅ 卖家确认、邮寄发货、买家确认完成
+- ✅ 取消订单与商品预留 / 释放
+- ✅ 完成后买卖双方互评，卖家评分展示在商品与主页
 
 ### 4. 消息模块
 - ✅ 实时聊天（Socket.IO）
@@ -407,6 +410,11 @@ SOURCE backend/database/00-campus-trade.sql;
 或使用命令行：
 ```bash
 mysql -u root -p campus_trade < backend/database/00-campus-trade.sql
+```
+
+交易闭环（面交/邮寄、互评）需要额外执行一次迁移：
+```bash
+mysql -u root -p campus_trade < backend/database/migrations/2026-11-26_transaction_loop.sql
 ```
 
 #### 4. 配置环境变量

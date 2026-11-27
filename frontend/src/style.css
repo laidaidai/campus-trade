@@ -42,17 +42,17 @@ h6 {
   margin: 0;
   color: var(--ink);
   font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.32;
 }
 
-/* 一级标题与分区标题走衬线体：给站点一个“校园刊物”的书面语气 */
+/* 一级标题与分区标题走衬线体：像一张晒过太阳的校园刊物 */
 h1,
 h2 {
   font-family: var(--font-serif);
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
 }
 
 p {
@@ -94,7 +94,7 @@ a {
 .page-title {
   font-family: var(--font-serif);
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
 }
 
 /* 移动端底部导航总高度：内容与浮层共用 */
